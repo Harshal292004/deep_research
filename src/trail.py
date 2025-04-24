@@ -171,7 +171,6 @@
 #         } for repo in result[:limit]]
 
 
-
 # inspector = GitHubInspector("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")
 
 # print(inspector.get_user_by_name("torvalds"))
@@ -188,16 +187,18 @@
 
 from langchain_community.utilities.arxiv import ArxivAPIWrapper
 
+
 def arxiv_search():
     arxiv = ArxivAPIWrapper(
-        top_k_results = 3,
-        ARXIV_MAX_QUERY_LENGTH = 300,
-        load_max_docs = 3,
-        load_all_available_meta = False,
-        doc_content_chars_max = 40000
+        top_k_results=3,
+        ARXIV_MAX_QUERY_LENGTH=300,
+        load_max_docs=3,
+        load_all_available_meta=False,
+        doc_content_chars_max=40000,
     )
-    output= arxiv.run("tree of thought llm")
+    output = arxiv.run("tree of thought llm")
     print(f"type of the shit:{type(output)} \n\n\n")
     print(arxiv.run("tree of thought llm"))
-    
+
+
 arxiv_search()

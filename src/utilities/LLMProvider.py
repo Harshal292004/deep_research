@@ -1,6 +1,7 @@
 from config import settings
 from langchain_together import ChatTogether
 
+
 class LLMProvider:
     @staticmethod
     def structuredtextclient(model, model_name=settings.TEXT_MODEL_NAME):

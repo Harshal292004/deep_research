@@ -7,15 +7,15 @@ class Settings(BaseSettings):
     EXA_API_KEY: str
     SERPER_API_KEY: str
     FIRE_CRAWL_API_KEY: str
-    TAVLIY_API_KEY:str
-    GITHUB_ACCESS_TOKEN:str
-    
+    TAVLIY_API_KEY: str
+    GITHUB_ACCESS_TOKEN: str
+
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
     LANGFUSE_SECRET_KEY: str
     LANGFUSE_PUBLIC_KEY: str
     LANGFUSE_HOST: str
-    TEXT_MODEL_NAME:str ="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+    TEXT_MODEL_NAME: str = "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
     model_config = SettingsConfigDict(env_file=".env")
 
 
