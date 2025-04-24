@@ -21,6 +21,7 @@ dependencies = [
     "ipykernel",
     "langchain-together",
     "duckduckgo-search",
-    "langchain-exa"
-
+    "langchain-exa",
+    "firecrawl-py>=2.2.0",
+    "rich>=13.9.4",
 ]
