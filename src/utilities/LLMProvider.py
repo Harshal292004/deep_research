@@ -1,15 +1,15 @@
-from config import settings
+from utilities.config import settings
 from langchain_together import ChatTogether
-
+from pydantic import BaseModel
 
 class LLMProvider:
     @staticmethod
-    def structuredtextclient(model, model_name=settings.TEXT_MODEL_NAME):
+    def structuredtextclient(model:BaseModel, model_name:str=settings.TEXT_MODEL_NAME):
         model = ChatTogether(api_key=settings.TOGETHER_API_KEY, model=model_name)
         return model.with_structured_output(model)
 
     @staticmethod
-    def textclient(model_name):
+    def textclient(model_name:str=settings.TEXT_MODEL_NAME):
         model = ChatTogether(api_key=settings.TOGETHER_API_KEY, model=model_name)
         return model
 

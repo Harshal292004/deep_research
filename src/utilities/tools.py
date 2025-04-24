@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from typing import List, Literal, Union
 from langchain_core.tools import tool
 
-from utilities.states import (
+from utilities.tool_states import (
     DuckDuckGoOutput,
     LocationOutput,
     SereprSearchOutput,
@@ -40,14 +40,17 @@ from utilities.parsers import parse_arxiv_text
 
 
 @tool
-def duckduckgo_search(input:DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
+def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
     wrapper = DuckDuckGoSearchAPIWrapper(max_results=input.max_results)
     search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
     results = search.invoke(input.query)
     return results
 
+
 @tool
-def exa_search(input: ExaSearch) -> List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]:
+def exa_search(
+    input: ExaSearch,
+) -> List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]:
     exa = Exa(api_key=settings.EXA_API_KEY)
     results = exa.search_and_contents(
         query=input.query,
@@ -59,6 +62,7 @@ def exa_search(input: ExaSearch) -> List[Union[api.ResultWithTextAndHighlights, 
         text=True,
     )
     return results
+
 
 @tool
 def get_location() -> LocationOutput:
@@ -72,12 +76,9 @@ def get_location() -> LocationOutput:
 @tool
 def serper_search(input: SereprSearch) -> SereprSearchOutput:
     conn = http.client.HTTPSConnection("google.serper.dev")
-    payload = json.dumps({
-        "q": input.query,
-        "gl": input.country,
-        "num": input.num,
-        "tbs": input.tbs
-    })
+    payload = json.dumps(
+        {"q": input.query, "gl": input.country, "num": input.num, "tbs": input.tbs}
+    )
     headers = {"X-API-KEY": settings.SERPER_API_KEY, "Content-Type": "application/json"}
     conn.request("POST", "/search", payload, headers)
     res = conn.getresponse()
@@ -102,21 +103,19 @@ def tavily_search(input: TavilySearchOutput) -> TavilySearchOutput:
         query=input.query,
         topic=input.topic,
         time_range=input.time_range,
-        max_results=input.max_results
+        max_results=input.max_results,
     )
     items = [
         TavilySearchItem(
-            title=entry["title"],
-            url=entry["url"],
-            content=entry["content"]
-        ) for entry in response["results"]
+            title=entry["title"], url=entry["url"], content=entry["content"]
+        )
+        for entry in response["results"]
     ]
     return TavilySearchOutput(results=items)
 
 
-
 class GitHubInspector:
-    def __init__(self, token: str):
+    def __init__(self, token: str = settings.GITHUB_ACCESS_TOKEN):
         self.g = Github(token)
 
     @tool
@@ -147,7 +146,7 @@ class GitHubInspector:
     @tool
     def get_org_by_name(self, input: GitHubOrgQuery) -> GitHubOrgOutput:
         org = self.g.get_organization(input.org_name)
-        members = [member.login for member in org.get_members()][:input.member_limit]
+        members = [member.login for member in org.get_members()][: input.member_limit]
         return GitHubOrgOutput(
             login=org.login,
             name=org.name,
@@ -157,7 +156,9 @@ class GitHubInspector:
         )
 
     @tool
-    def search_repos_by_language(self, input: GitHubLanguageSearchQuery) -> GitHubRepoSearchOutput:
+    def search_repos_by_language(
+        self, input: GitHubLanguageSearchQuery
+    ) -> GitHubRepoSearchOutput:
         result = self.g.search_repositories(query=f"language:{input.language}")
         repos = [
             GitHubRepoSearchItem(
@@ -166,7 +167,7 @@ class GitHubInspector:
                 stars=repo.stargazers_count,
                 url=repo.html_url,
             )
-            for repo in result[:input.limit]
+            for repo in result[: input.limit]
         ]
         return GitHubRepoSearchOutput(results=repos)
 
