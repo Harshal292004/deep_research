@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     LANGFUSE_SECRET_KEY: str
     LANGFUSE_PUBLIC_KEY: str
     LANGFUSE_HOST: str
-
+    TEXT_MODEL_NAME:str ="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
     model_config = SettingsConfigDict(env_file=".env")
 
 
