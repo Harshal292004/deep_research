@@ -1,80 +1,62 @@
-from typing import Annotated, List, TypedDict, Literal
+from typing import Annotated, List, TypedDict, Literal, Optional
 from pydantic import BaseModel, Field
-import operator
-
 
 class Section(BaseModel):
     name: str = Field(
-        description="Name for this section of the report.",
+        description="The title of the section within the report."
     )
     description: str = Field(
-        description="Brief overview of the main topics and concepts to be covered in this section.",
+        description="A concise overview of the topics and concepts covered in this section."
     )
     research: bool = Field(
-        description="Whether to perform web research for this section of the report."
+        description="Indicates whether web research is required for this section of the report."
     )
-    content: str = Field(description="The content of the section.")
-
+    content: str = Field(
+        description="The main content or body of the section."
+    )
 
 class Sections(BaseModel):
     sections: List[Section] = Field(
-        description="Sections of the report.",
+        description="A collection of sections that make up the report."
     )
 
-
-class SearchQuery(BaseModel):
-    search_query: str = Field(None, description="Query for web search.")
-
-
-class Queries(BaseModel):
-    queries: List[SearchQuery] = Field(
-        description="List of search queries.",
+class Header(BaseModel):
+    title: str = Field(
+        description="The title of the report."
+    )
+    summary: str = Field(
+        description="A brief summary or abstract of the report's content and findings."
     )
 
-
-class Feedback(BaseModel):
-    grade: Literal["pass", "fail"] = Field(
-        description="Evaluation result indicating whether the response meets requirements ('pass') or needs revision ('fail')."
+class Footer(BaseModel):
+    conclusion: str = Field(
+        description="The concluding section of the report, summarizing key takeaways and final thoughts."
     )
-    follow_up_queries: List[SearchQuery] = Field(
-        description="List of follow-up search queries.",
+class Reference(BaseModel):
+    section_name: str = Field(
+        description="The name of the section where the referenced information was sourced from."
+    )
+    section_id: int = Field(
+        description="A unique identifier for the section within the report."
+    )
+    source_url: List[str] = Field(
+        description="A list of URLs or sources where additional information can be found related to this reference."
     )
 
-
-class ReportStateInput(TypedDict):
-    topic: str  # Report topic
-
-
-class ReportStateOutput(TypedDict):
-    final_report: str  # Final report
-
-
-class ReportState(TypedDict):
-    topic: str  # Report topic
-    feedback_on_report_plan: str  # Feedback on the report plan
-    sections: list[Section]  # List of report sections
-    completed_sections: Annotated[list, operator.add]  # Send() API key
-    report_sections_from_research: (
-        str  # String of any completed sections from research to write final sections
+class ReportState(BaseModel):
+    type_of_query: Literal[
+        "factual_query",
+        "comparative_evaluative_query",
+        "research_oriented_query",
+        "execution_programming_query",
+        "idea_generation",
+    ] 
+    header: Header
+    sections: Sections
+    footer: Footer
+    report_framework_good: bool = Field(
+        description="A flag indicating whether the report framework is structured well."
     )
-    final_report: str  # Final report
-
-
-class SectionState(TypedDict):
-    topic: str  # Report topic
-    section: Section  # Report section
-    search_iterations: int  # Number of search iterations done
-    search_queries: list[SearchQuery]  # List of search queries
-    source_str: str  # String of formatted source content from web search
-    report_sections_from_research: (
-        str  # String of any completed sections from research to write final sections
+    references: Optional[List[Reference]] = Field(
+        description="A list of references used in the report, linking back to the relevant sections from where the data was sourced."
     )
-    completed_sections: list[
-        Section
-    ]  # Final key we duplicate in outer state for Send() API
-
-
-class SectionOutputState(TypedDict):
-    completed_sections: list[
-        Section
-    ]  # Final key we duplicate in outer state for Send() API
