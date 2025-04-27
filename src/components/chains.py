@@ -45,8 +45,6 @@ def get_verify_report_framework_chain():
     llm= LLMProvider.structuredtextclient(model=VerifyReport)
     return prompt|llm
 
-
-
 def get_refrences_writter_chain():
     prompt=get_references_writer_prompt()
     llm= LLMProvider.structuredtextclient(model= References)
