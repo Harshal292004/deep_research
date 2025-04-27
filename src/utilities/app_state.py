@@ -15,7 +15,7 @@ class RouterResponse(BaseModel):
 
 
 class AppState(BaseModel):
-    query:str= Field(description="the query given by the user")
+    query: str = Field(description="the query given by the user")
     type_of_query: Literal[
         "factual_query",
         "comparative_evaluative_query",

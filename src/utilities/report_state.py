@@ -1,19 +1,18 @@
 from typing import Annotated, List, TypedDict, Literal, Optional
 from pydantic import BaseModel, Field
+from uuid import uuid4
 
 class Section(BaseModel):
-    name: str = Field(
-        description="The title of the section within the report."
-    )
+    section_id:str= Field(description="The id of the section",default=str(uuid4()))
+    name: str = Field(description="The title of the section within the report.")
     description: str = Field(
         description="A concise overview of the topics and concepts covered in this section."
     )
     research: bool = Field(
         description="Indicates whether web research is required for this section of the report."
     )
-    content: str = Field(
-        description="The main content or body of the section."
-    )
+    content: str = Field(description="The main content or body of the section.")
+
 
 class Sections(BaseModel):
     sections: List[Section] = Field(
@@ -21,17 +20,19 @@ class Sections(BaseModel):
     )
 
 class Header(BaseModel):
-    title: str = Field(
-        description="The title of the report."
-    )
+    title: str = Field(description="The title of the report.")
     summary: str = Field(
         description="A brief summary or abstract of the report's content and findings."
     )
 
+class VerifyReport(BaseModel):
+    verified:bool = Field(description="Whether or not the report structured is well designed")
 class Footer(BaseModel):
     conclusion: str = Field(
         description="The concluding section of the report, summarizing key takeaways and final thoughts."
     )
+
+
 class Reference(BaseModel):
     section_name: str = Field(
         description="The name of the section where the referenced information was sourced from."
@@ -43,20 +44,26 @@ class Reference(BaseModel):
         description="A list of URLs or sources where additional information can be found related to this reference."
     )
 
+class References(BaseModel):
+    refrences:Optional[List[Reference]] = Field(
+        description="A list of references used in the report, linking back to the relevant sections from where the data was sourced."
+    )
+
 class ReportState(BaseModel):
+    query: str = Field(description="query of the user")
     type_of_query: Literal[
         "factual_query",
         "comparative_evaluative_query",
         "research_oriented_query",
         "execution_programming_query",
         "idea_generation",
-    ] 
-    header: Header
-    sections: Sections
-    footer: Footer
+    ] = Field(description="Type of the query")
+    header: Header = Field(description="The Header of the report")
+    sections: Sections = Field(description="All sections of the report")
+    footer: Footer = Field(description="The footer and the report")
     report_framework_good: bool = Field(
         description="A flag indicating whether the report framework is structured well."
     )
-    references: Optional[List[Reference]] = Field(
-        description="A list of references used in the report, linking back to the relevant sections from where the data was sourced."
+    refrences: References =Field(
+        description="List of refrences"
     )
