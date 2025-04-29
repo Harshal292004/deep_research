@@ -1,15 +1,14 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-
 class DuckDuckGoOutput(BaseModel):
     snippet: str = Field(description="The snippet extracted from the whole page")
     title: str = Field(description="The title of the search")
-    link: str = Field(description="The refrence")
+    link: str = Field(description="The reference")
 
 
 class LocationOutput(BaseModel):
-    country: str = Field(description="The country the results are to searched in")
+    country: str = Field(description="The country the results are to be searched in")
 
 
 class OrganicItem(BaseModel):
@@ -18,12 +17,12 @@ class OrganicItem(BaseModel):
     snippet: str = Field(description="The snippet of the webpage")
 
 
-class SereprSearchOutput(BaseModel):
-    organic: List[OrganicItem] = Field(description="the list of organic items")
+class SerperSearchOutput(BaseModel):
+    organic: List[OrganicItem] = Field(description="The list of organic items")
 
 
 class FireScrapeOutput(BaseModel):
-    markdown: str = Field(description="The output of the fire scrape ")
+    markdown: str = Field(description="The output of the fire scrape")
 
 
 class TavilySearchItem(BaseModel):
@@ -34,7 +33,7 @@ class TavilySearchItem(BaseModel):
 
 class TavilySearchOutput(BaseModel):
     results: List[TavilySearchItem] = Field(
-        description="The output list of the tavily search"
+        description="The output list of the Tavily search"
     )
 
 
@@ -92,29 +91,25 @@ class ArxivSearchOutput(BaseModel):
 
 
 class DuckDuckGoSearch(BaseModel):
-    """
-    The Duck Duck Go search engine
-    """
-
-    query: str = Field(..., description="query to search through the engine")
+    query: str = Field(..., description="Query to search through the engine")
     max_results: int = Field(
-        ..., description="number of results desired from the engine (min:1) (max:4)"
+        ..., description="Number of results desired from the engine (min:1) (max:4)"
     )
 
 
 class ExaSearch(BaseModel):
-    query: str = Field(..., description="The query to be provided to the exa search")
+    query: str = Field(..., description="The query to be provided to the Exa search")
     highlights: bool = Field(
         ..., description="Includes highlights of the content in the results."
     )
     num_results: int = Field(..., description="Number of search results to return")
     start_published_date: str = Field(
         ...,
-        description="Results will only include links with a published date after this date. eg. 2023-12-29(yyyy-mm-dd)",
+        description="Results will only include links with a published date after this date. eg. 2023-12-29 (yyyy-mm-dd)",
     )
     end_published_date: str = Field(
         ...,
-        description="Results will only include links with a published date before this date. eg. 2023-12-31(yyyy-mm-dd)",
+        description="Results will only include links with a published date before this date. eg. 2023-12-31 (yyyy-mm-dd)",
     )
     category: Literal[
         "company",
@@ -128,16 +123,16 @@ class ExaSearch(BaseModel):
         "financial report",
     ] = Field(
         ...,
-        description="A data category to focus on when searching, with higher comprehensivity and data cleanliness.",
+        description="A data category to focus on when searching, with higher comprehensiveness and data cleanliness.",
     )
 
 
-class SereprSearch(BaseModel):
-    query: str = Field(..., description="query to be searched for ")
+class SerperSearch(BaseModel):
+    query: str = Field(..., description="Query to be searched for")
     country: Optional[str] = Field(description="ISO 3166-1 alpha-2 naming of a country")
-    num: int = Field(..., description="num of results to get")
+    num: int = Field(..., description="Number of results to get")
     tbs: Literal["qdr:h", "qdr:d", "qdr:w", "qdr:m", "qdr:y"] = Field(
-        ..., description="the timing to be search in"
+        ..., description="The timing to be searched in"
     )
 
 

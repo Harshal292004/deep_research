@@ -10,7 +10,9 @@ class LLMProvider:
 
     @classmethod
     def _init_chat_model(cls, model_name: str = None):
-        return ChatTogether(api_key=cls._api_key, model=model_name or cls._default_text_model)
+        return ChatTogether(
+            api_key=cls._api_key, model=model_name or cls._default_text_model
+        )
 
     @classmethod
     def structuredtextclient(cls, schema: BaseModel, model_name: str = None):

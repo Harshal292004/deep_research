@@ -1,144 +1,198 @@
-from utilities.app_state import RouterResponse,AppState
-from utilities.LLMProvider import LLMProvider
-from chains import  get_router_chain,get_header_chain,get_section_writer_chain,get_footer_writer_chain,get_refrences_writter_chain,get_verify_report_framework_chain
-from utilities.report_state import Section,Sections,Footer,Header,Reference,ReportState
+from utilities.helpers.LLMProvider import LLMProvider
+from components.chains import (
+    get_router_chain,
+    get_header_chain,
+    get_section_writer_chain,
+    get_footer_writer_chain,
+    get_references_writer_chain
+)
+from utilities.states.report_state import (
+    Section,
+    Sections,
+    Footer,
+    Header,
+    Reference,
+    ReportState,
+    RouterResponse
+)
 
-def router_node(state:ReportState):
-    query=state.query
-    chain= get_router_chain()
-    response=chain.invoke(
-        {
-            "query":query
-        }
-    )
-    type_of_query =response.type_of_query
-    return{
-        "type_of_query":type_of_query
-    }
+from utilities.helpers.logger import log
 
 
-def header_writer_node(state:ReportState):
-    query= state.query
-    type_of_query= state.type_of_query
-    chain= get_header_chain()
-    response=chain.invoke(
-        {
-            "query":query,
-            "type_of_query":type_of_query
-        }
-    )
-    return {
-        "header":{
-            "title":response.title,
-            "summary":response.summary,
-        }
-    }
+async def router_node(state: ReportState):
+    try:
+        log.debug("Starting router_node...")
+        query = state.query
+        chain = get_router_chain()
+        log.debug("Router chain fetched successfully.")
+        response = await chain.ainvoke({"query": query})
+        type_of_query = response.type_of_query
+        log.debug(f"Type of query detected: {type_of_query}")
+        return {"type_of_query": type_of_query}
+    except Exception as e:
+        log.error(f"Error in router_node: {e}")
+        return {"type_of_query": "factual_query"}  # Fallback or handle differently
 
-def section_writer_node(state:ReportState):
-    query= state.query
-    type_of_query= state.type_of_query
-    title_of_report=state.header.title
-    summary_of_report= state.header.summary
-    chain= get_section_writer_chain()
-    response= chain.invoke(
-        {
-            "query":query,
-            "type_of_query":type_of_query,
-            "title":title_of_report,
-            "summary":summary_of_report
-        }
-    )
-    sections=response.sections
-    ouptut=[]
-    for sec in sections:
-        ouptut.append(
-            {
-                "section_id":sec.section_id,
-                "name":sec.name,
-                "description":sec.description ,
-                "research":sec.research,
-                "content":sec.content
+
+async def header_writer_node(state: ReportState):
+    try:
+        log.debug("Starting header_writer_node...")
+        query = state.query
+        type_of_query = state.type_of_query
+        chain = get_header_chain()
+        response = await chain.ainvoke({
+            "query": query,
+            "type_of_query": type_of_query,
+            "user_feedback": state.user_feedback
+        })
+        log.debug("Header generated successfully.")
+        return {
+            "header": {
+                "title": response.title,
+                "summary": response.summary,
             }
-        )
-    
-    return{
-        "sections":output
-    }
-
-def footer_writer_node(state:ReportState):
-    query= state.query
-    type_of_query= state.type_of_query
-    sections= state.sections
-    chain= get_footer_writer_chain()
-    section_string=""
-    
-    for sec in sections:
-        section_string.join(f"\n section_id:{sec.section_id} name: {sec.name} description: {sec.description} research: {sec.research} content: {sec.content}")
-    
-    response=chain.invoke(
-        {
-            "query":query,
-            "type_of_query":type_of_query,
-            "sections":section_string
         }
-    )
-    
-    return {
-        "footer": {
-            "conclusion":response.conclusion
-        }
-    }
+    except Exception as e:
+        log.error(f"Error in header_writer_node: {e}")
+        return {"header": {"title": "", "summary": ""}}
 
 
-def refrence_writer_node(state:ReportState):
-    query= state.query
-    type_of_query= state.type_of_query
-    chain= get_refrences_writter_chain()
-    sections=state.sections
-    for sec in sections:
-        section_string.join(f"\n section_id:{sec.section_id} name: {sec.name} description: {sec.description} research: {sec.research} content: {sec.content}")
-    
-    response=chain.invoke(
-        {
-            "query":query,
-            "type_of_query":type_of_query,
-            "sections":section_string
-        }
-    )
-    output_ref=[]
-    for ref in response.refreces:
-        output_ref.append(
-            {
-                "section_id":ref.section_id,
-                "section_name":ref.section_name,
-                "source_url": ref.source_url
-            }
-        )
-    
-    return {
-        "refrences":{
-            "refrences":output_ref
-        }
-    }
-    
+async def section_writer_node(state: ReportState):
+    try:
+        log.debug("Starting section_writer_node...")
+        query = state.query
+        type_of_query = state.type_of_query
+        title_of_report = state.header.title
+        summary_of_report = state.header.summary
+        chain = get_section_writer_chain()
+        response = await chain.ainvoke({
+            "query": query,
+            "type_of_query": type_of_query,
+            "title": title_of_report,
+            "summary": summary_of_report,
+        })
 
-def verify_report_framework_node(state:ReportState):
-    chain= get_verify_report_framework_chain()
-    report_string=""
-    
-    report_string.join(f"\n ##Header \n {state.header.title} {state.header.summary} \n\n ## Sections \n")
-    for sec in state.sections:
-        report_string.join(f"\n section_id:{sec.section_id} name: {sec.name} description: {sec.description} research: {sec.research} content: {sec.content} \n\n")
-    
-    report_string.join(f"## Footer \n {state.footer.conclusion} \n\n")
-    
-    response= chain.invoke(
-        {
-            "report_structure":report_string
+        sections = response.sections
+        output = []
+        for sec in sections:
+            output.append({
+                "section_id": sec.section_id,
+                "name": sec.name,
+                "description": sec.description,
+                "research": sec.research,
+                "content": sec.content,
+            })
+
+        log.debug("Sections generated successfully.")
+        return {"sections": {"sections": output}}
+    except Exception as e:
+        log.error(f"Error in section_writer_node: {e}")
+        return {"sections": {"sections": []}}
+
+
+async def footer_writer_node(state: ReportState):
+    try:
+        log.debug("Starting footer_writer_node...")
+        query = state.query
+        type_of_query = state.type_of_query
+        sections = state.sections.sections
+        chain = get_footer_writer_chain()
+
+        section_string = ""
+        for sec in sections:
+            section_string += (
+                f"\nsection_id: {sec.section_id} "
+                f"name: {sec.name} "
+                f"description: {sec.description} "
+                f"research: {sec.research} "
+                f"content: {sec.content}"
+            )
+
+        response = await chain.ainvoke({
+            "query": query,
+            "type_of_query": type_of_query,
+            "sections": section_string
+        })
+
+        log.debug("Footer generated successfully.")
+        return {"footer": {"conclusion": response}}
+    except Exception as e:
+        log.error(f"Error in footer_writer_node: {e}")
+        return {"footer": {"conclusion": ""}}
+
+
+async def reference_writer_node(state: ReportState):
+    try:
+        log.debug("Starting reference_writer_node...")
+        query = state.query
+        type_of_query = state.type_of_query
+        chain = get_references_writer_chain()
+        sections = state.sections.sections
+
+        section_string = ""
+        for sec in sections:
+            section_string += (
+                f"\nsection_id: {sec.section_id} "
+                f"name: {sec.name} "
+                f"description: {sec.description} "
+                f"research: {sec.research} "
+                f"content: {sec.content}"
+            )
+
+        response = await chain.ainvoke({
+            "query": query,
+            "type_of_query": type_of_query,
+            "sections": section_string
+        })
+
+        output_ref = []
+        for ref in response.references:
+            output_ref.append({
+                "section_id": ref.section_id,
+                "section_name": ref.section_name,
+                "source_url": ref.source_url,
+            })
+
+        log.debug("References generated successfully.")
+        return {"references": {"references": output_ref}}
+    except Exception as e:
+        log.error(f"Error in reference_writer_node: {e}")
+        return {"references": {"references": []}}
+
+
+async def verify_report_node(state: ReportState):
+    try:
+        log.debug("Starting verify_report_node...")
+
+        # Display the report to the user
+        report_display = f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        for idx, section in enumerate(state.sections.sections, start=1):
+            report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
+        report_display += f"Conclusion: {state.footer.conclusion}\n"
+
+        # Prompt the user for verification
+        print("Generated Report:\n")
+        print(report_display)
+        user_input = input("Is the report structure satisfactory? (True/False): ").strip()
+
+        # Validate user input
+        while user_input not in ["True", "False"]:
+            user_input = input("Please enter 'True' or 'False': ").strip()
+
+        verified = user_input == "True"
+        user_feedback = ""
+
+        if not verified:
+            user_feedback = input("Please provide feedback to improve the report structure: ").strip()
+
+        return {
+            "report_framework": verified,
+            "user_feedback": user_feedback
         }
-    )
-    
-    return{
-        "report_framework_good":response.verified
-    }
-    
+
+    except Exception as e:
+        log.error(f"Error in verify_report_node: {e}")
+        return {
+            "report_framework": False,
+            "user_feedback": "Error occurred during verification."
+        }
