@@ -9,13 +9,14 @@ class Settings(BaseSettings):
     FIRE_CRAWL_API_KEY: str
     TAVLIY_API_KEY: str
     GITHUB_ACCESS_TOKEN: str
+    GROQ_API_KEY: str
 
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 
     LANGFUSE_SECRET_KEY: str
     LANGFUSE_PUBLIC_KEY: str
     LANGFUSE_HOST: str
-    TEXT_MODEL_NAME: str = "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+    TEXT_MODEL_NAME: str = "meta-llama/llama-4-maverick-17b-128e-instruct"
     model_config = SettingsConfigDict(env_file=".env")
 
 

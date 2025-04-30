@@ -2,14 +2,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate,HumanMessagePromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 
 class Prompts:
     @classmethod
     def get_router_prompt(cls):
-        prompt = ChatPromptTemplate(
+        prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(
                     content="""
@@ -41,14 +41,14 @@ Your only task is to correctly route the following user query into one of the su
 
 """
                 ),
-                HumanMessage(content="The query is: {query}"),
+                 HumanMessagePromptTemplate.from_template("The query is: {query}"),
             ]
         )
         return prompt
 
     @classmethod
     def get_header_prompt(cls):
-        prompt = ChatPromptTemplate(
+        prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(
                     content="""
@@ -127,16 +127,14 @@ You will also be provided a user feedback on whether or not the report structure
 Note that you won't be provided the feedback for the first time.
 """
                 ),
-                HumanMessage(
-                    content="The query is: {query}, and the type is: {type_of_query} . User feedback: {user_feedback}"
-                ),
+                HumanMessagePromptTemplate.from_template("The query is: {query}, and the type is: {type_of_query} . User feedback: {user_feedback}"),
             ]
         )
         return prompt
 
     @classmethod
     def get_section_writer_prompt(cls):
-        prompt = ChatPromptTemplate(
+        prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(
                     content="""
@@ -193,8 +191,8 @@ You are a structured report designer. Your job is to define **the main sections*
 **Output:** JSON with `sections` list containing `{name, description, research, content}`.  
 """
                 ),
-                HumanMessage(
-                    content="""The query is: {query}, and the type is: {type_of_query} . The **title**  of the report is {title}. The summary points are {summary_points} """
+                HumanMessagePromptTemplate.from_template(
+                  """The query is: {query}, and the type is: {type_of_query} . The **title**  of the report is {title}. The summary points are {summary_points} """
                 ),
             ]
         )
@@ -202,7 +200,7 @@ You are a structured report designer. Your job is to define **the main sections*
 
     @classmethod
     def get_footer_writer_prompt(cls):
-        prompt = ChatPromptTemplate(
+        prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(
                     content="""
@@ -254,8 +252,8 @@ You are a professional report formatter specializing in designing **conclusions*
 **Output:** JSON with `footer` object containing `summary`, `final_thoughts`, and `recommendations`.
 """
                 ),
-                HumanMessage(
-                    content="The query is: {query}, and the report structure is {structure}. The footer summary is: {summary}. The footer thoughts and recommendations are: {final_thoughts}, {recommendations}"
+                HumanMessagePromptTemplate.from_template(
+                    "The query is: {query}, and the report structure is {structure}. The footer summary is: {summary}. The footer thoughts and recommendations are: {final_thoughts}, {recommendations}"
                 ),
             ]
         )
@@ -263,7 +261,7 @@ You are a professional report formatter specializing in designing **conclusions*
 
     @classmethod
     def get_references_writer_prompt(cls):
-        prompt = ChatPromptTemplate(
+        prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(
                     content="""
@@ -298,8 +296,8 @@ Provide a list of references in the following format for each researched section
     2. *Source Title*: [URL](#)  
 """
                 ),
-                HumanMessage(
-                    content="The query is: {query}, and the type is: {type_of_query}. The sections are: {sections}"
+                HumanMessagePromptTemplate.from_template(
+                  "The query is: {query}, and the type is: {type_of_query}. The sections are: {sections}"
                 ),
             ]
         )

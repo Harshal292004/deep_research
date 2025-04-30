@@ -12,12 +12,11 @@ from utilities.states.report_state import (
     Footer,
     Header,
     Reference,
-    ReportState,
-    RouterResponse,
+    ReportState
 )
 
 from utilities.helpers.logger import log
-
+import traceback
 
 async def router_node(state: ReportState):
     try:
@@ -25,13 +24,12 @@ async def router_node(state: ReportState):
         query = state.query
         chain = get_router_chain()
         log.debug("Router chain fetched successfully.")
-        response = await chain.ainvoke({"query": query})
-        type_of_query = response.type_of_query
-        log.debug(f"Type of query detected: {type_of_query}")
-        return {"type_of_query": type_of_query}
+        response = await chain.ainvoke({"query":"Whats the world about ?"})
+        log.debug(f"Type of query detected: {response.content}")
+        return {"type_of_query": response.content}
     except Exception as e:
         log.error(f"Error in router_node: {e}")
-        return {"type_of_query": "factual_query"}  # Fallback or handle differently
+        return {"type_of_query": "factual_query"}  
 
 
 async def header_writer_node(state: ReportState):
@@ -40,6 +38,7 @@ async def header_writer_node(state: ReportState):
         query = state.query
         type_of_query = state.type_of_query
         chain = get_header_chain()
+        log.debug("Header chain reterived successfully")
         response = await chain.ainvoke(
             {
                 "query": query,
@@ -47,7 +46,7 @@ async def header_writer_node(state: ReportState):
                 "user_feedback": state.user_feedback,
             }
         )
-        log.debug("Header generated successfully.")
+        log.debug(f"Header generated successfully: {response}")
         return {
             "header": {
                 "title": response.title,
@@ -55,7 +54,8 @@ async def header_writer_node(state: ReportState):
             }
         }
     except Exception as e:
-        log.error(f"Error in header_writer_node: {e}")
+        log.error("Error in header_writer_node:")
+        log.error(traceback.format_exc())
         return {"header": {"title": "", "summary": ""}}
 
 

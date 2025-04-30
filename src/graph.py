@@ -13,6 +13,7 @@ from utilities.states.report_state import ReportState
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
 import asyncio
+from langgraph.checkpoint.memory import MemorySaver
 
 builder = StateGraph(ReportState)
 # register nodes
@@ -31,12 +32,13 @@ builder.add_edge("footer_writer_node", "reference_writer_node")
 builder.add_edge("reference_writer_node", "verify_report_node")
 builder.add_conditional_edges("verify_report_node", verify_conditional_edge)
 
-graph = builder.compile()
+memory = MemorySaver()
+graph = builder.compile(checkpointer=memory)
 
 
 async def main():
     async for s in graph.astream(
-        {"query": "What is the current status of the american tariffs?"},
+        {"query": "What is the current status of the american tariffs?","user_feedback":" "},
         config={
             "callbacks": [langfuse_handler],
             "configurable": {"thread_id": "abc123"},

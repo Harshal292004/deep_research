@@ -1,4 +1,3 @@
-from utilities.states.report_state import RouterResponse
 from utilities.states.report_state import (
     Header,
     Sections,
@@ -7,7 +6,6 @@ from utilities.states.report_state import (
     References,
 )
 from components.prompts import Prompts
-
 from utilities.helpers.LLMProvider import LLMProvider
 from utilities.helpers.logger import log
 
@@ -17,7 +15,7 @@ def get_router_chain():
         log.debug("Starting get_router_chain...")
         prompt = Prompts.get_router_prompt()
         log.debug("Router prompt fetched successfully.")
-        llm = LLMProvider.structuredtextclient(schema=RouterResponse)
+        llm = LLMProvider.textclient()
         log.debug("LLM client for RouterResponse created successfully.")
         return prompt | llm
     except Exception as e:

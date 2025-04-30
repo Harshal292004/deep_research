@@ -3,18 +3,6 @@ from pydantic import BaseModel, Field
 from uuid import uuid4
 
 
-class RouterResponse(BaseModel):
-    type_of_query: Literal[
-        "factual_query",
-        "comparative_evaluative_query",
-        "research_oriented_query",
-        "execution_programming_query",
-        "idea_generation",
-    ] = Field(
-        description="The type of the query being asked, which determines the specific set of tools"
-    )
-
-
 class Section(BaseModel):
     section_id: str = Field(description="The ID of the section", default=str(uuid4()))
     name: str = Field(description="The title of the section within the report.")

@@ -4,10 +4,30 @@ import logging
 import os
 
 
+class AnsiColorFormatter(logging.Formatter):
+    COLORS = {
+        "DEBUG": "\033[36m",    # Cyan
+        "INFO": "\033[32m",     # Green
+        "WARNING": "\033[33m",  # Yellow
+        "ERROR": "\033[31m",    # Red
+        "CRITICAL": "\033[41m", # Red background
+        "RESET": "\033[0m"
+    }
+
+    def format(self, record):
+        levelname = record.levelname
+        color = self.COLORS.get(levelname, "")
+        reset = self.COLORS["RESET"]
+
+        message = super().format(record)
+        return f"{color}{message}{reset}"
+
+
 class Logger:
-    def __init__(self, name: str, env: str = "development"):
+    def __init__(self, name: str, env: str = "development", log_file: str = "app.log"):
         self.name = name
         self.env = env.lower()
+        self.log_file = log_file
         self.logger = logging.getLogger(name)
         self._setup_logger()
 
@@ -19,26 +39,34 @@ class Logger:
 
         console = Console()
 
-        handler = RichHandler(
+        # Console handler (Rich)
+        console_handler = RichHandler(
             console=console,
             show_path=self.env == "development",
             show_time=True,
             show_level=True,
-            rich_tracebacks=True if self.env == "development" else False,
+            rich_tracebacks=self.env == "development",
             markup=True,
         )
-
-        formatter = logging.Formatter(
+        console_formatter = logging.Formatter(
             "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
+        console_handler.setFormatter(console_formatter)
 
-        handler.setFormatter(formatter)
+        # File handler with ANSI color codes
+        file_handler = logging.FileHandler(self.log_file, mode="a")
+        file_formatter = AnsiColorFormatter(
+            "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        file_handler.setFormatter(file_formatter)
 
-        self.logger.addHandler(handler)
+        self.logger.addHandler(console_handler)
+        self.logger.addHandler(file_handler)
 
     def get_logger(self):
         return self.logger
 
 
-log = Logger("Agent").get_logger()
+log = Logger("Agent", env="development", log_file="app.log").get_logger()

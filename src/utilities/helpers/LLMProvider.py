@@ -2,16 +2,16 @@ from config import settings
 from langchain_together import ChatTogether
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
-
+from langchain_groq import ChatGroq
 
 class LLMProvider:
-    _api_key = settings.TOGETHER_API_KEY
+    _api_key = settings.GROQ_API_KEY
     _default_text_model = settings.TEXT_MODEL_NAME
     _default_embedding_model = settings.EMBEDDING_MODEL
 
     @classmethod
     def _init_chat_model(cls, model_name: str = None):
-        return ChatTogether(
+        return ChatGroq(
             api_key=cls._api_key, model=model_name or cls._default_text_model
         )
 
