@@ -192,7 +192,7 @@ You are a structured report designer. Your job is to define **the main sections*
 """
                 ),
                 HumanMessagePromptTemplate.from_template(
-                  """The query is: {query}, and the type is: {type_of_query} . The **title**  of the report is {title}. The summary points are {summary_points} """
+                  """The query is: {query}, and the type is: {type_of_query} . The **title**  of the report is {title}. The summary points are {summary} """
                 ),
             ]
         )
@@ -253,7 +253,7 @@ You are a professional report formatter specializing in designing **conclusions*
 """
                 ),
                 HumanMessagePromptTemplate.from_template(
-                    "The query is: {query}, and the report structure is {structure}. The footer summary is: {summary}. The footer thoughts and recommendations are: {final_thoughts}, {recommendations}"
+                    "The query is: {query}, and the report structure is {structure}"
                 ),
             ]
         )
@@ -297,7 +297,7 @@ Provide a list of references in the following format for each researched section
 """
                 ),
                 HumanMessagePromptTemplate.from_template(
-                  "The query is: {query}, and the type is: {type_of_query}. The sections are: {sections}"
+                  "The query is: {query}. The sections are: {sections}"
                 ),
             ]
         )

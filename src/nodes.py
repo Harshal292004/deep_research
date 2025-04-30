@@ -24,7 +24,7 @@ async def router_node(state: ReportState):
         query = state.query
         chain = get_router_chain()
         log.debug("Router chain fetched successfully.")
-        response = await chain.ainvoke({"query":"Whats the world about ?"})
+        response = await chain.ainvoke({"query":query})
         log.debug(f"Type of query detected: {response.content}")
         return {"type_of_query": response.content}
     except Exception as e:
@@ -71,8 +71,8 @@ async def section_writer_node(state: ReportState):
             {
                 "query": query,
                 "type_of_query": type_of_query,
-                "title": title_of_report,
-                "summary": summary_of_report,
+                "title":title_of_report,
+                "summary":summary_of_report,
             }
         )
 
@@ -100,10 +100,8 @@ async def footer_writer_node(state: ReportState):
     try:
         log.debug("Starting footer_writer_node...")
         query = state.query
-        type_of_query = state.type_of_query
         sections = state.sections.sections
         chain = get_footer_writer_chain()
-
         section_string = ""
         for sec in sections:
             section_string += (
@@ -115,11 +113,11 @@ async def footer_writer_node(state: ReportState):
             )
 
         response = await chain.ainvoke(
-            {"query": query, "type_of_query": type_of_query, "sections": section_string}
+            {"query": query , "structure": section_string}
         )
 
-        log.debug("Footer generated successfully.")
-        return {"footer": {"conclusion": response}}
+        log.debug(f"Footer generated successfully: {response.content}")
+        return {"footer": {"conclusion": response.content}}
     except Exception as e:
         log.error(f"Error in footer_writer_node: {e}")
         return {"footer": {"conclusion": ""}}
@@ -144,7 +142,7 @@ async def reference_writer_node(state: ReportState):
             )
 
         response = await chain.ainvoke(
-            {"query": query, "type_of_query": type_of_query, "sections": section_string}
+            {"query": query, "sections": section_string}
         )
 
         output_ref = []
@@ -157,7 +155,7 @@ async def reference_writer_node(state: ReportState):
                 }
             )
 
-        log.debug("References generated successfully.")
+        log.debug(f"References generated successfully: {output_ref}")
         return {"references": {"references": output_ref}}
     except Exception as e:
         log.error(f"Error in reference_writer_node: {e}")

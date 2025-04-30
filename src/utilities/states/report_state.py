@@ -22,10 +22,8 @@ class Sections(BaseModel):
 
 
 class Header(BaseModel):
-    title: str = Field(description="The title of the report.")
-    summary: str = Field(
-        description="A brief summary or abstract of the report's content and findings."
-    )
+    title: Optional[str] = Field(default=None,description="The title of the report.")
+    summary: Optional[str] = Field(default=None,description="A brief summary or abstract of the report's content and findings.")
 
 
 class VerifyReport(BaseModel):

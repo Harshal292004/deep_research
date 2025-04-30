@@ -1,0 +1,160 @@
+[36m2025-04-30 10:53:58 | DEBUG    | Agent | Starting router_node...[0m
+[36m2025-04-30 10:53:58 | DEBUG    | Agent | Starting get_router_chain...[0m
+[36m2025-04-30 10:53:58 | DEBUG    | Agent | Router prompt fetched successfully.[0m
+[36m2025-04-30 10:53:58 | DEBUG    | Agent | LLM client for RouterResponse created successfully.[0m
+[36m2025-04-30 10:53:58 | DEBUG    | Agent | Router chain fetched successfully.[0m
+[36m2025-04-30 10:53:59 | DEBUG    | Agent | Type of query detected: research_oriented_query[0m
+[36m2025-04-30 10:53:59 | DEBUG    | Agent | Starting header_writer_node...[0m
+[36m2025-04-30 10:53:59 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 10:53:59 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 10:53:59 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 10:53:59 | DEBUG    | Agent | Header chain reterived successfully[0m
+[31m2025-04-30 10:54:00 | ERROR    | Agent | Error in header_writer_node:[0m
+[31m2025-04-30 10:54:00 | ERROR    | Agent | Traceback (most recent call last):
+  File "/home/harshal/Desktop/deep_research/src/nodes.py", line 42, in header_writer_node
+    response = await chain.ainvoke(
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 3075, in ainvoke
+    input = await coro_with_context(part(), context, create_task=True)
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_core/runnables/base.py", line 5429, in ainvoke
+    return await self.bound.ainvoke(
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_core/language_models/chat_models.py", line 390, in ainvoke
+    llm_result = await self.agenerate_prompt(
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_core/language_models/chat_models.py", line 948, in agenerate_prompt
+    return await self.agenerate(
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_core/language_models/chat_models.py", line 906, in agenerate
+    raise exceptions[0]
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_core/language_models/chat_models.py", line 1074, in _agenerate_with_cache
+    result = await self._agenerate(
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/langchain_groq/chat_models.py", line 519, in _agenerate
+    response = await self.async_client.create(messages=message_dicts, **params)
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/groq/resources/chat/completions.py", line 692, in create
+    return await self._post(
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/groq/_base_client.py", line 1710, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+  File "/home/harshal/Desktop/deep_research/.venv/lib/python3.10/site-packages/groq/_base_client.py", line 1531, in request
+    raise self._make_status_error_from_response(err.response) from None
+groq.BadRequestError: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\\"title\\": \\"The Current Status of American Tariffs: A Comprehensive Review\\", \\"summary\\": \\"This report provides an in-depth analysis of the current status of American tariffs, covering the historical context, recent developments, and future implications. The summary will outline the key aspects including Introduction & Background, Recent Changes & Updates, Impact on Economy & Trade, and Future Prospects & Challenges\\"}</function>'}}
+[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Starting section_writer_node...[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Starting get_section_writer_chain...[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Section writer prompt fetched successfully.[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | LLM client for Sections created successfully.[0m
+[31m2025-04-30 10:54:00 | ERROR    | Agent | Error in section_writer_node: "Input to ChatPromptTemplate is missing variables {'summary_points'}.  Expected: ['query', 'summary_points', 'title', 'type_of_query'] Received: ['query', 'type_of_query', 'title', 'summary']\nNote: if you intended {summary_points} to be part of the string and not a variable, please escape it with double curly braces like: '{{summary_points}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Starting footer_writer_node...[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Starting get_footer_writer_chain...[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Footer prompt fetched successfully.[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | LLM text client created successfully.[0m
+[31m2025-04-30 10:54:00 | ERROR    | Agent | Error in footer_writer_node: "Input to ChatPromptTemplate is missing variables {'final_thoughts', 'summary', 'recommendations', 'structure'}.  Expected: ['final_thoughts', 'query', 'recommendations', 'structure', 'summary'] Received: ['query', 'type_of_query', 'sections']\nNote: if you intended {final_thoughts} to be part of the string and not a variable, please escape it with double curly braces like: '{{final_thoughts}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Starting reference_writer_node...[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | Starting get_references_writer_chain...[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | References writer prompt fetched successfully.[0m
+[36m2025-04-30 10:54:00 | DEBUG    | Agent | LLM client for References created successfully.[0m
+[31m2025-04-30 10:54:02 | ERROR    | Agent | Error in reference_writer_node: Error code: 400 - {'error': {'message': "Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '[{"section_name": "Current Status of American Tariffs", "section_id": 1, "source_url": ["https://www.trade.gov/tariff-landing", "https://ustr.gov/issue-areas/trade-policy/tariff-information"]}, {"section_name": "Economic Impact of Tariffs", "section_id": 2, "source_url": ["https://www.cbo.gov/publication/56501", "https://www.imf.org/en/Publications/Staff-Discussion-Notes/Issues/2020/02/14/The-Economic-Effects-of-the-Tariffs-Under-Section-301-Of-The-Trade-Act-Of-1974-46509"]}]</function>'}}[0m
+[36m2025-04-30 10:54:02 | DEBUG    | Agent | Starting verify_report_node...[0m
+[36m2025-04-30 10:59:56 | DEBUG    | Agent | Starting router_node...[0m
+[36m2025-04-30 10:59:56 | DEBUG    | Agent | Starting get_router_chain...[0m
+[36m2025-04-30 10:59:56 | DEBUG    | Agent | Router prompt fetched successfully.[0m
+[36m2025-04-30 10:59:56 | DEBUG    | Agent | LLM client for RouterResponse created successfully.[0m
+[36m2025-04-30 10:59:56 | DEBUG    | Agent | Router chain fetched successfully.[0m
+[36m2025-04-30 10:59:58 | DEBUG    | Agent | Type of query detected: idea_generation[0m
+[36m2025-04-30 10:59:58 | DEBUG    | Agent | Starting header_writer_node...[0m
+[36m2025-04-30 10:59:58 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 10:59:58 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 10:59:58 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 10:59:58 | DEBUG    | Agent | Header chain reterived successfully[0m
+[36m2025-04-30 11:00:16 | DEBUG    | Agent | Starting router_node...[0m
+[36m2025-04-30 11:00:16 | DEBUG    | Agent | Starting get_router_chain...[0m
+[36m2025-04-30 11:00:16 | DEBUG    | Agent | Router prompt fetched successfully.[0m
+[36m2025-04-30 11:00:16 | DEBUG    | Agent | LLM client for RouterResponse created successfully.[0m
+[36m2025-04-30 11:00:16 | DEBUG    | Agent | Router chain fetched successfully.[0m
+[36m2025-04-30 11:00:17 | DEBUG    | Agent | Type of query detected: research_oriented_query[0m
+[36m2025-04-30 11:00:17 | DEBUG    | Agent | Starting header_writer_node...[0m
+[36m2025-04-30 11:00:17 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 11:00:17 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 11:00:17 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 11:00:17 | DEBUG    | Agent | Header chain reterived successfully[0m
+[36m2025-04-30 11:03:10 | DEBUG    | Agent | Starting router_node...[0m
+[36m2025-04-30 11:03:10 | DEBUG    | Agent | Starting get_router_chain...[0m
+[36m2025-04-30 11:03:10 | DEBUG    | Agent | Router prompt fetched successfully.[0m
+[36m2025-04-30 11:03:10 | DEBUG    | Agent | LLM client for RouterResponse created successfully.[0m
+[36m2025-04-30 11:03:10 | DEBUG    | Agent | Router chain fetched successfully.[0m
+[36m2025-04-30 11:03:11 | DEBUG    | Agent | Type of query detected: factual_query[0m
+[36m2025-04-30 11:03:11 | DEBUG    | Agent | Starting header_writer_node...[0m
+[36m2025-04-30 11:03:11 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 11:03:11 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 11:03:11 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 11:03:11 | DEBUG    | Agent | Header chain reterived successfully[0m
+[36m2025-04-30 11:29:59 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 11:29:59 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 11:29:59 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 11:33:51 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 11:33:51 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 11:33:51 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Starting router_node...[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Starting get_router_chain...[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Router prompt fetched successfully.[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | LLM client for RouterResponse created successfully.[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Router chain fetched successfully.[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Type of query detected: factual_query[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Starting header_writer_node...[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 11:49:22 | DEBUG    | Agent | Header chain reterived successfully[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Header generated successfully: title='Current Status of American Tariffs' summary='This report provides an overview of the current American tariffs, including definitions, key characteristics, and essential details. The summary structure will cover: 1. Definition of Tariffs, 2. Recent Developments and Updates, 3. Impact on International Trade, and 4. Future Outlook and Potential Changes.'[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Starting section_writer_node...[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Starting get_section_writer_chain...[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Section writer prompt fetched successfully.[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | LLM client for Sections created successfully.[0m
+[31m2025-04-30 11:49:23 | ERROR    | Agent | Error in section_writer_node: "Input to ChatPromptTemplate is missing variables {'summary_points'}.  Expected: ['query', 'summary_points', 'title', 'type_of_query'] Received: ['query', 'type_of_query', 'title', 'summary']\nNote: if you intended {summary_points} to be part of the string and not a variable, please escape it with double curly braces like: '{{summary_points}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Starting footer_writer_node...[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Starting get_footer_writer_chain...[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Footer prompt fetched successfully.[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | LLM text client created successfully.[0m
+[31m2025-04-30 11:49:23 | ERROR    | Agent | Error in footer_writer_node: "Input to ChatPromptTemplate is missing variables {'final_thoughts', 'structure', 'summary', 'recommendations'}.  Expected: ['final_thoughts', 'query', 'recommendations', 'structure', 'summary'] Received: ['query', 'type_of_query', 'sections']\nNote: if you intended {final_thoughts} to be part of the string and not a variable, please escape it with double curly braces like: '{{final_thoughts}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Starting reference_writer_node...[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | Starting get_references_writer_chain...[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | References writer prompt fetched successfully.[0m
+[36m2025-04-30 11:49:23 | DEBUG    | Agent | LLM client for References created successfully.[0m
+[36m2025-04-30 11:49:24 | DEBUG    | Agent | References generated successfully.[0m
+[36m2025-04-30 11:49:24 | DEBUG    | Agent | Starting verify_report_node...[0m
+[36m2025-04-30 12:08:21 | DEBUG    | Agent | Starting router_node...[0m
+[36m2025-04-30 12:08:21 | DEBUG    | Agent | Starting get_router_chain...[0m
+[36m2025-04-30 12:08:21 | DEBUG    | Agent | Router prompt fetched successfully.[0m
+[36m2025-04-30 12:08:21 | DEBUG    | Agent | LLM client for RouterResponse created successfully.[0m
+[36m2025-04-30 12:08:21 | DEBUG    | Agent | Router chain fetched successfully.[0m
+[36m2025-04-30 12:08:22 | DEBUG    | Agent | Type of query detected: factual_query[0m
+[36m2025-04-30 12:08:22 | DEBUG    | Agent | Starting header_writer_node...[0m
+[36m2025-04-30 12:08:22 | DEBUG    | Agent | Starting get_header_chain...[0m
+[36m2025-04-30 12:08:22 | DEBUG    | Agent | Header prompt fetched successfully.[0m
+[36m2025-04-30 12:08:22 | DEBUG    | Agent | LLM client for Header created successfully.[0m
+[36m2025-04-30 12:08:22 | DEBUG    | Agent | Header chain reterived successfully[0m
+[36m2025-04-30 12:08:24 | DEBUG    | Agent | Header generated successfully: title='Current Status of American Tariffs' summary='This report provides an overview of the current American tariffs, including recent updates, key characteristics, and essential details. The summary structure will cover: **Introduction to American Tariffs**, **Recent Developments and Updates**, **Affected Industries and Products**, and **Future Outlook and Implications**.'[0m
+[36m2025-04-30 12:08:24 | DEBUG    | Agent | Starting section_writer_node...[0m
+[36m2025-04-30 12:08:24 | DEBUG    | Agent | Starting get_section_writer_chain...[0m
+[36m2025-04-30 12:08:24 | DEBUG    | Agent | Section writer prompt fetched successfully.[0m
+[36m2025-04-30 12:08:24 | DEBUG    | Agent | LLM client for Sections created successfully.[0m
+[36m2025-04-30 12:08:25 | DEBUG    | Agent | Sections generated successfully.[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | Starting footer_writer_node...[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | Starting get_footer_writer_chain...[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | Footer prompt fetched successfully.[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | LLM text client created successfully.[0m
+[31m2025-04-30 12:08:26 | ERROR    | Agent | Error in footer_writer_node: "Input to ChatPromptTemplate is missing variables {'structure', 'final_thoughts', 'recommendations', 'summary'}.  Expected: ['final_thoughts', 'query', 'recommendations', 'structure', 'summary'] Received: ['query', 'type_of_query', 'sections']\nNote: if you intended {structure} to be part of the string and not a variable, please escape it with double curly braces like: '{{structure}}'.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/INVALID_PROMPT_INPUT "[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | Starting reference_writer_node...[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | Starting get_references_writer_chain...[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | References writer prompt fetched successfully.[0m
+[36m2025-04-30 12:08:26 | DEBUG    | Agent | LLM client for References created successfully.[0m
+[31m2025-04-30 12:08:27 | ERROR    | Agent | Error in reference_writer_node: 4 validation errors for References
+references.0.section_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='1ef401c0-f651-4ea9-858c-492b26f17dec', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/int_parsing
+references.1.section_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='1ef401c0-f651-4ea9-858c-492b26f17dec', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/int_parsing
+references.2.section_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='1ef401c0-f651-4ea9-858c-492b26f17dec', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/int_parsing
+references.3.section_id
+  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='1ef401c0-f651-4ea9-858c-492b26f17dec', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/int_parsing[0m
+[36m2025-04-30 12:08:27 | DEBUG    | Agent | Starting verify_report_node...[0m
