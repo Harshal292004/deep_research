@@ -3,6 +3,7 @@ from langchain_together import ChatTogether
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
+
 class LLMProvider:
     _api_key = settings.TOGETHER_API_KEY
     _default_text_model = settings.TEXT_MODEL_NAME

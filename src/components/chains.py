@@ -4,14 +4,13 @@ from utilities.states.report_state import (
     Sections,
     Footer,
     Reference,
-    References
+    References,
 )
-from components.prompts import (
-    Prompts
-)
+from components.prompts import Prompts
 
 from utilities.helpers.LLMProvider import LLMProvider
 from utilities.helpers.logger import log
+
 
 def get_router_chain():
     try:
@@ -25,6 +24,7 @@ def get_router_chain():
         log.error(f"Error in get_router_chain: {e}")
         return None
 
+
 def get_header_chain():
     try:
         log.debug("Starting get_header_chain...")
@@ -36,6 +36,7 @@ def get_header_chain():
     except Exception as e:
         log.error(f"Error in get_header_chain: {e}")
         return None
+
 
 def get_section_writer_chain():
     try:
@@ -49,6 +50,7 @@ def get_section_writer_chain():
         log.error(f"Error in get_section_writer_chain: {e}")
         return None
 
+
 def get_footer_writer_chain():
     try:
         log.debug("Starting get_footer_writer_chain...")
@@ -60,6 +62,7 @@ def get_footer_writer_chain():
     except Exception as e:
         log.error(f"Error in get_footer_writer_chain: {e}")
         return None
+
 
 def get_references_writer_chain():
     try:

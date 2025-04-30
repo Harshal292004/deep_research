@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Literal
+
+
 class AppState(BaseModel):
     query: str = Field(description="The query given by the user")
     type_of_query: Literal[

@@ -254,7 +254,9 @@ You are a professional report formatter specializing in designing **conclusions*
 **Output:** JSON with `footer` object containing `summary`, `final_thoughts`, and `recommendations`.
 """
                 ),
-                HumanMessage(content="The query is: {query}, and the report structure is {structure}. The footer summary is: {summary}. The footer thoughts and recommendations are: {final_thoughts}, {recommendations}"),
+                HumanMessage(
+                    content="The query is: {query}, and the report structure is {structure}. The footer summary is: {summary}. The footer thoughts and recommendations are: {final_thoughts}, {recommendations}"
+                ),
             ]
         )
         return prompt

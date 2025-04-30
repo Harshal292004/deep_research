@@ -71,17 +71,32 @@ class References(BaseModel):
 
 
 class ReportState(BaseModel):
-    query: str = Field(description="Query of the user")
-    type_of_query: Literal[
-        "factual_query",
-        "comparative_evaluative_query",
-        "research_oriented_query",
-        "execution_programming_query",
-        "idea_generation",
-    ] = Field(description="Type of the query")
-    header: Header = Field(description="The header of the report")
-    sections: Sections = Field(description="All sections of the report")
-    footer: Footer = Field(description="The footer of the report")
-    user_feedback: str = Field(description="User feedback on the report structure")
-    report_framework: bool = Field(description="A flag indicating whether the report framework is structured well.")
-    references: References = Field(description="List of references")
+    query: Optional[str] = Field(default=None, description="Query of the user")
+    type_of_query: Optional[
+        Literal[
+            "factual_query",
+            "comparative_evaluative_query",
+            "research_oriented_query",
+            "execution_programming_query",
+            "idea_generation",
+        ]
+    ] = Field(default=None, description="Type of the query")
+    header: Optional[Header] = Field(
+        default=None, description="The header of the report"
+    )
+    sections: Optional[Sections] = Field(
+        default=None, description="All sections of the report"
+    )
+    footer: Optional[Footer] = Field(
+        default=None, description="The footer of the report"
+    )
+    user_feedback: Optional[str] = Field(
+        default=None, description="User feedback on the report structure"
+    )
+    report_framework: Optional[bool] = Field(
+        default=None,
+        description="A flag indicating whether the report framework is structured well.",
+    )
+    references: Optional[References] = Field(
+        default=None, description="List of references"
+    )

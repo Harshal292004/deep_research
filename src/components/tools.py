@@ -56,7 +56,9 @@ async def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
 
 
 @tool
-async def exa_search(input: ExaSearch) -> List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]:
+async def exa_search(
+    input: ExaSearch,
+) -> List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]:
     exa = Exa(api_key=settings.EXA_API_KEY)
     try:
         log.debug(f"Starting Exa search with query: {input.query}")
@@ -169,8 +171,9 @@ class GitHubInspector:
             )
         except Exception as e:
             log.error(f"Error fetching GitHub user {input.username}: {e}")
-            return GitHubUserOutput(login="", name="", public_repos=0, followers=0, bio="", location="")
-
+            return GitHubUserOutput(
+                login="", name="", public_repos=0, followers=0, bio="", location=""
+            )
 
     @tool
     async def get_repo_by_name(self, input: GitHubRepoQuery) -> GitHubRepoOutput:
@@ -190,16 +193,23 @@ class GitHubInspector:
         except Exception as e:
             log.error(f"Error fetching GitHub repo {input.full_name}: {e}")
             return GitHubRepoOutput(
-                name="", full_name="", description="", stars=0, forks=0, language="", topics=[]
+                name="",
+                full_name="",
+                description="",
+                stars=0,
+                forks=0,
+                language="",
+                topics=[],
             )
-
 
     @tool
     async def get_org_by_name(self, input: GitHubOrgQuery) -> GitHubOrgOutput:
         try:
             log.debug(f"Fetching GitHub organization with name: {input.org_name}")
             org = await self.g.get_organization(input.org_name)
-            members = [member.login for member in org.get_members()][: input.member_limit]
+            members = [member.login for member in org.get_members()][
+                : input.member_limit
+            ]
             log.info(f"GitHub org found: {org.name}, members: {len(members)}")
             return GitHubOrgOutput(
                 login=org.login,
@@ -214,14 +224,15 @@ class GitHubInspector:
                 login="", name="", description="", public_repos=0, members=[]
             )
 
-
     @tool
     async def search_repos_by_language(
         self, input: GitHubLanguageSearchQuery
     ) -> GitHubRepoSearchOutput:
         try:
             log.debug(f"Searching GitHub repos by language: {input.language}")
-            result = await self.g.search_repositories(query=f"language:{input.language}")
+            result = await self.g.search_repositories(
+                query=f"language:{input.language}"
+            )
             repos = [
                 GitHubRepoSearchItem(
                     name=repo.name,

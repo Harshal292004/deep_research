@@ -4,7 +4,7 @@ from components.chains import (
     get_header_chain,
     get_section_writer_chain,
     get_footer_writer_chain,
-    get_references_writer_chain
+    get_references_writer_chain,
 )
 from utilities.states.report_state import (
     Section,
@@ -13,7 +13,7 @@ from utilities.states.report_state import (
     Header,
     Reference,
     ReportState,
-    RouterResponse
+    RouterResponse,
 )
 
 from utilities.helpers.logger import log
@@ -40,11 +40,13 @@ async def header_writer_node(state: ReportState):
         query = state.query
         type_of_query = state.type_of_query
         chain = get_header_chain()
-        response = await chain.ainvoke({
-            "query": query,
-            "type_of_query": type_of_query,
-            "user_feedback": state.user_feedback
-        })
+        response = await chain.ainvoke(
+            {
+                "query": query,
+                "type_of_query": type_of_query,
+                "user_feedback": state.user_feedback,
+            }
+        )
         log.debug("Header generated successfully.")
         return {
             "header": {
@@ -65,23 +67,27 @@ async def section_writer_node(state: ReportState):
         title_of_report = state.header.title
         summary_of_report = state.header.summary
         chain = get_section_writer_chain()
-        response = await chain.ainvoke({
-            "query": query,
-            "type_of_query": type_of_query,
-            "title": title_of_report,
-            "summary": summary_of_report,
-        })
+        response = await chain.ainvoke(
+            {
+                "query": query,
+                "type_of_query": type_of_query,
+                "title": title_of_report,
+                "summary": summary_of_report,
+            }
+        )
 
         sections = response.sections
         output = []
         for sec in sections:
-            output.append({
-                "section_id": sec.section_id,
-                "name": sec.name,
-                "description": sec.description,
-                "research": sec.research,
-                "content": sec.content,
-            })
+            output.append(
+                {
+                    "section_id": sec.section_id,
+                    "name": sec.name,
+                    "description": sec.description,
+                    "research": sec.research,
+                    "content": sec.content,
+                }
+            )
 
         log.debug("Sections generated successfully.")
         return {"sections": {"sections": output}}
@@ -108,11 +114,9 @@ async def footer_writer_node(state: ReportState):
                 f"content: {sec.content}"
             )
 
-        response = await chain.ainvoke({
-            "query": query,
-            "type_of_query": type_of_query,
-            "sections": section_string
-        })
+        response = await chain.ainvoke(
+            {"query": query, "type_of_query": type_of_query, "sections": section_string}
+        )
 
         log.debug("Footer generated successfully.")
         return {"footer": {"conclusion": response}}
@@ -139,19 +143,19 @@ async def reference_writer_node(state: ReportState):
                 f"content: {sec.content}"
             )
 
-        response = await chain.ainvoke({
-            "query": query,
-            "type_of_query": type_of_query,
-            "sections": section_string
-        })
+        response = await chain.ainvoke(
+            {"query": query, "type_of_query": type_of_query, "sections": section_string}
+        )
 
         output_ref = []
         for ref in response.references:
-            output_ref.append({
-                "section_id": ref.section_id,
-                "section_name": ref.section_name,
-                "source_url": ref.source_url,
-            })
+            output_ref.append(
+                {
+                    "section_id": ref.section_id,
+                    "section_name": ref.section_name,
+                    "source_url": ref.source_url,
+                }
+            )
 
         log.debug("References generated successfully.")
         return {"references": {"references": output_ref}}
@@ -165,7 +169,9 @@ async def verify_report_node(state: ReportState):
         log.debug("Starting verify_report_node...")
 
         # Display the report to the user
-        report_display = f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        report_display = (
+            f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        )
         for idx, section in enumerate(state.sections.sections, start=1):
             report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
         report_display += f"Conclusion: {state.footer.conclusion}\n"
@@ -173,7 +179,9 @@ async def verify_report_node(state: ReportState):
         # Prompt the user for verification
         print("Generated Report:\n")
         print(report_display)
-        user_input = input("Is the report structure satisfactory? (True/False): ").strip()
+        user_input = input(
+            "Is the report structure satisfactory? (True/False): "
+        ).strip()
 
         # Validate user input
         while user_input not in ["True", "False"]:
@@ -183,16 +191,15 @@ async def verify_report_node(state: ReportState):
         user_feedback = ""
 
         if not verified:
-            user_feedback = input("Please provide feedback to improve the report structure: ").strip()
+            user_feedback = input(
+                "Please provide feedback to improve the report structure: "
+            ).strip()
 
-        return {
-            "report_framework": verified,
-            "user_feedback": user_feedback
-        }
+        return {"report_framework": verified, "user_feedback": user_feedback}
 
     except Exception as e:
         log.error(f"Error in verify_report_node: {e}")
         return {
             "report_framework": False,
-            "user_feedback": "Error occurred during verification."
+            "user_feedback": "Error occurred during verification.",
         }

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
+
 class DuckDuckGoOutput(BaseModel):
     snippet: str = Field(description="The snippet extracted from the whole page")
     title: str = Field(description="The title of the search")
