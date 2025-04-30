@@ -8,7 +8,6 @@ from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from langchain_community.utilities.arxiv import ArxivAPIWrapper
 from pydantic import BaseModel, Field
-from langchain_core.tools import tool
 from utilities.states.tool_states import (
     DuckDuckGoOutput,
     LocationOutput,
@@ -25,7 +24,7 @@ from utilities.states.tool_states import (
     ArxivSearchOutput,
     DuckDuckGoSearch,
     ExaSearch,
-    SereprSearch,
+    SerperSearch,
     GitHubUserQuery,
     GitHubRepoQuery,
     GitHubOrgQuery,
@@ -41,7 +40,6 @@ from utilities.helpers.parsers import parse_arxiv_text
 from utilities.helpers.logger import log
 
 
-@tool
 async def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
     wrapper = DuckDuckGoSearchAPIWrapper(max_results=input.max_results)
     search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
@@ -55,7 +53,6 @@ async def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
         return []
 
 
-@tool
 async def exa_search(
     input: ExaSearch,
 ) -> List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]:
@@ -78,7 +75,6 @@ async def exa_search(
         return []
 
 
-@tool
 async def get_location() -> LocationOutput:
     try:
         log.debug("Fetching location information...")
@@ -94,8 +90,7 @@ async def get_location() -> LocationOutput:
         return LocationOutput(country="")
 
 
-@tool
-async def serper_search(input: SereprSearch) -> SereprSearchOutput:
+async def serper_search(input: SerperSearch) -> SereprSearchOutput:
     conn = http.client.HTTPSConnection("google.serper.dev")
     payload = json.dumps(
         {"q": input.query, "gl": input.country, "num": input.num, "tbs": input.tbs}
@@ -127,7 +122,6 @@ async def fire_scrape_web_page(url: str) -> FireScrapeOutput:
         return FireScrapeOutput(markdown="")
 
 
-@tool
 async def tavily_search(input: TavilySearchOutput) -> TavilySearchOutput:
     tavily_client = TavilyClient(api_key=settings.TAVLIY_API_KEY)
     try:
@@ -155,7 +149,7 @@ class GitHubInspector:
     def __init__(self, token: str = settings.GITHUB_ACCESS_TOKEN):
         self.g = Github(token)
 
-    @tool
+
     async def get_user_by_name(self, input: GitHubUserQuery) -> GitHubUserOutput:
         try:
             log.debug(f"Fetching GitHub user with username: {input.username}")
@@ -175,7 +169,7 @@ class GitHubInspector:
                 login="", name="", public_repos=0, followers=0, bio="", location=""
             )
 
-    @tool
+
     async def get_repo_by_name(self, input: GitHubRepoQuery) -> GitHubRepoOutput:
         try:
             log.debug(f"Fetching GitHub repo with name: {input.full_name}")
@@ -202,7 +196,7 @@ class GitHubInspector:
                 topics=[],
             )
 
-    @tool
+
     async def get_org_by_name(self, input: GitHubOrgQuery) -> GitHubOrgOutput:
         try:
             log.debug(f"Fetching GitHub organization with name: {input.org_name}")
@@ -224,7 +218,7 @@ class GitHubInspector:
                 login="", name="", description="", public_repos=0, members=[]
             )
 
-    @tool
+
     async def search_repos_by_language(
         self, input: GitHubLanguageSearchQuery
     ) -> GitHubRepoSearchOutput:
@@ -249,7 +243,6 @@ class GitHubInspector:
             return GitHubRepoSearchOutput(results=[])
 
 
-@tool
 async def arxiv_search(input: ArxivSearchQuery) -> ArxivSearchOutput:
     wrapper = ArxivAPIWrapper(
         top_k_results=input.top_k_results,
@@ -267,3 +260,14 @@ async def arxiv_search(input: ArxivSearchQuery) -> ArxivSearchOutput:
     except Exception as e:
         log.error(f"Error during Arxiv search: {e}")
         return ArxivSearchOutput(results=[])
+
+
+query_tool_map = {
+    "factual_query": ["duckduckgo_search", "serper_search", "tavily_search", "get_location"],
+    "comparative_evaluative_query": ["serper_search", "tavily_search", "exa_search", "duckduckgo_search"],
+    "research_oriented_query": ["arxiv_search", "exa_search", "tavily_search", "serper_search"],
+    "execution_programming_query": [
+        "get_user_by_name", "get_repo_by_name", "get_org_by_name", "search_repos_by_language", "arxiv_search"
+    ],
+    "idea_generation": ["exa_search","duckduckgo_search","serper_search"]  
+}

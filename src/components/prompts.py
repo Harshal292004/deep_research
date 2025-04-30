@@ -1,10 +1,5 @@
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-
-
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-
 
 class Prompts:
     @classmethod
@@ -279,3 +274,50 @@ You are a professional report formatter tasked with creating the **references se
             ]
         )
         return prompt
+    
+    @classmethod
+    def get_search_queries(cls):
+      prompt= ChatPromptTemplate.from_messages(
+        [
+          SystemMessage(
+            content="""
+You are a professional researcher and query generator  specializing in generating relevant search queries through differnet search egines for very different scenarios.
+You will be provided a particular set of tools for which you have to generate inputs to. You will be provided with the following things :
+
+- **query**: As given by the user
+- **type_of_query**: The type of the query as **factual_query**,**comparative_evaluative_query**,**research_oriented_query**,**execution_programming_query**,**idea_generation**
+- **section_skeleton**: The skeleton of the section for which you have to generate the queries for .
+
+eg:
+**query**: What is the current status of the american tariffs over China?
+**type_of_query**:factual_query
+**section_skeleton**:
+Section(
+  section_id= "52027636-6bd8-4faa-8c4e-be984d5c907e"
+  name="Introduction to American Tariffs"
+  description= "Historical context and definitions"
+  research= True
+  content="This section will provide a brief history of tariffs in the US, define what tariffs are, and explain their role in American trade policy."
+
+
+Based on the section you have to deeply analyze and understand the query and it's type in context to the section requirements laid out earlier.
+You have to generate required inputs for the tools to be used.
+
+
+The set of tools you have : 
+
+- "factual_query": ["duckduckgo_search", "serper_search", "tavily_search"]
+- "comparative_evaluative_query": ["serper_search", "tavily_search", "exa_search", "duckduckgo_search"]
+- "research_oriented_query": ["arxiv_search", "exa_search", "tavily_search", "serper_search"]
+- "execution_programming_query": ["get_user_by_name", "get_repo_by_name", "get_org_by_name", "search_repos_by_language", "arxiv_search"]
+- "idea_generation": ["exa_search","duckduckgo_search"]
+
+1. factual_query:
+  - You 
+            """
+          ),
+          HumanMessagePromptTemplate.from_template(
+            "The section are: {sections}"
+          )
+        ]
+      )

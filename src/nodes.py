@@ -14,10 +14,11 @@ from utilities.states.report_state import (
     Reference,
     ReportState,
 )
-
+from utilities.states.research_state import ResearchState,QuerySet
 from utilities.helpers.logger import log
 import traceback
 
+# Section Writer graph 
 
 async def router_node(state: ReportState):
     try:
@@ -208,3 +209,11 @@ async def verify_report_node(state: ReportState):
             "report_framework": False,
             "user_feedback": "Error occurred during verification.",
         }
+
+# Researcher graph 
+
+# Just select the set of tools with the help of the tool_dict by using the `type_of_query` when you run the graph
+
+async def query_generation_node(state:ResearchState):
+    
+    pass

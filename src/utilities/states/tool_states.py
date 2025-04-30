@@ -176,3 +176,9 @@ class ArxivSearchQuery(BaseModel):
     doc_content_chars_max: int = Field(
         40000, description="Maximum character length of a document's content"
     )
+
+class TavilySearchQuery(BaseModel):
+    query:str
+    topic:str
+    time_range:str
+    max_results:str
