@@ -2,7 +2,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 
-from langchain_core.prompts import ChatPromptTemplate,HumanMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 
@@ -41,7 +41,7 @@ Your only task is to correctly route the following user query into one of the su
 
 """
                 ),
-                 HumanMessagePromptTemplate.from_template("The query is: {query}"),
+                HumanMessagePromptTemplate.from_template("The query is: {query}"),
             ]
         )
         return prompt
@@ -121,13 +121,13 @@ You are an expert in structuring professional and well-organized reports. Your t
       - **Feasibility Analysis**  
       - **Challenges & Future Opportunities**  
 
-**Output:** Provide a JSON structure with `title` and `summary` sections.  
-
 You will also be provided a user feedback on whether or not the report structure made is sufficient. And if not, the user will provide what changes are needed, which you will change based on the feedback. 
 Note that you won't be provided the feedback for the first time.
 """
                 ),
-                HumanMessagePromptTemplate.from_template("The query is: {query}, and the type is: {type_of_query} . User feedback: {user_feedback}"),
+                HumanMessagePromptTemplate.from_template(
+                    "The query is: {query}, and the type is: {type_of_query} . User feedback: {user_feedback}"
+                ),
             ]
         )
         return prompt
@@ -186,13 +186,11 @@ You are a structured report designer. Your job is to define **the main sections*
     1. *Current Market Needs & Problems*  
     2. *Innovative Use Cases of Blockchain*  
     3. *Feasibility & Challenges*  
-    4. *Future Trends & Business Models*  
-
-**Output:** JSON with `sections` list containing `{name, description, research, content}`.  
+    4. *Future Trends & Business Models*    
 """
                 ),
                 HumanMessagePromptTemplate.from_template(
-                  """The query is: {query}, and the type is: {type_of_query} . The **title**  of the report is {title}. The summary points are {summary} """
+                    """The query is: {query}, and the type is: {type_of_query} . The **title**  of the report is {title}. The summary points are {summary} """
                 ),
             ]
         )
@@ -248,12 +246,10 @@ You are a professional report formatter specializing in designing **conclusions*
      - **Key Insight Summary:** Recap the key startup ideas suggested.  
      - **Final Thoughts:** Highlight the feasibility and potential of blockchain-based startups.  
      - **Recommendations:** Provide guidance on pursuing the best startup ideas or exploring new areas.
-
-**Output:** JSON with `footer` object containing `summary`, `final_thoughts`, and `recommendations`.
 """
                 ),
                 HumanMessagePromptTemplate.from_template(
-                    "The query is: {query}, and the report structure is {structure}"
+                    "The query is: {query}, type of the query is: {type_of_query} and the report structure is {structure}"
                 ),
             ]
         )
@@ -275,29 +271,10 @@ You are a professional report formatter tasked with creating the **references se
    - **Section ID:** Provide the section ID for clarity.  
    - **Source URL:** Include the URLs or sources from which the research was drawn for that section.
 3. **Only Include Research-Based Sections:** Only sections with `research=True` should have references.
-
-## **Example of Reference Structure:**
-- Section: *Introduction to Go and Rust*  
-  - Research: True  
-  - Sources:  
-    1. *Source 1*: [Link to academic paper on concurrency models](#)  
-    2. *Source 2*: [Rust's concurrency model documentation](#)  
-
-- Section: *Web Scraping with Python*  
-  - Research: False  
-  - No references needed for this section.
-
-**Output:**  
-Provide a list of references in the following format for each researched section:  
-  - Section Name: section_name
-  - Section ID: section_id
-  - Sources:  
-    1. *Source Title*: [URL](#)  
-    2. *Source Title*: [URL](#)  
 """
                 ),
                 HumanMessagePromptTemplate.from_template(
-                  "The query is: {query}. The sections are: {sections}"
+                    "The sections are: {sections}"
                 ),
             ]
         )

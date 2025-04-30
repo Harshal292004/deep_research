@@ -38,7 +38,10 @@ graph = builder.compile(checkpointer=memory)
 
 async def main():
     async for s in graph.astream(
-        {"query": "What is the current status of the american tariffs?","user_feedback":" "},
+        {
+            "query": "What is the current status of the american tariffs?",
+            "user_feedback": " ",
+        },
         config={
             "callbacks": [langfuse_handler],
             "configurable": {"thread_id": "abc123"},

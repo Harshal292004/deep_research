@@ -12,11 +12,12 @@ from utilities.states.report_state import (
     Footer,
     Header,
     Reference,
-    ReportState
+    ReportState,
 )
 
 from utilities.helpers.logger import log
 import traceback
+
 
 async def router_node(state: ReportState):
     try:
@@ -24,12 +25,12 @@ async def router_node(state: ReportState):
         query = state.query
         chain = get_router_chain()
         log.debug("Router chain fetched successfully.")
-        response = await chain.ainvoke({"query":query})
+        response = await chain.ainvoke({"query": query})
         log.debug(f"Type of query detected: {response.content}")
         return {"type_of_query": response.content}
     except Exception as e:
         log.error(f"Error in router_node: {e}")
-        return {"type_of_query": "factual_query"}  
+        return {"type_of_query": "factual_query"}
 
 
 async def header_writer_node(state: ReportState):
@@ -71,8 +72,8 @@ async def section_writer_node(state: ReportState):
             {
                 "query": query,
                 "type_of_query": type_of_query,
-                "title":title_of_report,
-                "summary":summary_of_report,
+                "title": title_of_report,
+                "summary": summary_of_report,
             }
         )
 
@@ -100,6 +101,7 @@ async def footer_writer_node(state: ReportState):
     try:
         log.debug("Starting footer_writer_node...")
         query = state.query
+        type_of_query = state.type_of_query
         sections = state.sections.sections
         chain = get_footer_writer_chain()
         section_string = ""
@@ -113,7 +115,11 @@ async def footer_writer_node(state: ReportState):
             )
 
         response = await chain.ainvoke(
-            {"query": query , "structure": section_string}
+            {
+                "query": query,
+                "type_of_query": type_of_query,
+                "structure": section_string,
+            }
         )
 
         log.debug(f"Footer generated successfully: {response.content}")
@@ -141,9 +147,7 @@ async def reference_writer_node(state: ReportState):
                 f"content: {sec.content}"
             )
 
-        response = await chain.ainvoke(
-            {"query": query, "sections": section_string}
-        )
+        response = await chain.ainvoke({"sections": section_string})
 
         output_ref = []
         for ref in response.references:
@@ -173,8 +177,11 @@ async def verify_report_node(state: ReportState):
         for idx, section in enumerate(state.sections.sections, start=1):
             report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
         report_display += f"Conclusion: {state.footer.conclusion}\n"
+        for idx, reference in enumerate(state.references.references, start=1):
+            report_display += f"Reference {idx}:\nSection Id: {reference.section_id}\nSection Name: {reference.section_name}\n"
+            for idx, url in enumerate(reference.source_url, start=1):
+                report_display += f"Source Url {idx}:{url}\n"
 
-        # Prompt the user for verification
         print("Generated Report:\n")
         print(report_display)
         user_input = input(

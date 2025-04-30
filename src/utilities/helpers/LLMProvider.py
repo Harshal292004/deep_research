@@ -4,19 +4,26 @@ from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 from langchain_groq import ChatGroq
 
+
 class LLMProvider:
     _groq_api_key = settings.GROQ_API_KEY
-    _together_api_key= settings.TOGETHER_API_KEY
+    _together_api_key = settings.TOGETHER_API_KEY
     _default_groq_text_model = settings.TEXT_GROQ_MODEL_NAME
     _default_together_text_model = settings.TEXT_TOGETHER_MODEL_NAME
     _default_embedding_model = settings.EMBEDDING_MODEL
 
     @classmethod
-    def _init_chat_model(cls, model_name: str = None, provider:str= "GROQ"):
-        return  ChatGroq(
-            api_key=cls._groq_api_key, model=model_name or cls._default_groq_text_model
-        ) if provider == "GROQ" else ChatTogether(
-            api_key=cls._together_api_key, model_name=model_name or cls._default_together_text_model
+    def _init_chat_model(cls, model_name: str = None, provider: str = "GROQ"):
+        return (
+            ChatGroq(
+                api_key=cls._groq_api_key,
+                model=model_name or cls._default_groq_text_model,
+            )
+            if provider == "GROQ"
+            else ChatTogether(
+                api_key=cls._together_api_key,
+                model_name=model_name or cls._default_together_text_model,
+            )
         )
 
     @classmethod
