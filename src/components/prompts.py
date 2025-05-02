@@ -351,7 +351,7 @@ You are an expert content writer tasked with writing a comprehensive and informa
 1. The original user query
 2. The query type
 3. The section information (including section ID, name, description, and content expectations)
-4. Research data that has been gathered specifically for this section
+4. Research data that has been gathered specifically for this section ( There is a chance that research data won't be avialable for the section where research isn't required at places like this you have to just use your own knowledge to write the section)
 
 ## **Your Task**
 Your job is to write the actual content for this section using the provided research data. Follow these guidelines:
@@ -359,7 +359,7 @@ Your job is to write the actual content for this section using the provided rese
 - Create high-quality, informative content that directly addresses the user's query
 - Ensure your writing is well-structured with appropriate subheadings where needed
 - Incorporate the research data provided in a seamless, coherent manner
-- Maintain an authoritative, professional tone appropriate for a formal report
+- Maintain an authoritative, professional tone appropriate for a research report
 - Include all relevant information while being concise
 - Focus on accuracy and providing valuable insights
 - Format the content using markdown for readability
@@ -426,8 +426,8 @@ You are an expert report writer tasked with creating a compelling and informativ
 1. The original user query
 2. The query type
 3. The report title
-4. The summary points for the introduction
-5. The research data that has been gathered
+4. The points that are expected in the introduction
+5. The sections that have been written
 
 ## **Your Task**
 Your job is to write a comprehensive introduction for the report that sets the stage for the following sections. Follow these guidelines:
@@ -478,13 +478,9 @@ Return only the completed introduction content.
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """The query is: {query}, the type is: {type_of_query}
-                    
 Report title: {title}
-Summary points: {summary}
-
-Research data overview:
-{research_data_overview}
-
+Desired introduction: {introduction}
+Section written: {section}
 Please write the complete introduction for this report."""
                 ),
             ]
@@ -502,7 +498,7 @@ You are an expert report writer tasked with creating a compelling and insightful
 1. The original user query
 2. The query type
 3. The report structure including all sections
-4. A summary of the research data findings
+4. The conclusion points are given 
 
 ## **Your Task**
 Your job is to write a comprehensive conclusion that effectively summarizes the report and provides meaningful insights. Follow these guidelines:
@@ -552,12 +548,10 @@ Return only the completed conclusion content.
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """The query is: {query}, the type is: {type_of_query}
-                    
+Conclusion  points: 
+{conclusion}
 Report structure:
 {structure}
-
-Research findings summary:
-{research_findings}
 
 Please write the complete conclusion for this report."""
                 ),

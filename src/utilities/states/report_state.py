@@ -16,7 +16,14 @@ class Section(BaseModel):
     )
     content: str = Field(description="The main content or body of the section.")
 
-
+class FinalSection(BaseModel):
+    section_id:str= Field(
+        description="The ID of the section"
+    )
+    description:str= Field(
+        description="A concise overview of the topics and concepts covered in this section"
+    )
+    content:str= Field(description="The main content or body of the section.")
 class Sections(BaseModel):
     sections: List[Section] = Field(
         description="A collection of sections that make up the report."

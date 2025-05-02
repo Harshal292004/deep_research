@@ -6,6 +6,9 @@ from components.chains import (
     get_footer_writer_chain,
     get_references_writer_chain,
     get_search_queries_chain,
+    get_final_section_writer_chain,
+    get_final_header_writer_chain,
+    get_final_footer_write_chain
 )
 from utilities.states.report_state import (
     Section,
@@ -37,10 +40,9 @@ from utilities.states.tool_states import (
     GitHubOrgQuery,
     ArxivSearchQuery,
 )
-from utilities.states.research_state import ResearchState, QueryState
+from utilities.states.research_state import ResearchState, QueryState, query_tool_map, query_tool_output
 from utilities.helpers.logger import log
 import traceback
-from utilities.states.research_state import query_tool_map, query_tool_output
 from pydantic import Any
 # Section Writer graph
 
@@ -394,12 +396,49 @@ async def tool_output_node(state: ResearchState):
         log.error(f"Error in query_generation_node: {e}")
         return {"queries": None}
 
+async def roll_out_output(state):
+    pass
 
 async def section_write_node(state:WriterState):
     try:
         type_of_query= state.type_of_query
-        schema_output=query_tool_output.get(type_of_query)
+        schema_output= query_tool_output.get(type_of_query)
+        output= state.output_list
+        sections= state.sections.sections
         
+        section_written=None
+        for section in sections:
+            section_string = (
+                f"\nsection_id: {sec.section_id} "
+                f"name: {sec.name} "
+                f"description: {sec.description} "
+                f"research: {sec.research} "
+                f"content: {sec.content}"
+            )
+            
+            if not section.research:
+                    section_written=await get_final_section_writer_chain().ainvoke({"query":"","type_of_query":type_of_query,"section":section_string,"research_data":""})     
+                    continue
+                
+            for output in output:
+                if output.idx == section.idx:
+                    research_string= roll_out_output()
+                    section_written=await get_final_section_writer_chain().ainvoke({"query":"","type_of_query":type_of_query,"section":section_string,"research_data":research_string})    
+                    
+            section.description= section_written.description
+            section.content=section_written.content
+        
+        return {
+            "sections":{
+                "sections":state.sections.sections
+            }
+        }
+                
         
     except Exception as e:
-        pass
+        log.error(f"The error is {e}")
+        return {
+            "sections":{
+                "sections":None
+            }
+        }
