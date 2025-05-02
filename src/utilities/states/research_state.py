@@ -11,6 +11,7 @@ from utilities.states.tool_states import (
     ArxivSearchQuery,
     TavilySearchQuery,
 )
+from utilities.states.report_state import Section
 
 class ResearchState(BaseModel):
     query: str = Field(description="The query given by the user")
@@ -26,7 +27,8 @@ class ResearchState(BaseModel):
     set_of_tools: List[str] = Field(
         description="The set of the tools to be used for the serch purposes"
     )
-    sections: str= Field()
+    sections:  List[Section] = Field(description="All sections of the report")
+    
 
 
 class FactualQuerySet(BaseModel):

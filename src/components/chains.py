@@ -78,7 +78,7 @@ def get_references_writer_chain():
 def get_search_queries_chain(schema:BaseModel):
     try:
         log.debug("Starting get_search_queries_chain...")
-        prompt= Prompts.get_search_queries()
+        prompt= Prompts.get_search_queries_prompt()
         log.debug("Search queries prompt fetched successfully.")
         llm = LLMProvider.structuredtextclient(schema=schema)
         log.debug("LLM client for search queries created successfully.")

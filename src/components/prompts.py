@@ -277,7 +277,7 @@ You are a professional report formatter tasked with creating the **references se
         return prompt
 
     @classmethod
-    def get_search_queries(cls):
+    def get_search_queries_prompt(cls):
         prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(

@@ -222,17 +222,18 @@ async def verify_report_node(state: ReportState):
 async def query_generation_node(state: ResearchState):
     try:
         log.debug("Starting verify_report_node...")
+        query= state.query
+        type_of_query=  state.type_of_query
         schema_of_tools = query_tool_map.get(state.type_of_query)
-
-        for idx, section in enumerate(state.sections, start=1):
-
-
-            report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
-            
-            
-        chain=get_search_queries_chain(schema=schema_of_tools)
-        chain.ainvoke()
-    
+        tool_query_output= []
+        for section in state.sections:
+            if section.research:
+                section_display = f"Section: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"    
+                chain=get_search_queries_chain(schema=schema_of_tools)
+                output=await chain.ainvoke({"type_of_query": type_of_query,"query":query,"section":section_display})
+                tool_query_output.append(output)
+        
+        
     except Exception as e:
         log.error(f"Error in query_generation_node: {e}")
         
