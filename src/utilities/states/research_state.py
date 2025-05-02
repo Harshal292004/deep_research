@@ -1,6 +1,19 @@
 from pydantic import BaseModel, Field
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Any, Union
 from utilities.states.tool_states import (
+    DuckDuckGoOutput,
+    LocationOutput,
+    SereprSearchOutput,
+    OrganicItem,
+    FireScrapeOutput,
+    TavilySearchItem,
+    TavilySearchOutput,
+    GitHubOrgOutput,
+    GitHubRepoOutput,
+    GitHubRepoSearchItem,
+    GitHubRepoSearchOutput,
+    GitHubUserOutput,
+    ArxivSearchOutput,
     DuckDuckGoSearch,
     ExaSearch,
     SerperSearch,
@@ -11,7 +24,14 @@ from utilities.states.tool_states import (
     ArxivSearchQuery,
     TavilySearchQuery,
 )
-from utilities.states.report_state import Section
+from utilities.states.report_state import Sectio
+from exa_py import api
+
+
+class QueryState(BaseModel):
+    idx: int
+    query_set: Any
+
 
 class ResearchState(BaseModel):
     query: str = Field(description="The query given by the user")
@@ -25,10 +45,15 @@ class ResearchState(BaseModel):
         description="The type of the query being asked, which determines the specific set of tools"
     )
     set_of_tools: List[str] = Field(
-        description="The set of the tools to be used for the serch purposes"
+        description="The set of the tools to be used for the search purposes"
     )
-    sections:  List[Section] = Field(description="All sections of the report")
-    
+    sections: List[Section] = Field(description="All sections of the report")
+    queries: Optional[List[QueryState]] = Field(
+        default=None, description="All of the query states"
+    )
+    output_list: Optional[List[QueryState]] = Field(
+        default=None, description="Output of the tools"
+    )
 
 
 class FactualQuerySet(BaseModel):
@@ -106,10 +131,55 @@ class IdeaQuerySet(BaseModel):
     )
 
 
+class FactualOutput(BaseModel):
+    duckduckgo_output: Optional[DuckDuckGoOutput] = None
+    exa_output: Optional[exa_output] = None
+    tav_output: Optional[TavilySearchOutput] = None
+
+
+class ComparativeOutput(BaseModel):
+    duckduckgo_output: Optional[DuckDuckGoOutput] = None
+    exa_output: Optional[
+        List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]
+    ] = None
+    tav_output: Optional[TavilySearchOutput] = None
+    serper_output: Optional[SereprSearchOutput] = None
+
+
+class ResearchOutput(BaseModel):
+    arxiv_output: Optional[ArxivSearchOutput] = None
+    exa_output: Optional[FireScrapeOutput] = None
+    tav_output: Optional[TavilySearchOutput] = None
+    serper_output: Optional[SereprSearchOutput] = None
+
+
+class ProgrammingOutput(BaseModel):
+    duckduckgo_output: Optional[DuckDuckGoOutput] = None
+    exa_output: Optional[FireScrapeOutput] = None
+    tav_output: Optional[TavilySearchOutput] = None
+    gh_user_output: Optional[GitHubUserOutput] = None
+    gh_repo_output: Optional[GitHubRepoOutput] = None
+    gh_org_output: Optional[GitHubOrgOutput] = None
+    gh_lang_output: Optional[GitHubRepoSearchOutput] = None
+
+
+class IdeaOutput(BaseModel):
+    duckduckgo_output: Optional[DuckDuckGoOutput] = None
+    exa_output: Optional[FireScrapeOutput] = None
+
+
 query_tool_map = {
     "factual_query": FactualQuerySet,
     "comparative_evaluative_query": ComparativeQuerySet,
     "research_oriented_query": ResearchQuerySet,
     "execution_programming_query": ProgrammingQuerySet,
     "idea_generation": IdeaQuerySet,
+}
+
+query_tool_output = {
+    "factual_query": FactualOutput,
+    "comparative_evaluative_query": ComparativeOutput,
+    "research_oriented_query": ResearchOutput,
+    "execution_programming_query": ProgrammingOutput,
+    "idea_generation": IdeaOutput,
 }
