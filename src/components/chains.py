@@ -8,6 +8,7 @@ from utilities.states.report_state import (
 from components.prompts import Prompts
 from utilities.helpers.LLMProvider import LLMProvider
 from utilities.helpers.logger import log
+from pydantic import BaseModel
 
 
 def get_router_chain():
@@ -72,4 +73,16 @@ def get_references_writer_chain():
         return prompt | llm
     except Exception as e:
         log.error(f"Error in get_references_writer_chain: {e}")
+        return None
+
+def get_search_queries_chain(schema:BaseModel):
+    try:
+        log.debug("Starting get_search_queries_chain...")
+        prompt= Prompts.get_search_queries()
+        log.debug("Search queries prompt fetched successfully.")
+        llm = LLMProvider.structuredtextclient(schema=schema)
+        log.debug("LLM client for search queries created successfully.")
+        return prompt | llm
+    except Exception as e:
+        log.error(f"Error in get_search_queries_chain: {e}")
         return None

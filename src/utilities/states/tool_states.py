@@ -177,8 +177,15 @@ class ArxivSearchQuery(BaseModel):
         40000, description="Maximum character length of a document's content"
     )
 
+
 class TavilySearchQuery(BaseModel):
-    query:str
-    topic:str
-    time_range:str
-    max_results:str
+    query: str = Field(description="The query to be searched for")
+    topic: Literal["news", "general", "finance"] = Field(
+        description="The topic of the search"
+    )
+    time_range: Literal["day", "week", "month", "year"] = Field(
+        description="the time range to search for the data in"
+    )
+    max_results: int = Field(
+        default=3, description="The number of search item to return max. 5"
+    )

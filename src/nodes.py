@@ -5,6 +5,7 @@ from components.chains import (
     get_section_writer_chain,
     get_footer_writer_chain,
     get_references_writer_chain,
+    get_search_queries_chain
 )
 from utilities.states.report_state import (
     Section,
@@ -14,11 +15,13 @@ from utilities.states.report_state import (
     Reference,
     ReportState,
 )
-from utilities.states.research_state import ResearchState,QuerySet
+from utilities.states.research_state import ResearchState, QuerySet
 from utilities.helpers.logger import log
 import traceback
+from utilities.states.research_state import query_tool_map
 
-# Section Writer graph 
+# Section Writer graph
+
 
 async def router_node(state: ReportState):
     try:
@@ -210,10 +213,26 @@ async def verify_report_node(state: ReportState):
             "user_feedback": "Error occurred during verification.",
         }
 
-# Researcher graph 
+
+# Researcher graph
 
 # Just select the set of tools with the help of the tool_dict by using the `type_of_query` when you run the graph
 
-async def query_generation_node(state:ResearchState):
+
+async def query_generation_node(state: ResearchState):
+    try:
+        log.debug("Starting verify_report_node...")
+        schema_of_tools = query_tool_map.get(state.type_of_query)
+
+        for idx, section in enumerate(state.sections, start=1):
+
+
+            report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
+            
+            
+        chain=get_search_queries_chain(schema=schema_of_tools)
+        chain.ainvoke()
     
-    pass
+    except Exception as e:
+        log.error(f"Error in query_generation_node: {e}")
+        

@@ -30,6 +30,7 @@ from utilities.states.tool_states import (
     GitHubOrgQuery,
     GitHubLanguageSearchQuery,
     ArxivSearchQuery,
+    TavilySearchQuery,
 )
 from exa_py import Exa, api
 from config import settings
@@ -122,7 +123,7 @@ async def fire_scrape_web_page(url: str) -> FireScrapeOutput:
         return FireScrapeOutput(markdown="")
 
 
-async def tavily_search(input: TavilySearchOutput) -> TavilySearchOutput:
+async def tavily_search(input: TavilySearchQuery) -> TavilySearchOutput:
     tavily_client = TavilyClient(api_key=settings.TAVLIY_API_KEY)
     try:
         log.debug(f"Starting Tavily search with query: {input.query}")
@@ -149,7 +150,6 @@ class GitHubInspector:
     def __init__(self, token: str = settings.GITHUB_ACCESS_TOKEN):
         self.g = Github(token)
 
-
     async def get_user_by_name(self, input: GitHubUserQuery) -> GitHubUserOutput:
         try:
             log.debug(f"Fetching GitHub user with username: {input.username}")
@@ -168,7 +168,6 @@ class GitHubInspector:
             return GitHubUserOutput(
                 login="", name="", public_repos=0, followers=0, bio="", location=""
             )
-
 
     async def get_repo_by_name(self, input: GitHubRepoQuery) -> GitHubRepoOutput:
         try:
@@ -196,7 +195,6 @@ class GitHubInspector:
                 topics=[],
             )
 
-
     async def get_org_by_name(self, input: GitHubOrgQuery) -> GitHubOrgOutput:
         try:
             log.debug(f"Fetching GitHub organization with name: {input.org_name}")
@@ -217,7 +215,6 @@ class GitHubInspector:
             return GitHubOrgOutput(
                 login="", name="", description="", public_repos=0, members=[]
             )
-
 
     async def search_repos_by_language(
         self, input: GitHubLanguageSearchQuery
@@ -260,14 +257,3 @@ async def arxiv_search(input: ArxivSearchQuery) -> ArxivSearchOutput:
     except Exception as e:
         log.error(f"Error during Arxiv search: {e}")
         return ArxivSearchOutput(results=[])
-
-
-query_tool_map = {
-    "factual_query": ["duckduckgo_search", "serper_search", "tavily_search", "get_location"],
-    "comparative_evaluative_query": ["serper_search", "tavily_search", "exa_search", "duckduckgo_search"],
-    "research_oriented_query": ["arxiv_search", "exa_search", "tavily_search", "serper_search"],
-    "execution_programming_query": [
-        "get_user_by_name", "get_repo_by_name", "get_org_by_name", "search_repos_by_language", "arxiv_search"
-    ],
-    "idea_generation": ["exa_search","duckduckgo_search","serper_search"]  
-}

@@ -1,6 +1,7 @@
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
+
 class Prompts:
     @classmethod
     def get_router_prompt(cls):
@@ -274,50 +275,66 @@ You are a professional report formatter tasked with creating the **references se
             ]
         )
         return prompt
-    
+
     @classmethod
     def get_search_queries(cls):
-      prompt= ChatPromptTemplate.from_messages(
-        [
-          SystemMessage(
-            content="""
-You are a professional researcher and query generator  specializing in generating relevant search queries through differnet search egines for very different scenarios.
-You will be provided a particular set of tools for which you have to generate inputs to. You will be provided with the following things :
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                SystemMessage(
+                    content="""
+You are a professional researcher and intelligent query generator. Your job is to create **precise search queries** for different research and information retrieval tools based on the user’s main query, the type of query, and the structure of a specific section in a report.
 
-- **query**: As given by the user
-- **type_of_query**: The type of the query as **factual_query**,**comparative_evaluative_query**,**research_oriented_query**,**execution_programming_query**,**idea_generation**
-- **section_skeleton**: The skeleton of the section for which you have to generate the queries for .
+### **You Will Be Provided With**
+- `query`: The user’s original question or request.
+- `type_of_query`: The category of the query. It will be one of:
+  - `factual_query`
+  - `comparative_evaluative_query`
+  - `research_oriented_query`
+  - `execution_programming_query`
+  - `idea_generation`
+- `section_skeleton`: The metadata about a specific section in the report. This includes:
+  - `section_id`: A unique identifier for the section.
+  - `name`: Title of the section.
+  - `description`: A brief description of what the section covers.
+  - `research`: A boolean indicating whether external research is required.
+  - `content`: A high-level overview of what this section aims to include.
 
-eg:
-**query**: What is the current status of the american tariffs over China?
-**type_of_query**:factual_query
-**section_skeleton**:
-Section(
-  section_id= "52027636-6bd8-4faa-8c4e-be984d5c907e"
-  name="Introduction to American Tariffs"
-  description= "Historical context and definitions"
-  research= True
-  content="This section will provide a brief history of tariffs in the US, define what tariffs are, and explain their role in American trade policy."
+### **Your Responsibilities**
+- Carefully read and analyze the **query**, its **type**, and the **section_skeleton**.
+- Based on this, generate **appropriate search queries** that can be used to gather relevant information.
+- Map these search queries to the appropriate tools based on the query type.
+- **Be intelligent and selective**:
+  - If a tool is **not applicable or unnecessary** for the section, **do not provide input for it**.
+  - **Avoid forcing all tools** into every context. For example:
+    - In a programming task, do **not** generate inputs for `get_user_by_name` or `search_repos_by_language` unless they are clearly relevant.
+    - In an idea generation task, do **not** fabricate GitHub-related queries.
 
+### **Tools Available Per Query Type**
+- `factual_query`:  
+  - Tools: `duckduckgo_search`, `exa_search`, `tavily_search`
 
-Based on the section you have to deeply analyze and understand the query and it's type in context to the section requirements laid out earlier.
-You have to generate required inputs for the tools to be used.
+- `comparative_evaluative_query`:  
+  - Tools: `serper_search`, `tavily_search`, `exa_search`, `duckduckgo_search`
 
+- `research_oriented_query`:  
+  - Tools: `arxiv_search`, `exa_search`, `tavily_search`, `serper_search`
 
-The set of tools you have : 
+- `execution_programming_query`:  
+  - Tools: `tavily_search`, `duckduckgo_search`, `exa_search`,  
+    - GitHub API tools: `get_user_by_name`, `get_repo_by_name`, `get_org_by_name`, `search_repos_by_language`
 
-- "factual_query": ["duckduckgo_search", "serper_search", "tavily_search"]
-- "comparative_evaluative_query": ["serper_search", "tavily_search", "exa_search", "duckduckgo_search"]
-- "research_oriented_query": ["arxiv_search", "exa_search", "tavily_search", "serper_search"]
-- "execution_programming_query": ["get_user_by_name", "get_repo_by_name", "get_org_by_name", "search_repos_by_language", "arxiv_search"]
-- "idea_generation": ["exa_search","duckduckgo_search"]
+- `idea_generation`:  
+  - Tools: `exa_search`, `duckduckgo_search`
 
-1. factual_query:
-  - You 
-            """
-          ),
-          HumanMessagePromptTemplate.from_template(
-            "The section are: {sections}"
-          )
-        ]
-      )
+### **Important**
+- Keep your queries short, precise, and tailored to the section content.
+- Only include tools that genuinely contribute value for the section’s needs.
+"""
+                ),
+                HumanMessagePromptTemplate.from_template(
+                    "The type of query: {type_of_query} ,query: {query}, section : {section}"
+                ),
+            ]
+        )
+
+    return prompt
