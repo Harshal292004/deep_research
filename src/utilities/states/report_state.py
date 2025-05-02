@@ -1,7 +1,7 @@
 from typing import Annotated, List, TypedDict, Literal, Optional
 from pydantic import BaseModel, Field
 from uuid import uuid4
-
+from utilities.states.research_state import QueryState
 
 class Section(BaseModel):
     section_id: str = Field(
@@ -72,6 +72,41 @@ class ReportState(BaseModel):
             "idea_generation",
         ]
     ] = Field(default=None, description="Type of the query")
+    header: Optional[Header] = Field(
+        default=None, description="The header of the report"
+    )
+    sections: Optional[Sections] = Field(
+        default=None, description="All sections of the report"
+    )
+    footer: Optional[Footer] = Field(
+        default=None, description="The footer of the report"
+    )
+    user_feedback: Optional[str] = Field(
+        default=None, description="User feedback on the report structure"
+    )
+    report_framework: Optional[bool] = Field(
+        default=None,
+        description="A flag indicating whether the report framework is structured well.",
+    )
+    references: Optional[References] = Field(
+        default=None, description="List of references"
+    )
+
+
+class WriterState(BaseModel):
+    query:str= Field(description="The query by the user")
+    type_of_query: Literal[
+        "factual_query",
+        "comparative_evaluative_query",
+        "research_oriented_query",
+        "execution_programming_query",
+        "idea_generation",
+    ] = Field(
+        description="The type of the query being asked, which determines the specific set of tools"
+    )
+    output_list: Optional[List[QueryState]] = Field(
+        default=None, description="Output of the tools"
+    )
     header: Optional[Header] = Field(
         default=None, description="The header of the report"
     )

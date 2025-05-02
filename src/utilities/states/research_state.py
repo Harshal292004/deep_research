@@ -29,7 +29,7 @@ from exa_py import api
 
 
 class QueryState(BaseModel):
-    idx: int
+    idx: str
     query_set: Any
 
 
@@ -43,9 +43,6 @@ class ResearchState(BaseModel):
         "idea_generation",
     ] = Field(
         description="The type of the query being asked, which determines the specific set of tools"
-    )
-    set_of_tools: List[str] = Field(
-        description="The set of the tools to be used for the search purposes"
     )
     sections: List[Section] = Field(description="All sections of the report")
     queries: Optional[List[QueryState]] = Field(

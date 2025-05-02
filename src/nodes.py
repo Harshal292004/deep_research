@@ -14,6 +14,7 @@ from utilities.states.report_state import (
     Header,
     Reference,
     ReportState,
+    WriterState
 )
 from components.tools import (
     get_location,
@@ -392,3 +393,13 @@ async def tool_output_node(state: ResearchState):
     except Exception as e:
         log.error(f"Error in query_generation_node: {e}")
         return {"queries": None}
+
+
+async def section_write_node(state:WriterState):
+    try:
+        type_of_query= state.type_of_query
+        schema_output=query_tool_output.get(type_of_query)
+        
+        
+    except Exception as e:
+        pass
