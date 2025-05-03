@@ -44,6 +44,9 @@ from utilities.states.research_state import ResearchState, QueryState, query_too
 from utilities.helpers.logger import log
 import traceback
 from pydantic import Any
+from pydantic import BaseModel
+from exa_py import  api
+
 # Section Writer graph
 
 
@@ -396,8 +399,95 @@ async def tool_output_node(state: ResearchState):
         log.error(f"Error in query_generation_node: {e}")
         return {"queries": None}
 
-async def roll_out_output(state):
-    pass
+async def roll_out_output(state:BaseModel):
+    duckduckgo_output=getattr(
+        state, "duckduckgo_output", None
+    )
+    exa_output=getattr(state, "exa_search", None)
+    serper_output=getattr(state, "serper_search", None)
+    gh_user_output=getattr(
+        state, "get_user_by_name", None
+    )
+    gh_repo_output=getattr(
+        state, "get_repo_by_name", None
+    )
+    gh_org_output=getattr(
+        state, "get_org_by_name", None
+    )
+    gh_lang_output=getattr(
+        state, "search_repos_by_language", None
+    )
+    axv_output=getattr(
+        state, "arxiv_search_query", None
+    )
+    tav_output=getattr(
+        state, "tavily_search", None
+    )
+    
+    rolled_out_str=""
+    
+    if duckduckgo_output:
+        rolled_out_str.join(f"DUCK DUCK GO SEARCH: \n\n\n")
+   
+        for duck in duckduckgo_output:
+            rolled_out_str.join(f"{duck.snippet} {duck.title} {duck.link} \n\n")
+
+    if exa_output:
+        rolled_out_str.join(f"EXA SEARCH: \n\n\n")     
+        
+        for exa_ in exa_output:    
+            rolled_out_str.join(f"{exa_.text} \n\n")
+    if serper_output:
+        
+        rolled_out_str.join(f"SERPER SEARCH: \n\n\n")     
+        for organic in serper_output:
+            rolled_out_str.join(f"{organic.title} {organic.link} {organic.snippet} \n\n")
+            
+    if gh_user_output:
+        rolled_out_str.join("GITHUB USER : \n\n\n")     
+        for gh in gh_user_output:
+            
+            rolled_out_str.join(f"Github username: {gh.login} User's full name:{gh.name} Number of public repos:{gh.public_repos} Number of followers: {gh.followers} Bio of the user: {gh.bio} Location of the user: {gh.location}")
+        
+    if gh_repo_output:
+        rolled_out_str.join("GITHUB REPO: \n\n")
+        for gh in gh_repo_output:
+            topic_str=""
+            topic_str.join(topic for topic in gh.topics + "\n")
+            rolled_out_str.join(f"Github Repo name: {gh.name} Repo's full name:{gh.full_name} Description of repo:{gh.description} Number of stars: {gh.stars} Number of forks: {gh.forks} Language used: {gh.location} Topics :{topic_str}")
+
+    if gh_org_output:
+        rolled_out_str.join("GITHUB Org: \n\n")
+        for gh in gh_org_output:    
+            member_list=""
+            for member in gh.memebers:
+                member_list +=  member
+                
+            rolled_out_str.join(f"Github Org login : {gh.login} Org's full name:{gh.name} Org's description:{gh.description} Number of public_repo: {gh.public_repos} Member of repo: {member_list}")
+  
+    if gh_lang_output:
+        rolled_out_str.join("GITHUB REPO Based on language: \n\n")
+        for gh in gh_lang_output.results:               
+            rolled_out_str.join(f"Github repo's name: {gh.name} Repo's full name:{gh.full_name} Number of stars:{gh.stars} url of the repo: {gh.url}\n\n")
+  
+    if axv_output:     
+        
+        rolled_out_str.join("ARXIV Output: \n\n")
+        for axv in axv_output.results:
+            author_str=""
+            for author in axv.authors:
+                author_str.join(author+"  ")
+                
+            rolled_out_str.join(f"Paper Title:{axv.title} Authors:{author_str} summary: {axv.summary} published: {axv.published}\n\n")        
+
+    if tav_output:
+        
+        rolled_out_str.join("TAVILY Output \n\n")
+        for tav in tav_output.results:
+            rolled_out_str.join(f"Title: {tav.title} URL:{tav.url} Content:{tav.content} \n\n")
+        
+    return rolled_out_str
+
 
 async def section_write_node(state:WriterState):
     try:
@@ -422,7 +512,7 @@ async def section_write_node(state:WriterState):
                 
             for output in output:
                 if output.idx == section.idx:
-                    research_string= roll_out_output()
+                    research_string= roll_out_output(output.query_set)
                     section_written=await get_final_section_writer_chain().ainvoke({"query":"","type_of_query":type_of_query,"section":section_string,"research_data":research_string})    
                     
             section.description= section_written.description

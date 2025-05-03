@@ -100,9 +100,6 @@ class DuckDuckGoSearch(BaseModel):
 
 class ExaSearch(BaseModel):
     query: str = Field(..., description="The query to be provided to the Exa search")
-    highlights: bool = Field(
-        ..., description="Includes highlights of the content in the results."
-    )
     num_results: int = Field(..., description="Number of search results to return")
     start_published_date: str = Field(
         ...,

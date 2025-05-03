@@ -56,7 +56,7 @@ async def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
 
 async def exa_search(
     input: ExaSearch,
-) -> List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]:
+) -> List[api.ResultWithText]:
     exa = Exa(api_key=settings.EXA_API_KEY)
     try:
         log.debug(f"Starting Exa search with query: {input.query}")
@@ -66,7 +66,6 @@ async def exa_search(
             start_published_date=input.start_published_date,
             end_published_date=input.end_published_date,
             category=input.category,
-            highlights=input.highlights,
             text=True,
         )
         log.info(f"Exa search completed with {len(results)} results.")

@@ -5,7 +5,6 @@ from utilities.states.tool_states import (
     LocationOutput,
     SereprSearchOutput,
     OrganicItem,
-    FireScrapeOutput,
     TavilySearchItem,
     TavilySearchOutput,
     GitHubOrgOutput,
@@ -129,9 +128,11 @@ class IdeaQuerySet(BaseModel):
 
 
 class FactualOutput(BaseModel):
-    duckduckgo_output: Optional[DuckDuckGoOutput] = None
-    exa_output: Optional[exa_output] = None
-    tav_output: Optional[TavilySearchOutput] = None
+    duckduckgo_output: Optional[List[DuckDuckGoOutput]] = None
+    exa_output: Optional[
+        List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]
+    ] = None
+    tav_output: Optional[List[TavilySearchOutput]] = None
 
 
 class ComparativeOutput(BaseModel):
@@ -145,14 +146,14 @@ class ComparativeOutput(BaseModel):
 
 class ResearchOutput(BaseModel):
     arxiv_output: Optional[ArxivSearchOutput] = None
-    exa_output: Optional[FireScrapeOutput] = None
+    exa_output: Optional[List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]] = None
     tav_output: Optional[TavilySearchOutput] = None
     serper_output: Optional[SereprSearchOutput] = None
 
 
 class ProgrammingOutput(BaseModel):
     duckduckgo_output: Optional[DuckDuckGoOutput] = None
-    exa_output: Optional[FireScrapeOutput] = None
+    exa_output: Optional[List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]] = None
     tav_output: Optional[TavilySearchOutput] = None
     gh_user_output: Optional[GitHubUserOutput] = None
     gh_repo_output: Optional[GitHubRepoOutput] = None
@@ -162,7 +163,7 @@ class ProgrammingOutput(BaseModel):
 
 class IdeaOutput(BaseModel):
     duckduckgo_output: Optional[DuckDuckGoOutput] = None
-    exa_output: Optional[FireScrapeOutput] = None
+    exa_output: Optional[List[Union[api.ResultWithTextAndHighlights, api.ResultWithText]]] = None
 
 
 query_tool_map = {
