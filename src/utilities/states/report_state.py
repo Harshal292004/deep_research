@@ -123,13 +123,6 @@ class WriterState(BaseModel):
     footer: Optional[Footer] = Field(
         default=None, description="The footer of the report"
     )
-    user_feedback: Optional[str] = Field(
-        default=None, description="User feedback on the report structure"
-    )
-    report_framework: Optional[bool] = Field(
-        default=None,
-        description="A flag indicating whether the report framework is structured well.",
-    )
     references: Optional[References] = Field(
         default=None, description="List of references"
     )

@@ -46,6 +46,7 @@ import traceback
 from pydantic import Any
 from pydantic import BaseModel
 from exa_py import  api
+from utilities.states.report_state import Reference
 
 # Section Writer graph
 
@@ -399,7 +400,7 @@ async def tool_output_node(state: ResearchState):
         log.error(f"Error in query_generation_node: {e}")
         return {"queries": None}
 
-async def roll_out_output(state:BaseModel):
+async def roll_out_output(state:BaseModel,refrence:Reference,section:Section):
     duckduckgo_output=getattr(
         state, "duckduckgo_output", None
     )
@@ -425,13 +426,14 @@ async def roll_out_output(state:BaseModel):
     )
     
     rolled_out_str=""
-    
+    refrence.section_name= section.name
+    refrence.section_id= section.section_id
     if duckduckgo_output:
         rolled_out_str.join(f"DUCK DUCK GO SEARCH: \n\n\n")
-   
         for duck in duckduckgo_output:
             rolled_out_str.join(f"{duck.snippet} {duck.title} {duck.link} \n\n")
-
+            refrence.source_url.append(duck.link)
+            
     if exa_output:
         rolled_out_str.join(f"EXA SEARCH: \n\n\n")     
         
@@ -442,13 +444,14 @@ async def roll_out_output(state:BaseModel):
         rolled_out_str.join(f"SERPER SEARCH: \n\n\n")     
         for organic in serper_output:
             rolled_out_str.join(f"{organic.title} {organic.link} {organic.snippet} \n\n")
+            refrence.source_url.append(organic.link)
             
     if gh_user_output:
         rolled_out_str.join("GITHUB USER : \n\n\n")     
         for gh in gh_user_output:
             
             rolled_out_str.join(f"Github username: {gh.login} User's full name:{gh.name} Number of public repos:{gh.public_repos} Number of followers: {gh.followers} Bio of the user: {gh.bio} Location of the user: {gh.location}")
-        
+            
     if gh_repo_output:
         rolled_out_str.join("GITHUB REPO: \n\n")
         for gh in gh_repo_output:
@@ -479,23 +482,25 @@ async def roll_out_output(state:BaseModel):
                 author_str.join(author+"  ")
                 
             rolled_out_str.join(f"Paper Title:{axv.title} Authors:{author_str} summary: {axv.summary} published: {axv.published}\n\n")        
-
+            
     if tav_output:
         
         rolled_out_str.join("TAVILY Output \n\n")
         for tav in tav_output.results:
             rolled_out_str.join(f"Title: {tav.title} URL:{tav.url} Content:{tav.content} \n\n")
-        
-    return rolled_out_str
+            refrence.source_url.append(tav.url)
+             
+    return (rolled_out_str,refrence)
 
 
-async def section_write_node(state:WriterState):
+async def final_section_writer_node(state:WriterState):
     try:
+        query= state.query
         type_of_query= state.type_of_query
         schema_output= query_tool_output.get(type_of_query)
         output= state.output_list
         sections= state.sections.sections
-        
+        ref_list=[]
         section_written=None
         for section in sections:
             section_string = (
@@ -507,12 +512,14 @@ async def section_write_node(state:WriterState):
             )
             
             if not section.research:
-                    section_written=await get_final_section_writer_chain().ainvoke({"query":"","type_of_query":type_of_query,"section":section_string,"research_data":""})     
+                    section_written=await get_final_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":""})     
                     continue
                 
             for output in output:
                 if output.idx == section.idx:
-                    research_string= roll_out_output(output.query_set)
+                    research_string,refrence= roll_out_output(output.query_set,refrence=Reference(),  section= section)
+                    ref_list.append(refrence)
+                    
                     section_written=await get_final_section_writer_chain().ainvoke({"query":"","type_of_query":type_of_query,"section":section_string,"research_data":research_string})    
                     
             section.description= section_written.description
@@ -521,6 +528,9 @@ async def section_write_node(state:WriterState):
         return {
             "sections":{
                 "sections":state.sections.sections
+            },
+            "references":{
+                "references":ref_list
             }
         }
                 
@@ -530,5 +540,69 @@ async def section_write_node(state:WriterState):
         return {
             "sections":{
                 "sections":None
+            }
+        }
+    
+async def final_header_writer_node(state:WriterState):
+    try:
+        query= state.query
+        type_of_query= state.type_of_query
+        schema_output= query_tool_output.get(type_of_query)
+        output= state.output_list
+        sections= state.sections.sections
+        title= state.header.title
+        summary= state.header.summary
+        section_written=None
+        for section in sections:
+            section_string = (
+                f"\nsection_id: {sec.section_id} "
+                f"name: {sec.name} "
+                f"description: {sec.description} "
+                f"research: {sec.research} "
+                f"content: {sec.content}"
+            )
+        
+        summary=await get_final_header_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"introduction":summary,"title":title})     
+                  
+        return {
+            "header":{
+               "summary":summary.content
+            }
+        }
+    except Exception as e:
+        log.error(f"The error is {e}")
+        return {
+            "header":{
+                "summary":None
+            }
+        }
+    
+
+async def final_footer_writer_node(state:WriterState):
+    try:
+        query= state.query
+        type_of_query= state.type_of_query
+        sections= state.sections.sections
+        for section in sections:
+            section_string = (
+                f"\nsection_id: {sec.section_id} "
+                f"name: {sec.name} "
+                f"description: {sec.description} "
+                f"research: {sec.research} "
+                f"content: {sec.content} "
+            )
+        
+        conclusion=await get_final_footer_write_chain().ainvoke({"query":query,"type_of_query":type_of_query,"structure":section_string,"conclusion":state.footer.conclusion})     
+                  
+        return {
+            "footer":{
+                "conclusion":conclusion.content
+            }
+        }
+    except Exception as e:
+        log.error(f"The error is {e}")
+        return  {
+            "footer":{
+                "conclusion": None
             }
         }
