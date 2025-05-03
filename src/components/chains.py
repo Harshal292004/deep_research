@@ -1,10 +1,9 @@
 from utilities.states.report_state import (
     Header,
     Sections,
-    FinalSection,
+    DetailedSection,
     Footer,
-    Reference,
-    References,
+    Reference
 )
 from components.prompts import Prompts
 from utilities.helpers.LLMProvider import LLMProvider
@@ -63,20 +62,6 @@ def get_footer_writer_chain():
         log.error(f"Error in get_footer_writer_chain: {e}")
         return None
 
-
-def get_references_writer_chain():
-    try:
-        log.debug("Starting get_references_writer_chain...")
-        prompt = Prompts.get_references_writer_prompt()
-        log.debug("References writer prompt fetched successfully.")
-        llm = LLMProvider.structuredtextclient(schema=References)
-        log.debug("LLM client for References created successfully.")
-        return prompt | llm
-    except Exception as e:
-        log.error(f"Error in get_references_writer_chain: {e}")
-        return None
-
-
 def get_search_queries_chain(schema: BaseModel):
     try:
         log.debug("Starting get_search_queries_chain...")
@@ -89,39 +74,35 @@ def get_search_queries_chain(schema: BaseModel):
         log.error(f"Error in get_search_queries_chain: {e}")
         return None
 
-def get_final_section_writer_chain():
+def get_detailed_section_writer_chain():
     try:
-        log.debug("Starting get_final_section_writer_chain...")
-        prompt = Prompts.get_final_section_writer_prompt()
-        log.debug("Search queries prompt fetched successfully.")
-        llm = LLMProvider.structuredtextclient(schema=FinalSection)
-        log.debug("LLM client for section schema successfully.")
+        log.debug("Starting get_detailed_section_writer_chain...")
+        prompt = Prompts.get_detailed_section_writer_prompt()
+        llm = LLMProvider.structuredtextclient(schema=DetailedSection)
         return prompt | llm
     except Exception as e:
-        log.error(f"Error in get_final_section_writer_chain: {e}")
+        log.error(f"Error in get_detailed_section_writer_chain: {e}")
         return None
     
 
-def get_final_header_writer_chain():
+def get_detailed_header_writer_chain():
     try:
-        log.debug("Starting get_final_header_writer_chain...")
-        prompt = Prompts.get_final_header_writer_prompt()
-        log.debug("Search queries prompt fetched successfully.")
+        log.debug("Starting get_detailed_header_writer_chain...")
+        prompt = Prompts.get_detailed_header_writer_prompt()
         llm = LLMProvider.textclient()
-        log.debug("LLM client for section schema successfully.")
         return prompt|llm
     except Exception as e:
-        log.error(f"Error in get_final_header_writer_chain: {e}")
+        log.error(f"Error in get_detailed_header_writer_chain: {e}")
         return None
     
-def get_final_footer_write_chain():
+def get_detailed_footer_write_chain():
     try:
-        log.debug("Starting get_final_header_writer_chain...")
-        prompt = Prompts.get_final_footer_write_prompt()
+        log.debug("Starting get_detailed_footer_writer_chain...")
+        prompt = Prompts.get_detailed_footer_write_prompt()
         log.debug("Search queries prompt fetched successfully.")
         llm = LLMProvider.textclient()
         log.debug("LLM client for section schema successfully.")
         return prompt|llm
     except Exception as e:
-        log.error(f"Error in get_final_header_writer_chain: {e}")
+        log.error(f"Error in get_detailed_footer_writer_chain: {e}")
         return None

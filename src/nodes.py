@@ -6,9 +6,9 @@ from components.chains import (
     get_footer_writer_chain,
     get_references_writer_chain,
     get_search_queries_chain,
-    get_final_section_writer_chain,
-    get_final_header_writer_chain,
-    get_final_footer_write_chain
+    get_detailed_footer_write_chain,
+    get_detailed_header_writer_chain,
+    get_detailed_section_writer_chain
 )
 from utilities.states.report_state import (
     Section,
@@ -20,33 +20,40 @@ from utilities.states.report_state import (
     WriterState
 )
 from components.tools import (
-    get_location,
     duckduckgo_search,
     exa_search,
     tavily_search,
     serper_search,
-    fire_scrape_web_page,
     GitHubInspector,
     arxiv_search,
 )
 from utilities.states.tool_states import (
-    DuckDuckGoSearch,
-    SerperSearch,
-    TavilySearchQuery,
-    ExaSearch,
-    GitHubLanguageSearchQuery,
-    GitHubUserQuery,
-    GitHubRepoQuery,
-    GitHubOrgQuery,
-    ArxivSearchQuery,
+   DuckDuckGoQuery,
+   ExaQuery,
+   SerperQuery,
+   GitHubUserQuery,
+   GitHubOrgQuery,
+   GitHubLanguageQuery,
+   ArxivQuery,
+   TavilyQuery,
+   LocationOutput,
+   DuckDuckGoOutput,
+   SerperQueryOutput,
+   TavilyQueryOutput,
+   GitHubUserOutput,
+   GitHubRepoOutput,
+   GitHubOrgOutput,
+   GitHubLanguageOutput,
+   GitHubLanguageItem,
+   ArxivOutput,
+   ExaOutput,
+   TavilyItem
 )
-from utilities.states.research_state import ResearchState, QueryState, query_tool_map, query_tool_output
+from utilities.states.research_state import ResearchState, QueryState,OutputState, tool_input_map,tool_output_map
 from utilities.helpers.logger import log
 import traceback
 from pydantic import Any
 from pydantic import BaseModel
-from exa_py import  api
-from utilities.states.report_state import Reference
 
 # Section Writer graph
 
@@ -87,8 +94,7 @@ async def header_writer_node(state: ReportState):
             }
         }
     except Exception as e:
-        log.error("Error in header_writer_node:")
-        log.error(traceback.format_exc())
+        log.error(f"Error in header_writer_node: {e}")
         return {"header": {"title": "", "summary": ""}}
 
 
@@ -97,8 +103,8 @@ async def section_writer_node(state: ReportState):
         log.debug("Starting section_writer_node...")
         query = state.query
         type_of_query = state.type_of_query
-        title_of_report = state.header.title
-        summary_of_report = state.header.summary
+        title = state.header.title
+        summary= state.header.summary
         chain = get_section_writer_chain()
         response = await chain.ainvoke(
             {
@@ -108,22 +114,7 @@ async def section_writer_node(state: ReportState):
                 "summary": summary_of_report,
             }
         )
-
-        sections = response.sections
-        output = []
-        for sec in sections:
-            output.append(
-                {
-                    "section_id": sec.section_id,
-                    "name": sec.name,
-                    "description": sec.description,
-                    "research": sec.research,
-                    "content": sec.content,
-                }
-            )
-
-        log.debug("Sections generated successfully.")
-        return {"sections": {"sections": output}}
+        return {"sections":response}
     except Exception as e:
         log.error(f"Error in section_writer_node: {e}")
         return {"sections": {"sections": []}}
@@ -139,10 +130,8 @@ async def footer_writer_node(state: ReportState):
         section_string = ""
         for sec in sections:
             section_string += (
-                f"\nsection_id: {sec.section_id} "
                 f"name: {sec.name} "
                 f"description: {sec.description} "
-                f"research: {sec.research} "
                 f"content: {sec.content}"
             )
 
@@ -150,7 +139,7 @@ async def footer_writer_node(state: ReportState):
             {
                 "query": query,
                 "type_of_query": type_of_query,
-                "structure": section_string,
+                "section": section_string,
             }
         )
 
@@ -159,44 +148,6 @@ async def footer_writer_node(state: ReportState):
     except Exception as e:
         log.error(f"Error in footer_writer_node: {e}")
         return {"footer": {"conclusion": ""}}
-
-
-async def reference_writer_node(state: ReportState):
-    try:
-        log.debug("Starting reference_writer_node...")
-        query = state.query
-        type_of_query = state.type_of_query
-        chain = get_references_writer_chain()
-        sections = state.sections.sections
-
-        section_string = ""
-        for sec in sections:
-            section_string += (
-                f"\nsection_id: {sec.section_id} "
-                f"name: {sec.name} "
-                f"description: {sec.description} "
-                f"research: {sec.research} "
-                f"content: {sec.content}"
-            )
-
-        response = await chain.ainvoke({"sections": section_string})
-
-        output_ref = []
-        for ref in response.references:
-            output_ref.append(
-                {
-                    "section_id": ref.section_id,
-                    "section_name": ref.section_name,
-                    "source_url": ref.source_url,
-                }
-            )
-
-        log.debug(f"References generated successfully: {output_ref}")
-        return {"references": {"references": output_ref}}
-    except Exception as e:
-        log.error(f"Error in reference_writer_node: {e}")
-        return {"references": {"references": []}}
-
 
 async def verify_report_node(state: ReportState):
     try:
@@ -209,18 +160,14 @@ async def verify_report_node(state: ReportState):
         for idx, section in enumerate(state.sections.sections, start=1):
             report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
         report_display += f"Conclusion: {state.footer.conclusion}\n"
-        for idx, reference in enumerate(state.references.references, start=1):
-            report_display += f"Reference {idx}:\nSection Id: {reference.section_id}\nSection Name: {reference.section_name}\n"
-            for idx, url in enumerate(reference.source_url, start=1):
-                report_display += f"Source Url {idx}:{url}\n"
-
+        
         print("Generated Report:\n")
         print(report_display)
+        
         user_input = input(
             "Is the report structure satisfactory? (True/False): "
         ).strip()
 
-        # Validate user input
         while user_input not in ["True", "False"]:
             user_input = input("Please enter 'True' or 'False': ").strip()
 
@@ -228,9 +175,7 @@ async def verify_report_node(state: ReportState):
         user_feedback = ""
 
         if not verified:
-            user_feedback = input(
-                "Please provide feedback to improve the report structure: "
-            ).strip()
+            user_feedback = input("Please provide feedback to improve the report structure: ").strip()
 
         return {"report_framework": verified, "user_feedback": user_feedback}
 
@@ -252,21 +197,21 @@ async def query_generation_node(state: ResearchState):
         log.debug("Starting verify_report_node...")
         query = state.query
         type_of_query = state.type_of_query
-        schema_of_tools = query_tool_map.get(state.type_of_query)
-        tool_query_output = []
-        for idx, section in enumerate(state.sections, start=1):
+        schema_of_tools = tool_input_map.get(state.type_of_query)
+        input_list = []
+        for section in state.sections:
             if section.research:
-                section_display = f"Section: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
+                section_string = f"Section: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
                 chain = get_search_queries_chain(schema=schema_of_tools)
                 output = await chain.ainvoke(
                     {
                         "type_of_query": type_of_query,
                         "query": query,
-                        "section": section_display,
+                        "section": section_string,
                     }
                 )
-                tool_query_output.append(QueryState(idx=idx, query_set=output))
-        return {"queries": tool_query_output}
+                input_list.append(QueryState(section_id=section.section_id, query_state= output))
+        return {"queries": tool_input_list}
 
     except Exception as e:
         log.error(f"Error in query_generation_node: {e}")
@@ -274,87 +219,86 @@ async def query_generation_node(state: ResearchState):
 
 
 async def get_tool_output(
-    duckduckgo_search_input: DuckDuckGoSearch,
-    exa_search_input: ExaSearch,
-    serper_search_input: SerperSearch,
-    github_user_query_input: GitHubUserQuery,
-    github_repo_query_input: GitHubRepoQuery,
-    github_org_query_input: GitHubOrgQuery,
-    github_language_query_input: GitHubLanguageSearchQuery,
-    arxiv_search_query_input: ArxivSearchQuery,
-    tavily_search_query_input: TavilySearchQuery,
-    output_model: Any,
+    duckduckgo_query: DuckDuckGoQuery,
+    exa_query: ExaQuery,
+    serper_query: SerperQuery,
+    github_user_query: GitHubUserQuery,
+    github_repo_query: GitHubRepoQuery,
+    github_org_query: GitHubOrgQuery,
+    github_language_query: GitHubLanguageQuery,
+    arxiv_query: ArxivQuery,
+    tavily_query: TavilyQuery,
+    output_schema: Any,
     type_of_query: str,
 ):
     duckduckgo_output = None
     exa_output = None
     serper_output = None
-    gh_user_output = None
-    gh_repo_output = None
-    gh_org_output = None
-    gh_lang_output = None
-    axv_output = None
-    tav_output = None
+    github_user_output = None
+    github_repo_output = None
+    github_org_output = None
+    github_language_output = None
+    arxiv_output = None
+    tavily_output = None
 
-    if duckduckgo_search_input:
-        duckduckgo_output = await duckduckgo_search(input=duckduckgo_search_input)
-    if exa_search_input:
-        exa_output = await exa_search(input=exa_search_input)
-    if serper_search_input:
-        serper_search_input.country = get_location()
-        serper_output = await serper_search(input=serper_search_input)
-    if github_user_query_input:
-        gh_user_output = await GitHubInspector.get_user_by_name(
-            input=github_user_query_input
+    if duckduckgo_query:
+        duckduckgo_output = await duckduckgo_search(input=duckduckgo_query)
+    if exa_query:
+        exa_output = await exa_search(input=exa_query)
+    if serper_query:
+        serper_output = await serper_search(input=serper_query)
+    if github_user_query:
+        github_user_output = await GitHubInspector.get_user_by_name(
+            input=github_user_query
         )
-    if github_repo_query_input:
-        gh_repo_output = await GitHubInspector.get_repo_by_name(
-            input=github_repo_query_input
+    if github_repo_query:
+        github_repo_output = await GitHubInspector.get_repo_by_name(
+            input=github_repo_query
         )
-    if github_org_query_input:
-        gh_org_output = await GitHubInspector.get_org_by_name(
-            input=github_org_query_input
+    if github_org_query:
+        github_org_output = await GitHubInspector.get_org_by_name(
+            input=github_org_query
         )
-    if github_language_query_input:
-        gh_lang_output = await GitHubInspector.search_repos_by_language(
-            input=github_language_query_input
+    if github_language_query:
+        github_language_output = await GitHubInspector.search_repos_by_language(
+            input=github_language_query
         )
-    if arxiv_search_query_input:
-        axv_output = await arxiv_search(arxiv_search_query_input)
-    if tavily_search_query_input:
-        tav_output = await tavily_search(tavily_search_query_input)
+    if arxiv_query:
+        arxiv_output = await arxiv_search(input=arxiv_query)
+    if tavily_query:
+        tavily_output = await tavily_search(input=tavily_query)
 
     if type_of_query == "factual_query":
-        output_model.duckduckgo_output = duckduckgo_output
-        output_model.exa_output = exa_output
-        output_model.tav_output = tav_output
+        output_schema.duckduckgo_output = duckduckgo_output
+        output_schema.exa_output = exa_output
+        output_schema.tavily_output = tavily_output
 
     elif type_of_query == "comparative_evaluative_query":
-        output_model.duckduckgo_output = duckduckgo_output
-        output_model.exa_output = exa_output
-        output_model.tav_output = tav_output
-        output_model.serper_output = serper_output
+        output_schema.duckduckgo_output = duckduckgo_output
+        output_schema.exa_output = exa_output
+        output_schema.tavily_output = tavily_output
+        output_schema.serper_output = serper_output
 
     elif type_of_query == "research_oriented_query":
-        output_model.arxiv_output = axv_output
-        output_model.exa_output = exa_output
-        output_model.tav_output = tav_output
-        output_model.serper_output = serper_output
+        output_schema.arxiv_output = arxiv_output
+        output_schema.exa_output = exa_output
+        output_schema.tavily_output = tavily_output
+        output_schema.serper_output = serper_output
 
     elif type_of_query == "execution_programming_query":
-        output_model.duckduckgo_output = duckduckgo_output
-        output_model.exa_output = exa_output
-        output_model.tav_output = tav_output
-        output_model.gh_user_output = gh_user_output
-        output_model.gh_repo_output = gh_repo_output
-        output_model.gh_org_output = gh_org_output
-        output_model.gh_lang_output = gh_lang_output
+        output_schema.duckduckgo_output = duckduckgo_output
+        output_schema.exa_output = exa_output
+        output_schema.tavily_output = tavily_output
+        output_schema.github_user_output = github_user_output
+        output_schema.github_repo_output = github_repo_output
+        output_schema.github_org_output = github_org_output
+        output_schema.github_language_output = github_language_output
 
     elif type_of_query == "idea_generation":
-        output_model.duckduckgo_output = duckduckgo_output
-        output_model.exa_output = exa_output
+        output_schema.duckduckgo_output = duckduckgo_output
+        output_schema.exa_output = exa_output
 
-    return output_model
+    return output_schema
 
 
 async def tool_output_node(state: ResearchState):
@@ -362,67 +306,70 @@ async def tool_output_node(state: ResearchState):
         log.debug("Starting tool_output_node...")
         queries = state.queries
         type_of_query = state.type_of_query
-        schema_of_tool = query_tool_map.get(type_of_query)
-        sechema_of_output = query_tool_output.get(type_of_query)
+        schema_of_tool = tool_input_map.get(type_of_query)
+        sechema_of_output = tool_output_map.get(type_of_query)
         output_list = []
         for query in queries:
             output = await get_tool_output(
-                duckduckgo_search_input=getattr(
-                    query.query_set, "duckduckgo_search", None
+                duckduckgo_query=getattr(
+                    query.query_state, "duckduckgo_query", None
                 ),
-                exa_search_input=getattr(query.query_set, "exa_search", None),
-                serper_search_input=getattr(query.query_set, "serper_search", None),
-                github_user_query_input=getattr(
-                    query.query_set, "get_user_by_name", None
+                exa_query=getattr(query.query_state, "exa_query", None),
+                serper_query=getattr(query.query_state, "serper_query", None),
+                github_user_query=getattr(
+                    query.query_state, "github_user_query", None
                 ),
-                github_repo_query_input=getattr(
-                    query.query_set, "get_repo_by_name", None
+                github_repo_query=getattr(
+                    query.query_state, "github_repo_query", None
                 ),
-                github_org_query_input=getattr(
-                    query.query_set, "get_org_by_name", None
+                github_org_query=getattr(
+                    query.query_state, "github_org_query", None
                 ),
-                github_language_query_input=getattr(
-                    query.query_set, "search_repos_by_language", None
+                github_language_query=getattr(
+                    query.query_state, "github_language_query", None
                 ),
-                arxiv_search_query_input=getattr(
-                    query.query_set, "arxiv_search_query", None
+                arxiv_query=getattr(
+                    query.query_state, "arxiv_query", None
                 ),
-                tavily_search_query_input=getattr(
-                    query.query_set, "tavily_search", None
+                tavily_query=getattr(
+                    query.query_state, "tavily_query", None
                 ),
-                output_model=sechema_of_output,
+                output_schema=sechema_of_output,
                 type_of_query=type_of_query,
             )
-            output_list.append(QueryState(idx=query.idx, query_set=output))
+            output_list.append(OutputState(section_id=query.section_id,output_state= output))
 
-        return {"tool_output": output_list}
+        return {"outputs": output_list}
     except Exception as e:
         log.error(f"Error in query_generation_node: {e}")
-        return {"queries": None}
+        return {"outputs": None}
+
+
+# Writer graph 
 
 async def roll_out_output(state:BaseModel,refrence:Reference,section:Section):
     duckduckgo_output=getattr(
         state, "duckduckgo_output", None
     )
-    exa_output=getattr(state, "exa_search", None)
-    serper_output=getattr(state, "serper_search", None)
-    gh_user_output=getattr(
-        state, "get_user_by_name", None
+    exa_output=getattr(state, "exa_output", None)
+    serper_output=getattr(state, "serper_output", None)
+    github_user_output=getattr(
+        state, "github_user_output", None
     )
-    gh_repo_output=getattr(
-        state, "get_repo_by_name", None
+    github_repo_output=getattr(
+        state, "github_repo_output", None
     )
-    gh_org_output=getattr(
-        state, "get_org_by_name", None
+    github_org_output=getattr(
+        state, "github_org_output", None
     )
-    gh_lang_output=getattr(
-        state, "search_repos_by_language", None
+    github_language_output=getattr(
+        state, "github_language_output", None
     )
-    axv_output=getattr(
-        state, "arxiv_search_query", None
+    arxiv_output=getattr(
+        state, "arxiv_output", None
     )
-    tav_output=getattr(
-        state, "tavily_search", None
+    tavily_output=getattr(
+        state, "tavily_output", None
     )
     
     rolled_out_str=""
@@ -439,89 +386,89 @@ async def roll_out_output(state:BaseModel,refrence:Reference,section:Section):
         
         for exa_ in exa_output:    
             rolled_out_str.join(f"{exa_.text} \n\n")
+            refrence.source_url.append(exa_.url)
+            
     if serper_output:
-        
         rolled_out_str.join(f"SERPER SEARCH: \n\n\n")     
         for organic in serper_output:
             rolled_out_str.join(f"{organic.title} {organic.link} {organic.snippet} \n\n")
             refrence.source_url.append(organic.link)
             
-    if gh_user_output:
+    if github_user_output:
         rolled_out_str.join("GITHUB USER : \n\n\n")     
-        for gh in gh_user_output:
+        for gh in github_user_output:
             
             rolled_out_str.join(f"Github username: {gh.login} User's full name:{gh.name} Number of public repos:{gh.public_repos} Number of followers: {gh.followers} Bio of the user: {gh.bio} Location of the user: {gh.location}")
             
-    if gh_repo_output:
+    if github_repo_output:
         rolled_out_str.join("GITHUB REPO: \n\n")
-        for gh in gh_repo_output:
+        for gh in github_repo_output:
             topic_str=""
             topic_str.join(topic for topic in gh.topics + "\n")
             rolled_out_str.join(f"Github Repo name: {gh.name} Repo's full name:{gh.full_name} Description of repo:{gh.description} Number of stars: {gh.stars} Number of forks: {gh.forks} Language used: {gh.location} Topics :{topic_str}")
 
-    if gh_org_output:
+    if github_org_output:
         rolled_out_str.join("GITHUB Org: \n\n")
-        for gh in gh_org_output:    
+        for gh in github_org_output:    
             member_list=""
             for member in gh.memebers:
                 member_list +=  member
                 
             rolled_out_str.join(f"Github Org login : {gh.login} Org's full name:{gh.name} Org's description:{gh.description} Number of public_repo: {gh.public_repos} Member of repo: {member_list}")
   
-    if gh_lang_output:
+    if github_language_output:
         rolled_out_str.join("GITHUB REPO Based on language: \n\n")
-        for gh in gh_lang_output.results:               
+        for gh in github_language_output.results:               
             rolled_out_str.join(f"Github repo's name: {gh.name} Repo's full name:{gh.full_name} Number of stars:{gh.stars} url of the repo: {gh.url}\n\n")
   
-    if axv_output:     
+    if arxiv_output:     
         
         rolled_out_str.join("ARXIV Output: \n\n")
-        for axv in axv_output.results:
+        for axv in arxiv_output.results:
             author_str=""
             for author in axv.authors:
                 author_str.join(author+"  ")
                 
             rolled_out_str.join(f"Paper Title:{axv.title} Authors:{author_str} summary: {axv.summary} published: {axv.published}\n\n")        
             
-    if tav_output:
+    if tavily_output:
         
         rolled_out_str.join("TAVILY Output \n\n")
-        for tav in tav_output.results:
+        for tav in tavily_output.results:
             rolled_out_str.join(f"Title: {tav.title} URL:{tav.url} Content:{tav.content} \n\n")
             refrence.source_url.append(tav.url)
              
     return (rolled_out_str,refrence)
 
 
-async def final_section_writer_node(state:WriterState):
+async def detailed_section_writer_node(state:WriterState):
     try:
         query= state.query
         type_of_query= state.type_of_query
-        schema_output= query_tool_output.get(type_of_query)
-        output= state.output_list
+        schema_output= tool_output_map.get(type_of_query)
+        outputs= state.outputs
         sections= state.sections.sections
         ref_list=[]
         section_written=None
         for section in sections:
             section_string = (
-                f"\nsection_id: {sec.section_id} "
                 f"name: {sec.name} "
                 f"description: {sec.description} "
-                f"research: {sec.research} "
                 f"content: {sec.content}"
             )
             
             if not section.research:
-                    section_written=await get_final_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":""})     
-                    continue
+                section_written=await get_detailed_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":""})     
+                continue
                 
-            for output in output:
-                if output.idx == section.idx:
-                    research_string,refrence= roll_out_output(output.query_set,refrence=Reference(),  section= section)
+            for output in outputs:
+                if output.section_id == section.section_id:
+                    (research_string,refrence)= roll_out_output(output.output_state,refrence=Reference(),  section= section)
                     ref_list.append(refrence)
                     
-                    section_written=await get_final_section_writer_chain().ainvoke({"query":"","type_of_query":type_of_query,"section":section_string,"research_data":research_string})    
+                    section_written=await get_detailed_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":research_string})    
                     
+            section.name= section_written.name
             section.description= section_written.description
             section.content=section_written.content
         
@@ -529,9 +476,7 @@ async def final_section_writer_node(state:WriterState):
             "sections":{
                 "sections":state.sections.sections
             },
-            "references":{
-                "references":ref_list
-            }
+            "references":ref_list
         }
                 
         
@@ -543,7 +488,7 @@ async def final_section_writer_node(state:WriterState):
             }
         }
     
-async def final_header_writer_node(state:WriterState):
+async def detailed_header_writer_node(state:WriterState):
     try:
         query= state.query
         type_of_query= state.type_of_query
@@ -578,7 +523,7 @@ async def final_header_writer_node(state:WriterState):
         }
     
 
-async def final_footer_writer_node(state:WriterState):
+async def detailed_footer_writer_node(state:WriterState):
     try:
         query= state.query
         type_of_query= state.type_of_query

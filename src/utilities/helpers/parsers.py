@@ -2,13 +2,13 @@ import re
 from typing import List
 from pydantic import BaseModel, Field
 from typing import Union
-from utilities.states.tool_states import ArxivDoc, ArxivSearchOutput
+from utilities.states.tool_states import ArxivDoc,ArxivOutput
 
 
-def parse_arxiv_text(raw_text: str) -> ArxivSearchOutput:
+def parse_arxiv_text(raw_text: str) -> ArxivOutput:
     # Regex to split papers by "Published: ..."
     if raw_text == "No good Arxiv Result was found":
-        return ArxivSearchOutput(results="No good Arxiv Result was found")
+        return ArxivOutput(results="No good Arxiv Result was found")
     entries = re.split(r"\n(?=Published:)", raw_text.strip())
     results = []
 
@@ -30,4 +30,4 @@ def parse_arxiv_text(raw_text: str) -> ArxivSearchOutput:
                 )
             )
 
-    return ArxivSearchOutput(results=results)
+    return ArxivOutput(results=results)

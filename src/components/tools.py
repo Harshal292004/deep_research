@@ -9,39 +9,35 @@ from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from langchain_community.utilities.arxiv import ArxivAPIWrapper
 from pydantic import BaseModel, Field
 from utilities.states.tool_states import (
-    DuckDuckGoOutput,
-    LocationOutput,
-    SereprSearchOutput,
-    OrganicItem,
-    FireScrapeOutput,
-    TavilySearchItem,
-    TavilySearchOutput,
-    GitHubOrgOutput,
-    GitHubRepoOutput,
-    GitHubRepoSearchItem,
-    GitHubRepoSearchOutput,
-    GitHubUserOutput,
-    ArxivSearchOutput,
-    DuckDuckGoSearch,
-    ExaSearch,
-    SerperSearch,
-    GitHubUserQuery,
-    GitHubRepoQuery,
-    GitHubOrgQuery,
-    GitHubLanguageSearchQuery,
-    ArxivSearchQuery,
-    TavilySearchQuery,
+   DuckDuckGoQuery,
+   ExaQuery,
+   SerperQuery,
+   GitHubUserQuery,
+   GitHubOrgQuery,
+   GitHubLanguageQuery,
+   ArxivQuery,
+   TavilyQuery,
+   LocationOutput,
+   DuckDuckGoOutput,
+   SerperQueryOutput,
+   TavilyQueryOutput,
+   GitHubUserOutput,
+   GitHubRepoOutput,
+   GitHubOrgOutput,
+   GitHubLanguageOutput,
+   GitHubLanguageItem,
+   ArxivOutput,
+   ExaOutput,
+   TavilyItem
 )
 from exa_py import Exa, api
 from config import settings
-from firecrawl import FirecrawlApp
 from tavily import TavilyClient
 from github import Github
 from utilities.helpers.parsers import parse_arxiv_text
 from utilities.helpers.logger import log
 
-
-async def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
+async def duckduckgo_search(input:DuckDuckGoQuery) -> List[DuckDuckGoOutput]:
     wrapper = DuckDuckGoSearchAPIWrapper(max_results=input.max_results)
     search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
     try:
@@ -54,10 +50,9 @@ async def duckduckgo_search(input: DuckDuckGoSearch) -> List[DuckDuckGoOutput]:
         return []
 
 
-async def exa_search(
-    input: ExaSearch,
-) -> List[api.ResultWithText]:
+async def exa_search(input: ExaQuery) -> List[ExaOutput]:
     exa = Exa(api_key=settings.EXA_API_KEY)
+    exa_output= []
     try:
         log.debug(f"Starting Exa search with query: {input.query}")
         results = await exa.search_and_contents(
@@ -69,7 +64,9 @@ async def exa_search(
             text=True,
         )
         log.info(f"Exa search completed with {len(results)} results.")
-        return results
+        for result in results:
+            exa_output.append(ExaOutput(text=result.text, url= result.url))
+        return exa_output
     except Exception as e:
         log.error(f"Error during Exa search: {e}")
         return []
@@ -88,12 +85,13 @@ async def get_location() -> LocationOutput:
     except Exception as e:
         log.error(f"Error fetching location: {e}")
         return LocationOutput(country="")
-
-
-async def serper_search(input: SerperSearch) -> SereprSearchOutput:
+    
+async def serper_search(input: SerperQuery) -> SerperQueryOutput:
     conn = http.client.HTTPSConnection("google.serper.dev")
+    country= await get_location()
+    country= country.country
     payload = json.dumps(
-        {"q": input.query, "gl": input.country, "num": input.num, "tbs": input.tbs}
+        {"q": input.query, "gl": country, "num": input.num, "tbs": input.tbs}
     )
     headers = {"X-API-KEY": settings.SERPER_API_KEY, "Content-Type": "application/json"}
     try:
@@ -108,21 +106,7 @@ async def serper_search(input: SerperSearch) -> SereprSearchOutput:
         log.error(f"Error during Serper search: {e}")
         return SereprSearchOutput(organic=[])
 
-
-async def fire_scrape_web_page(url: str) -> FireScrapeOutput:
-    app = FirecrawlApp(api_key=settings.FIRE_CRAWL_API_KEY)
-    try:
-        log.debug(f"Starting web scraping for URL: {url}")
-        response = await app.scrape_url(url, formats=["markdown"])
-        result = response["data"]["markdown"]
-        log.info(f"Scraping completed, extracted markdown content.")
-        return FireScrapeOutput(markdown=result)
-    except Exception as e:
-        log.error(f"Error during web scraping: {e}")
-        return FireScrapeOutput(markdown="")
-
-
-async def tavily_search(input: TavilySearchQuery) -> TavilySearchOutput:
+async def tavily_search(input: TavilyQuery) -> TavilyQueryOutput:
     tavily_client = TavilyClient(api_key=settings.TAVLIY_API_KEY)
     try:
         log.debug(f"Starting Tavily search with query: {input.query}")
@@ -133,17 +117,16 @@ async def tavily_search(input: TavilySearchQuery) -> TavilySearchOutput:
             max_results=input.max_results,
         )
         items = [
-            TavilySearchItem(
+            TavilyItem(
                 title=entry["title"], url=entry["url"], content=entry["content"]
             )
             for entry in response.get("results", [])
         ]
         log.info(f"Tavily search returned {len(items)} results.")
-        return TavilySearchOutput(results=items)
+        return TavilyQueryOutput(results=items)
     except Exception as e:
         log.error(f"Error during Tavily search: {e}")
-        return TavilySearchOutput(results=[])
-
+        return TavilyQueryOutput(results=[])
 
 class GitHubInspector:
     def __init__(self, token: str = settings.GITHUB_ACCESS_TOKEN):
@@ -215,16 +198,14 @@ class GitHubInspector:
                 login="", name="", description="", public_repos=0, members=[]
             )
 
-    async def search_repos_by_language(
-        self, input: GitHubLanguageSearchQuery
-    ) -> GitHubRepoSearchOutput:
+    async def search_repos_by_language(self, input: GitHubLanguageQuery) -> GitHubLanguageOutput:
         try:
             log.debug(f"Searching GitHub repos by language: {input.language}")
             result = await self.g.search_repositories(
                 query=f"language:{input.language}"
             )
             repos = [
-                GitHubRepoSearchItem(
+                GitHubLanguageItem(
                     name=repo.name,
                     full_name=repo.full_name,
                     stars=repo.stargazers_count,
@@ -233,16 +214,16 @@ class GitHubInspector:
                 for repo in result[: input.limit]
             ]
             log.info(f"Found {len(repos)} repos matching language {input.language}")
-            return GitHubRepoSearchOutput(results=repos)
+            return GitHubLanguageOutput(results=repos)
         except Exception as e:
             log.error(f"Error searching GitHub repos by language {input.language}: {e}")
-            return GitHubRepoSearchOutput(results=[])
+            return GitHubLanguageOutput(results=[])
 
 
-async def arxiv_search(input: ArxivSearchQuery) -> ArxivSearchOutput:
+async def arxiv_search(input: ArxivQuery) -> ArxivOutput:
     wrapper = ArxivAPIWrapper(
         top_k_results=input.top_k_results,
-        ARXIV_MAX_QUERY_LENGTH=input.ARXIV_MAX_QUERY_LENGTH,
+        ARXIV_MAX_QUERY_LENGTH=input.max_query_length,
         load_max_docs=input.load_max_docs,
         load_all_available_meta=input.load_all_available_meta,
         doc_content_chars_max=input.doc_content_chars_max,
