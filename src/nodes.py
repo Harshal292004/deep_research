@@ -4,11 +4,11 @@ from components.chains import (
     get_header_chain,
     get_section_writer_chain,
     get_footer_writer_chain,
-    get_references_writer_chain,
     get_search_queries_chain,
     get_detailed_footer_write_chain,
     get_detailed_header_writer_chain,
-    get_detailed_section_writer_chain
+    get_detailed_section_writer_chain,
+    get_report_formator_chain
 )
 from utilities.states.report_state import (
     Section,
@@ -492,7 +492,6 @@ async def detailed_header_writer_node(state:WriterState):
     try:
         query= state.query
         type_of_query= state.type_of_query
-        schema_output= query_tool_output.get(type_of_query)
         output= state.output_list
         sections= state.sections.sections
         title= state.header.title
@@ -550,4 +549,43 @@ async def detailed_footer_writer_node(state:WriterState):
             "footer":{
                 "conclusion": None
             }
+        }
+
+async def report_formatter_node(state:WriterState):
+    try:
+        report_display = (
+            f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        )
+        
+        header_str= f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        section_str=""
+        for section in state.sections.sections:
+            section_str += f"Section {section.section_id}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
+        conclusion_str += f"Conclusion: {state.footer.conclusion}\n"
+        
+        reference_str=""
+        for reference in state.references:
+            url_str=""
+            for url in reference.source_url:
+                url_str+= f"{url} \n"
+            reference_str += f"Refrence: {reference.section_id} Name: {reference.section_name} url: {url_str} "
+        
+        
+        chain= get_report_formator_chain()
+        response= await chain.ainvoke(
+            {
+                "header":header_str,
+                "sections":section_str,
+                "conclusion":conclusion_str,
+                "refrences":reference_str
+            }
+        )    
+        
+        return {
+            "markdown": response.content
+        }
+        
+    except Exception as e:
+        return {
+           "markdown": None
         }

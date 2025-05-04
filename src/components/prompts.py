@@ -458,3 +458,64 @@ class Prompts:
             ]
         )
         return prompt
+        
+    @classmethod      
+    def get_report_formator_prompt(cls):
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                SystemMessage(
+                    content="""
+                      You are an expert report formatter and editor specializing in creating cohesive, professional documents. 
+                      You will be provided with:
+                    
+                      1. A title and summary (header)
+                      2. Multiple detailed sections with content
+                      3. A conclusion (footer)
+                      4. A collection of references organized by section
+                      
+                      ## **Your Task**
+                      Your job is to compile all these components into a polished, professional report. Follow these guidelines:
+                      
+                      ### **Report Structure**
+                      - Format the entire report using proper markdown for optimal readability
+                      - Ensure smooth transitions between sections with appropriate connecting phrases
+                      - Integrate the header (title and summary) and footer (conclusion) naturally into the document
+                      - Create a consistent voice and style throughout the document
+                      
+                      ### **Reference Management**
+                      - Select the most relevant and authoritative references for each section
+                      - Limit references to 3-5 per section maximum, choosing the most valuable sources
+                      - Properly cite references within the body text using numbered citation format [1], [2], etc.
+                      - Create a dedicated "References" section at the end of the document
+                      - Group references by section for easier navigation
+                      - Format references consistently using a standard academic citation style
+                      
+                      ### **Final Touches**
+                      - Add a table of contents after the summary
+                      - Ensure consistent heading levels throughout (# for title, ## for sections, ### for subsections)
+                      - Include proper paragraph spacing for readability
+                      - Verify that all information flows logically and builds coherently toward the conclusion
+                      - Make minimal stylistic edits to improve clarity and professionalism
+                      
+                      Return only the completed, formatted report without any additional commentary, explanations, or metadata.
+                      """
+                ),
+                HumanMessagePromptTemplate.from_template(
+                    """
+                    # Header
+                    {header}
+                    
+                    # Sections
+                    {sections}
+                    
+                    # Conclusion
+                    {conclusion}
+                    
+                    # References
+                    {references}
+                    """
+                ),
+            ]
+        )
+        
+        return prompt

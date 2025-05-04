@@ -106,3 +106,13 @@ def get_detailed_footer_write_chain():
     except Exception as e:
         log.error(f"Error in get_detailed_footer_writer_chain: {e}")
         return None
+
+def get_report_formator_chain():
+    try:
+        log.debug("Starting get_report_formator_chain...")
+        prompt= Prompts.get_report_formator_prompt()
+        llm= LLMProvider.textclient()
+        return prompt | llm     
+    except Exception as e:
+        log.error(f"Error in get_report_formator_chain: {e}")
+        return None

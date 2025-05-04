@@ -87,3 +87,4 @@ class WriterState(BaseModel):
         default=None, description="The footer of the report"
     )
     references: Optional[List[Reference]] = Field(default=None, description="List of reference")
+    markdown:Optional[str]= Field(default=None,description="The actual formatted report")
