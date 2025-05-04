@@ -78,17 +78,15 @@ async def main():
             "query": "What is the current status of the american tariffs?",
             "user_feedback": " ",
         },
+        stream_mode=["values"],
         config={
             "callbacks": [langfuse_handler],
             "configurable": {"thread_id": "abc123"},
         },
     ):
         report_state = state 
-        print(report_state)
         
-        
-    print("Final Report State:", report_state)
-    
+    report_state= ReportState(**report_state[1])
     
     async for state in research_graph.astream(
         {
@@ -96,32 +94,38 @@ async def main():
             "type_query":report_state.type_of_query,
             "sections":report_state.sections.sections
         },
+        stream_mode=["values"],
         config={
             "callbacks":[langfuse_handler],
             "configurable":{"thread_id":"abc123"}
         }
     ):
         research_state= state
-        print(research_state)
-        
-    print("Final Research State:",research_state)
     
-    async for state in writer_graph.astream(
-        {
-            "query":report_state.query,
-            "type_query":report_state.type_of_query,
-            "sections":report_state.sections,
-            "output_list": research_state.outputs,
-            "header":report_state.header,
-            "footer":report_state.footer,
-        },
-        config={
-            "callbacks":[langfuse_handler],
-            "configurable":{"thread_id":"abc123"}
-        }
-    ):
-        writer_state= state
-        print(writer_state)
+    print(research_state)
+    research_state=ResearchState(**research_state[1])
     
-    print("Final Writer State:",writer_state)
+    print(research_state.queries+" \n\n\n\n")
+    
+    print(research_state.outputs)
+    
+    
+    # async for state in writer_graph.astream(
+    #     {
+    #         "query":report_state.query,
+    #         "type_query":report_state.type_of_query,
+    #         "sections":report_state.sections,
+    #         "output_list": research_state.outputs,
+    #         "header":report_state.header,
+    #         "footer":report_state.footer,
+    #     },
+    #     config={
+    #         "callbacks":[langfuse_handler],
+    #         "configurable":{"thread_id":"abc123"}
+    #     }
+    # ):
+    #     writer_state= state
+    #     print(writer_state)
+    
+    # print("Final Writer State:",writer_state)
 asyncio.run(main())

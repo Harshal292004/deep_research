@@ -27,4 +27,5 @@ dependencies = [
     "pygithub>=2.6.1",
     "arxiv>=2.2.0",
     "langchain-groq>=0.3.2",
+    "tavily-python>=0.7.1",
 ]

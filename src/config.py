@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     LANGFUSE_HOST: str
     TEXT_GROQ_MODEL_NAME: str = "llama-3.3-70b-versatile"
     TEXT_TOGETHER_MODEL_NAME: str = "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
-    model_config = SettingsConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 settings = Settings()

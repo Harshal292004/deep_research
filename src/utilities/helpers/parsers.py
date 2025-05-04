@@ -2,7 +2,7 @@ import re
 from typing import List
 from pydantic import BaseModel, Field
 from typing import Union
-from utilities.states.tool_states import ArxivDoc,ArxivOutput
+from utilities.states.tool_state import ArxivDoc,ArxivOutput
 
 
 def parse_arxiv_text(raw_text: str) -> ArxivOutput:

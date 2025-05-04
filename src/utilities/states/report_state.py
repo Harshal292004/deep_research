@@ -2,14 +2,7 @@ from typing import Annotated, List, TypedDict, Literal, Optional
 from pydantic import BaseModel, Field
 from uuid import uuid4
 from utilities.states.research_state import QueryState,OutputState
-
-class Section(BaseModel):
-    section_id: str = Field(description="The ID of the section", default_factory=lambda: str(uuid4()))
-    name: str = Field(description="The title of the section within the report.")
-    description: str = Field(description="A concise overview of the topics and concepts covered in this section.")
-    research: bool = Field(description="Indicates whether web research is required for this section of the report.")
-    content: str = Field(description="The main content or body of the section." )
-
+from utilities.states.shared_state import Section
 class DetailedSection(BaseModel):
     name:str= Field(description="The name of the section")
     description:str= Field(description="A concise overview of the topics and concepts covered in this section")

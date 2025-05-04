@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Literal, Optional, Any, Union
 
-from utilities.states.tool_states import (
+from utilities.states.tool_state import (
     DuckDuckGoQuery,
     ExaQuery,
     SerperQuery,
@@ -24,7 +24,7 @@ from utilities.states.tool_states import (
     ExaOutput,
     TavilyItem
 )
-from utilities.states.report_state import Section
+from utilities.states.shared_state import Section
 
 
 class QueryState(BaseModel):
@@ -180,7 +180,7 @@ tool_input_map = {
     "comparative_evaluative_query": ComparativeQueryState,
     "research_oriented_query": ResearchQueryState,
     "execution_programming_query": ProgrammingQueryState,
-    "idea_generation": IdeaQueryState,
+    "idea_generation": IdeaQueryState
 }
 
 tool_output_map = {
@@ -188,5 +188,5 @@ tool_output_map = {
     "comparative_evaluative_query": ComparativeOutput,
     "research_oriented_query": ResearchOutput,
     "execution_programming_query": ProgrammingOutput,
-    "idea_generation": IdeaOutput,
+    "idea_generation": IdeaOutput
 }

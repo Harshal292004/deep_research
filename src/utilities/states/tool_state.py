@@ -65,7 +65,7 @@ class GitHubLanguageItem(BaseModel):
 
 
 class GitHubLanguageOutput(BaseModel):
-    results: List[GitHubRepoLanguageItem] = Field(description="List of repositories matching the  language search criteria")
+    results: List[GitHubLanguageItem] = Field(description="List of repositories matching the  language search criteria")
 
 
 class ArxivDoc(BaseModel):

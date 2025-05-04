@@ -8,10 +8,11 @@ from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from langchain_community.utilities.arxiv import ArxivAPIWrapper
 from pydantic import BaseModel, Field
-from utilities.states.tool_states import (
+from utilities.states.tool_state import (
    DuckDuckGoQuery,
    ExaQuery,
    SerperQuery,
+   GitHubRepoQuery,
    GitHubUserQuery,
    GitHubOrgQuery,
    GitHubLanguageQuery,
@@ -32,7 +33,7 @@ from utilities.states.tool_states import (
 )
 from exa_py import Exa, api
 from config import settings
-from tavily import TavilyClient
+from tavily import AsyncTavilyClient
 from github import Github
 from utilities.helpers.parsers import parse_arxiv_text
 from utilities.helpers.logger import log
@@ -50,12 +51,12 @@ async def duckduckgo_search(input:DuckDuckGoQuery) -> List[DuckDuckGoOutput]:
         return []
 
 
-async def exa_search(input: ExaQuery) -> List[ExaOutput]:
+def exa_search(input: ExaQuery) -> List[ExaOutput]:
     exa = Exa(api_key=settings.EXA_API_KEY)
     exa_output= []
     try:
         log.debug(f"Starting Exa search with query: {input.query}")
-        results = await exa.search_and_contents(
+        results = exa.search_and_contents(
             query=input.query,
             num_results=input.num_results,
             start_published_date=input.start_published_date,
@@ -63,9 +64,10 @@ async def exa_search(input: ExaQuery) -> List[ExaOutput]:
             category=input.category,
             text=True,
         )
-        log.info(f"Exa search completed with {len(results)} results.")
-        for result in results:
+
+        for result in results.results:
             exa_output.append(ExaOutput(text=result.text, url= result.url))
+        log.info(f"Exa search completed with {len(exa_output)} results.")
         return exa_output
     except Exception as e:
         log.error(f"Error during Exa search: {e}")
@@ -107,7 +109,7 @@ async def serper_search(input: SerperQuery) -> SerperQueryOutput:
         return SereprSearchOutput(organic=[])
 
 async def tavily_search(input: TavilyQuery) -> TavilyQueryOutput:
-    tavily_client = TavilyClient(api_key=settings.TAVLIY_API_KEY)
+    tavily_client = AsyncTavilyClient(api_key=settings.TAVLIY_API_KEY)
     try:
         log.debug(f"Starting Tavily search with query: {input.query}")
         response = await tavily_client.search(

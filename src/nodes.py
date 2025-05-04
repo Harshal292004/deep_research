@@ -27,10 +27,11 @@ from components.tools import (
     GitHubInspector,
     arxiv_search,
 )
-from utilities.states.tool_states import (
+from utilities.states.tool_state import (
    DuckDuckGoQuery,
    ExaQuery,
    SerperQuery,
+   GitHubRepoQuery,
    GitHubUserQuery,
    GitHubOrgQuery,
    GitHubLanguageQuery,
@@ -52,7 +53,7 @@ from utilities.states.tool_states import (
 from utilities.states.research_state import ResearchState, QueryState,OutputState, tool_input_map,tool_output_map
 from utilities.helpers.logger import log
 import traceback
-from pydantic import Any
+from typing import Any
 from pydantic import BaseModel
 
 # Section Writer graph
@@ -110,11 +111,11 @@ async def section_writer_node(state: ReportState):
             {
                 "query": query,
                 "type_of_query": type_of_query,
-                "title": title_of_report,
-                "summary": summary_of_report,
+                "title": title,
+                "summary": summary
             }
         )
-        return {"sections":response}
+        return {"sections":response.dict()}
     except Exception as e:
         log.error(f"Error in section_writer_node: {e}")
         return {"sections": {"sections": []}}
@@ -197,7 +198,7 @@ async def query_generation_node(state: ResearchState):
         log.debug("Starting verify_report_node...")
         query = state.query
         type_of_query = state.type_of_query
-        schema_of_tools = tool_input_map.get(state.type_of_query)
+        schema_of_tools = tool_input_map.get(type_of_query)
         input_list = []
         for section in state.sections:
             if section.research:
@@ -210,8 +211,9 @@ async def query_generation_node(state: ResearchState):
                         "section": section_string,
                     }
                 )
+                log.debug(f"The type and the output is {type(output)} \n\n\n The Output:  {output}")
                 input_list.append(QueryState(section_id=section.section_id, query_state= output))
-        return {"queries": tool_input_list}
+        return {"queries": input_list}
 
     except Exception as e:
         log.error(f"Error in query_generation_node: {e}")
@@ -231,6 +233,7 @@ async def get_tool_output(
     output_schema: Any,
     type_of_query: str,
 ):
+    # Initialize the output variables
     duckduckgo_output = None
     exa_output = None
     serper_output = None
@@ -241,49 +244,65 @@ async def get_tool_output(
     arxiv_output = None
     tavily_output = None
 
+    # Check each query and fetch the output accordingly
     if duckduckgo_query:
         duckduckgo_output = await duckduckgo_search(input=duckduckgo_query)
+        log.debug(f"duckduckgo_output type: {type(duckduckgo_output)} | Content: {duckduckgo_output}")
+
     if exa_query:
-        exa_output = await exa_search(input=exa_query)
+        exa_output = exa_search(input=exa_query)
+        log.debug(f"exa_output type: {type(exa_output)} | Content: {exa_output}")
+
     if serper_query:
         serper_output = await serper_search(input=serper_query)
+        log.debug(f"serper_output type: {type(serper_output)} | Content: {serper_output}")
+
     if github_user_query:
-        github_user_output = await GitHubInspector.get_user_by_name(
-            input=github_user_query
-        )
+        github_user_output = await GitHubInspector.get_user_by_name(input=github_user_query)
+        log.debug(f"github_user_output type: {type(github_user_output)} | Content: {github_user_output}")
+
     if github_repo_query:
-        github_repo_output = await GitHubInspector.get_repo_by_name(
-            input=github_repo_query
-        )
+        github_repo_output = await GitHubInspector.get_repo_by_name(input=github_repo_query)
+        log.debug(f"github_repo_output type: {type(github_repo_output)} | Content: {github_repo_output}")
+
     if github_org_query:
-        github_org_output = await GitHubInspector.get_org_by_name(
-            input=github_org_query
-        )
+        github_org_output = await GitHubInspector.get_org_by_name(input=github_org_query)
+        log.debug(f"github_org_output type: {type(github_org_output)} | Content: {github_org_output}")
+
     if github_language_query:
-        github_language_output = await GitHubInspector.search_repos_by_language(
-            input=github_language_query
-        )
+        github_language_output = await GitHubInspector.search_repos_by_language(input=github_language_query)
+        log.debug(f"github_language_output type: {type(github_language_output)} | Content: {github_language_output}")
+
     if arxiv_query:
         arxiv_output = await arxiv_search(input=arxiv_query)
+        log.debug(f"arxiv_output type: {type(arxiv_output)} | Content: {arxiv_output}")
+
     if tavily_query:
         tavily_output = await tavily_search(input=tavily_query)
+        log.debug(f"tavily_output type: {type(tavily_output)} | Content: {tavily_output}")
 
+    # Log the final output schema and populate based on query type
+    log.debug(f"Final type_of_query: {type_of_query}")
+    
     if type_of_query == "factual_query":
         output_schema.duckduckgo_output = duckduckgo_output
         output_schema.exa_output = exa_output
         output_schema.tavily_output = tavily_output
+        log.debug(f"Factual query outputs: {output_schema}")
 
     elif type_of_query == "comparative_evaluative_query":
         output_schema.duckduckgo_output = duckduckgo_output
         output_schema.exa_output = exa_output
         output_schema.tavily_output = tavily_output
         output_schema.serper_output = serper_output
+        log.debug(f"Comparative evaluative query outputs: {output_schema}")
 
     elif type_of_query == "research_oriented_query":
         output_schema.arxiv_output = arxiv_output
         output_schema.exa_output = exa_output
         output_schema.tavily_output = tavily_output
         output_schema.serper_output = serper_output
+        log.debug(f"Research oriented query outputs: {output_schema}")
 
     elif type_of_query == "execution_programming_query":
         output_schema.duckduckgo_output = duckduckgo_output
@@ -293,55 +312,76 @@ async def get_tool_output(
         output_schema.github_repo_output = github_repo_output
         output_schema.github_org_output = github_org_output
         output_schema.github_language_output = github_language_output
+        log.debug(f"Execution programming query outputs: {output_schema}")
 
     elif type_of_query == "idea_generation":
         output_schema.duckduckgo_output = duckduckgo_output
         output_schema.exa_output = exa_output
+        log.debug(f"Idea generation outputs: {output_schema}")
 
+    log.debug(f"Returning output schema: {output_schema}")
     return output_schema
+
 
 
 async def tool_output_node(state: ResearchState):
     try:
         log.debug("Starting tool_output_node...")
+
         queries = state.queries
         type_of_query = state.type_of_query
-        schema_of_tool = tool_input_map.get(type_of_query)
+        log.debug(f"Retrieved queries: {queries}")
+        log.debug(f"Query type: {type_of_query}")
+        
         sechema_of_output = tool_output_map.get(type_of_query)
+        log.debug(f"Schema of output: {sechema_of_output}")
+
         output_list = []
         for query in queries:
+            log.debug(f"Processing query: {query}")
+            duckduckgo_query = getattr(query.query_state, "duckduckgo_query", None)
+            exa_query = getattr(query.query_state, "exa_query", None)
+            serper_query = getattr(query.query_state, "serper_query", None)
+            github_user_query = getattr(query.query_state, "github_user_query", None)
+            github_repo_query = getattr(query.query_state, "github_repo_query", None)
+            github_org_query = getattr(query.query_state, "github_org_query", None)
+            github_language_query = getattr(query.query_state, "github_language_query", None)
+            arxiv_query = getattr(query.query_state, "arxiv_query", None)
+            tavily_query = getattr(query.query_state, "tavily_query", None)
+
+            log.debug(f"duckduckgo_query: {duckduckgo_query}")
+            log.debug(f"exa_query: {exa_query}")
+            log.debug(f"serper_query: {serper_query}")
+            log.debug(f"github_user_query: {github_user_query}")
+            log.debug(f"github_repo_query: {github_repo_query}")
+            log.debug(f"github_org_query: {github_org_query}")
+            log.debug(f"github_language_query: {github_language_query}")
+            log.debug(f"arxiv_query: {arxiv_query}")
+            log.debug(f"tavily_query: {tavily_query}")
+
             output = await get_tool_output(
-                duckduckgo_query=getattr(
-                    query.query_state, "duckduckgo_query", None
-                ),
-                exa_query=getattr(query.query_state, "exa_query", None),
-                serper_query=getattr(query.query_state, "serper_query", None),
-                github_user_query=getattr(
-                    query.query_state, "github_user_query", None
-                ),
-                github_repo_query=getattr(
-                    query.query_state, "github_repo_query", None
-                ),
-                github_org_query=getattr(
-                    query.query_state, "github_org_query", None
-                ),
-                github_language_query=getattr(
-                    query.query_state, "github_language_query", None
-                ),
-                arxiv_query=getattr(
-                    query.query_state, "arxiv_query", None
-                ),
-                tavily_query=getattr(
-                    query.query_state, "tavily_query", None
-                ),
+                duckduckgo_query=duckduckgo_query,
+                exa_query=exa_query,
+                serper_query=serper_query,
+                github_user_query=github_user_query,
+                github_repo_query=github_repo_query,
+                github_org_query=github_org_query,
+                github_language_query=github_language_query,
+                arxiv_query=arxiv_query,
+                tavily_query=tavily_query,
                 output_schema=sechema_of_output,
                 type_of_query=type_of_query,
             )
-            output_list.append(OutputState(section_id=query.section_id,output_state= output))
 
-        return {"outputs": output_list}
+            log.debug(f"Received output: {output}")
+            output_list.append(OutputState(section_id=query.section_id, output_state=output))
+
+        final_output_list = [ {'section_id':o.section_id,'output_state':o.output_state.dict()} for o in output_list]
+        log.debug(f"Final output list: {final_output_list}")
+        return {"outputs": final_output_list}
+    
     except Exception as e:
-        log.error(f"Error in query_generation_node: {e}")
+        log.error(f"Error in tool_output_node: {e}")
         return {"outputs": None}
 
 

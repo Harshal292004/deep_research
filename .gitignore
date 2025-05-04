@@ -11,3 +11,4 @@ wheels/
 
 .env
 src/utilities/__pycache__
+Learn.md
