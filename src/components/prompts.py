@@ -138,7 +138,8 @@ class Prompts:
                     content="""
                       You are a professional report formatter specializing in designing **conclusions** for modern, practical reports.
                       Your task is to create the **conclusion** framework based on the query type and the structure of the report sections.
-
+                      You are not supposed to actually write the compelte report you just have to give the point that should be covered in the actual conclusion.
+                      
                       ## **Key Requirements for Modern Conclusion Structure**
                       1. **Prioritize Recent Information:** Ensure the conclusion highlights the most current developments and implications.
                       2. **Focus on Practical Impact:** Emphasize real-world applications and consequences over theoretical insights.

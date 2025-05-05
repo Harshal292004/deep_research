@@ -1,46 +1,74 @@
-# The Current Status of American Tariffs 
-The imposition of tariffs by the United States has been a pivotal aspect of its trade policy, influencing both domestic and international markets. As the global trade landscape continues to evolve, understanding the current status of American tariffs is crucial for businesses, policymakers, and individuals alike.
-### Purpose and Scope of the Report 
-This report aims to provide a comprehensive overview of the current American tariffs, delving into their definitions, key characteristics, and essential details. It seeks to inform readers about the fundamentals of tariffs, including their implementation, real-world applications, and the common misconceptions surrounding them. 
-### Background and Overview 
-Tariffs are taxes imposed on imported goods and services, and their implementation is based on a complex interplay of economic, political, and social factors. The scientific basis of tariff implementation involves a thorough analysis of trade deficits, industry protection, and revenue generation. American tariffs have been applied in various contexts, from protecting domestic industries to negotiating trade agreements with other countries. 
-### Report Coverage 
-This report will cover the foundational aspects of tariffs, including their definition and the rationale behind their implementation. It will also explore real-world applications of tariffs, highlighting their impact on different sectors and the economy as a whole. Furthermore, the report will address common misconceptions about American tariffs, providing clarity on their current status and discussing future prospects in the context of global trade dynamics. By examining the multifaceted nature of American tariffs, this report aims to offer a nuanced understanding of their role in shaping the country's trade policy and their implications for the global economy. 
-## Table of Contents 
-1. [Introduction to the Current Status of American Tariffs](#introduction-to-the-current-status-of-american-tariffs)
-2. [Definition & Core Concept](#definition--core-concept) 
-3. [Scientific Basis](#scientific-basis) 
-4. [Real-World Applications](#real-world-applications) 
-5. [Misconceptions & Clarifications](#misconceptions--clarifications) 
-6. [Conclusion](#conclusion) 
-7. [References](#references)
-## Definition & Core Concept 
-This section will cover the basic concept of tariffs, their types, and how they are calculated. Tariffs are taxes imposed on imported goods and services, and their implementation is based on economic theories and legal frameworks [1]. The current tariffs imposed by the United States are no exception, with a base tax of 10% in place across the world, in addition to duties on some industries. 
-## Scientific Basis 
-The current status of American tariffs is complex and has undergone significant changes. Tariffs are often used as a tool to protect domestic industries and to generate revenue for the government. However, they can also have negative effects on consumer demand and the overall economy [2]. The legal framework of tariffs is based on international trade agreements and executive orders. The United States has imposed sweeping tariffs on its trading partners, including China, Mexico, and Canada [3]. However, some of these tariffs have been paused or delayed, such as the tariffs on Mexico and Canada, which were delayed for 90 days to negotiate trade deals. 
-## Real-World Applications
- The United States has been involved in a series of trade wars and tariff implementations in recent years. This section will delve into the current status of American tariffs, their effects on domestic and international trade, and the industries most affected [4]. As of April 2025, there have been several developments in American tariffs. For instance, reciprocal tariffs with countries like Bosnia and Herzegovina and Botswana have been delayed until July 9, with rates of 36% and 38% respectively on all products, excluding certain exceptions [5].
-  ## Misconceptions & Clarifications
-   This section will clarify common misunderstandings about American tariffs, discuss their current status, and outline future prospects. The current status of American tariffs is characterized by a mix of tariffs imposed on specific countries, such as China, and exemptions or reductions for certain products or industries [6]. 
-   ## Conclusion 
-   The current status of American tariffs is a complex and multifaceted issue, often shrouded in misconceptions. Upon closer examination, it becomes clear that the tariffs imposed by the United States are subject to ongoing negotiations, revisions, and updates. 
-   #### Key Findings 
-   - The American tariffs have undergone significant changes in recent years, with various trade agreements and policies being introduced or modified.
-   -   Despite common misconceptions, the tariffs are not a static entity, but rather a dynamic tool used by the US government to protect domestic industries and negotiate trade deals.  
-   - The current status of American tariffs is characterized by a mix of tariffs imposed on specific countries, such as China, and exemptions or reductions for certain products or industries.
- #### Insights and Recommendations 
- - In light of these findings, it is essential to stay informed about the latest developments and updates on American tariffs. 
- - Businesses and individuals affected by these tariffs should closely monitor trade negotiations and policy changes to navigate the complex landscape.
-## References 
-### Scientific Basis 
- 1. https://www.tradecomplianceresourcehub.com/2025/04/24/trump-2-0-tariff-tracker/ 
- 2. https://www.usatoday.com/story/graphics/2025/04/10/current-trump-tariffs-map/83026822007/ 
- 3.  https://www.axios.com/2025/04/09/trump-tariffs-90-day-pause-china 
-### Real-World Applications 
-1. https://www.tradecomplianceresourcehub.com/2025/04/29/trump-2-0-tariff-tracker/ 
-2. https://www.usatoday.com/story/graphics/2025/04/10/current-trump-tariffs-map/83026822007/ 
-3.  https://www.usatoday.com/story/graphics/2025/03/28/trump-tariff-tracker-timeline/82367214007/ 
-### Misconceptions & Clarifications 
-1. https://www.reuters.com/world/how-hard-will-new-biden-tariffs-hit-china-2024-05-13/ 
-2.  https://www.washingtonpost.com/business/2024/05/14/biden-china-tariff-ev-solar/ 
-3. https://finance.yahoo.com/news/live/trump-tariffs-live-updates-trump-raises-rate-on-china-to-125-pauses-reciprocal-tariffs-on-other-countries-191201868.html
+# American Tariffs: Current Status and Future Outlook
+
+## Summary
+As the global trade landscape continues to shift, American tariffs remain a critical and evolving issue, with recent developments significantly impacting international commerce and the domestic economy. The last 12 months have seen a flurry of activity, including new tariffs imposed on goods from Canada and Mexico, alongside increased tariffs on specific Chinese imports such as semiconductors, electric vehicles, and solar cells. This report provides an in-depth look at the current status of American tariffs, covering the complex landscape of tariff policies, immediate economic effects, and the latest changes that have occurred within the last 6-12 months.
+
+## Table of Contents
+1. [Introduction to American Tariffs](#introduction-to-american-tariffs)
+2. [Latest Tariff Developments and Updates](#latest-tariff-developments-and-updates)
+3. [Economic Impact of Current Tariffs](#economic-impact-of-current-tariffs)
+4. [Outlook and Future of American Tariffs](#outlook-and-future-of-american-tariffs)
+5. [Conclusion](#conclusion)
+6. [References](#references)
+
+## Introduction to American Tariffs
+The current status of American tariffs is characterized by recent policies and rates, including significant changes within the last year. As of 2025, the U.S. has implemented new tariffs on goods imported from various countries, including China, Hong Kong, Canada, and Mexico. The tariffs are imposed pursuant to the **International Emergency Economic Powers Act (IEEPA)** and **Section 232 of the Trade Expansion Act of 1962**.
+
+Key points to note include:
+* A flat 10% tariff applies to imports from all countries, with the exception of China and Hong Kong, which are subject to different rates
+* The U.S. has channeled nearly $1.5 trillion of public and private funds into industries affected by the tariffs in recent years
+* The Biden administration has kept most of the tariffs imposed by the Trump administration in place, despite industry hopes that they would be narrowed
+* The tariffs are part of a broader strategy to protect the U.S. against supply shortages and promote American manufacturing
+* China has denounced the new tariffs and has announced its own tariffs on certain U.S. goods, including coal, liquefied natural gas, and crude oil
+* The U.S. had a $279 billion trade deficit with China in 2023, the largest figure for any of its trading partners
+* The tariffs have had a significant impact on global trade, with many countries affected by the U.S. tariffs and retaliatory measures
+
+## Latest Tariff Developments and Updates
+The current status of American tariffs has seen significant developments in the past 6-12 months. Some of the key updates include:
+
+* The introduction of new tariff structures affecting multiple trade partners, with a pending effective date of April 2, 2025, as part of the reciprocal tariffs aim to establish fair trade by aligning U.S. tariffs with those levied by other countries on American products
+* The imposition of a 25% tariff on goods imported into the U.S. from countries that buy Venezuelan oil, which could include China, the Dominican Republic, India, Malaysia, Russia, Singapore, and Spain
+* The average effective tariff rate has increased by 3%, resulting in a -0.4% impact on the U.S. GDP
+* The affected trade amounts to $987.7B, with various households, particularly low-income ones, expected to pay more for certain grocery items such as seafood, coffee, and olive oil due to the tariffs
+
+These recent developments highlight the ongoing trade wars and the introduction of new policies, which are expected to have significant effects on the U.S. economy and trade relationships with other countries.
+
+## Economic Impact of Current Tariffs
+The current status of American tariffs is marked by significant developments in recent months. As of April 2, 2025, the United States announced a global tariff plan, which has raised the country's weighted-average tariff rate to its highest level in the past 100 years. The tariffs are expected to have a substantial impact on various industries and trade volumes.
+
+Some key points to consider include:
+* The tariff plan is projected to raise significant revenue, with estimates suggesting over $5.2 trillion over 10 years on a conventional basis and $4.5 trillion on a dynamic basis
+* The tariffs have already led to heightened volatility in financial markets worldwide, with concerns about the impact on the global economy
+* Goods from China will attract a cumulative tariff hike of 125%, while most other countries and the European Union will face 10% tariffs for a period of 90 days to enable trade negotiations
+* The tariffs are likely to affect various industries, including the tech sector, which may need to compete with other less well-funded efforts to meet growing needs from increased population sources
+* The impact of tariffs on businesses will be significant, with companies needing to adapt to the new trade policies and potentially offset rising costs of goods
+* The tariffs may also influence sales in various industries, including agriculture, where commodity prices, acreage planted, crop yields, and government policies will play a crucial role
+
+## Outlook and Future of American Tariffs
+The current status of American tariffs is complex and constantly evolving. Recent developments include the imposition of new tariffs on goods imported from Canada and Mexico, as well as increased tariffs on Chinese goods such as semiconductors, electric vehicles, and solar cells. The tariffs on Canadian- and Mexican-made goods are set to resume on March 4, 2025, with a 25% tariff on most products and a 10% tariff on Canadian energy imports. In response, Canada and Mexico have announced plans to implement retaliatory trade measures against US exports. The US has also increased tariffs on Chinese goods, citing concerns over China's trade practices and the need to protect US industries.
+
+Some key changes include:
+* Tariffs on semiconductors increasing from 25% to 50% by 2025
+* Tariffs on electric vehicles increasing from 25% to 100% in 2024
+* Tariffs on lithium-ion EV batteries increasing from 7.5% to 25% in 2024
+* Tariffs on Chinese solar cells doubling from 25% to 50%
+* Tariffs on some Chinese steel and aluminum imports increasing more than three-fold from 7.5% to 25%
+
+These changes are expected to have significant impacts on the economy, including potential inflation, slowed growth, and increased costs for consumers.
+
+## Conclusion
+The American tariff landscape is complex and ever-changing, with recent developments introducing new tariffs on goods from Canada, Mexico, and China. The current situation is marked by escalating trade tensions, with tariffs on Canadian and Mexican goods set to resume and retaliatory measures planned by these countries. 
+
+Key practical takeaways include reviewing supply chains, reassessing investments, and adapting business plans to mitigate the effects of increased tariffs on semiconductors, electric vehicles, solar cells, and steel and aluminum imports. In the near term, companies can expect potential inflation, slowed growth, and increased consumer costs. 
+
+As the situation continues to unfold, businesses must prioritize agility and strategic planning to navigate the evolving tariff environment, focusing on practical solutions to minimize disruption and capitalize on emerging opportunities.
+
+## References
+1. https://www.cbp.gov/document/fact-sheets/new-tariff-requirements-2025-factsheet
+2. https://www.cbp.gov/newsroom/announcements/official-cbp-statement-tariffs
+3. https://www.usatoday.com/story/graphics/2025/04/10/current-trump-tariffs-map/83026822007/
+4. https://zonos.com/docs/guides/2025-us-tariff-changes
+5. https://www.richmondfed.org/publications/research/economic_brief/2025/eb_25-12
+6. https://budgetmodel.wharton.upenn.edu/issues/2025/4/10/economic-effects-of-president-trumps-tariffs
+7. https://www.cnn.com/2025/05/02/economy/europe-lower-inflation-us-tariffs-analysis-intl
+8. https://www.cnn.com/2025/03/12/economy/trump-steel-aluminum-tariffs-hnk-intl/index.html

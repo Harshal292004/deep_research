@@ -479,59 +479,86 @@ def roll_out_output(state, refrence: Reference, section: Section):
         log.error(f"Error occurred: {e}")
         return None, None
 
-
-async def detailed_section_writer_node(state:WriterState):
+async def detailed_section_writer_node(state: WriterState):
     try:
-        query= state.query
-        type_of_query= state.type_of_query
-        schema_output= tool_output_map.get(type_of_query)
-        outputs= state.outputs
-        sections= state.sections.sections
-        ref_list=[]
-        section_written=None
+        log.debug(f"[detailed_section_writer_node] Received state: {state} | Type: {type(state)}")
+        log.debug(f"[detailed_section_writer_node] Query: {state.query} | Type: {type(state.query)}")
+        log.debug(f"[detailed_section_writer_node] Type of query: {state.type_of_query} | Type: {type(state.type_of_query)}")
+
+        schema_output = tool_output_map.get(state.type_of_query)
+        log.debug(f"[detailed_section_writer_node] Schema output: {schema_output} | Type: {type(schema_output)}")
+
+        outputs = state.outputs
+        log.debug(f"[detailed_section_writer_node] Outputs: {outputs} | Type: {type(outputs)}")
+
+        sections = state.sections.sections
+        log.debug(f"[detailed_section_writer_node] Sections: {sections} | Type: {type(sections)}")
+
+        ref_list = []
+        section_written = None
+
         for section in sections:
+            log.debug(f"[detailed_section_writer_node] Processing section: {section} | Type: {type(section)}")
             section_string = (
                 f"name: {section.name} "
                 f"description: {section.description} "
                 f"content: {section.content}"
             )
-            
+            log.debug(f"[detailed_section_writer_node] Constructed section_string: {section_string} | Type: {type(section_string)}")
+
             if not section.research:
-                section_written=await get_detailed_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":""})     
+                log.debug(f"[detailed_section_writer_node] Section has no research data.")
+                section_written = await get_detailed_section_writer_chain().ainvoke({
+                    "query": state.query,
+                    "type_of_query": state.type_of_query,
+                    "section": section_string,
+                    "research_data": ""
+                })
+                log.debug(f"[detailed_section_writer_node] Section written (no research): {section_written}")
                 continue
-                
+
             for output in outputs:
                 if output.section_id == section.section_id:
-                    log.debug(f"Rolling out for:{section} \n\n\n")
-                    log.debug(f"State being thrown in is : {output.output_state}")
-                    roll_out_str,refrence = roll_out_output(output.output_state,refrence=Reference(),  section= section)
+                    log.debug(f"[detailed_section_writer_node] Rolling out section: {section.name} | Section ID: {section.section_id}")
+                    log.debug(f"[detailed_section_writer_node] Output: {output} | State: {output.output_state}")
+                    
+                    roll_out_str, refrence = roll_out_output(output.output_state, refrence=Reference(), section=section)
+                    log.debug(f"[detailed_section_writer_node] Roll-out string: {roll_out_str}")
+                    log.debug(f"[detailed_section_writer_node] Reference object: {refrence}")
                     ref_list.append(refrence.dict())
-                    
-                    section_written=await get_detailed_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":roll_out_str})    
-                    
-            section.name= section_written.name
-            section.description= section_written.description
-            section.content=section_written.content
-        
+
+                    section_written = await get_detailed_section_writer_chain().ainvoke({
+                        "query": state.query,
+                        "type_of_query": state.type_of_query,
+                        "section": section_string,
+                        "research_data": roll_out_str
+                    })
+                    log.debug(f"[detailed_section_writer_node] Section written (with research): {section_written}")
+
+            section.name = section_written.name
+            section.description = section_written.description
+            section.content = section_written.content
+            log.debug(f"[detailed_section_writer_node] Updated section: {section.name} | {section.description} | {section.content}")
+
+        log.debug(f"[detailed_section_writer_node] Returning section data and references.")
         return {
-            "sections":{
-                "sections":[sec.dict() for sec in state.sections.sections]
+            "sections": {
+                "sections": [sec.dict() for sec in state.sections.sections]
             },
-            "references":ref_list
+            "references": ref_list
         }
-                
-        
+
     except Exception as e:
-        log.error(f"The error is {e}")
+        log.exception(f"[detailed_section_writer_node] Exception: {e}", exc_info=True)
         return {
-            "sections":{
-                "sections":None
+            "sections": {
+                "sections": None
             }
         }
-    
+
 async def detailed_header_writer_node(state: WriterState):
     try:
-        log.debug(f"Received state: {state}")
+        log.debug(f"[detailed_header_writer_node] Received state: {state} | Type: {type(state)}")
         query = state.query
         type_of_query = state.type_of_query
         output = state.outputs
@@ -539,25 +566,25 @@ async def detailed_header_writer_node(state: WriterState):
         title = state.header.title
         summary = state.header.summary
 
-        log.debug(f"Query: {query} | Type: {type(query)}")
-        log.debug(f"Type of query: {type_of_query} | Type: {type(type_of_query)}")
-        log.debug(f"Output: {output} | Type: {type(output)}")
-        log.debug(f"Sections: {sections} | Type: {type(sections)}")
-        log.debug(f"Title: {title} | Type: {type(title)}")
-        log.debug(f"Summary: {summary} | Type: {type(summary)}")
+        log.debug(f"[detailed_header_writer_node] Query: {query}")
+        log.debug(f"[detailed_header_writer_node] Type of query: {type_of_query}")
+        log.debug(f"[detailed_header_writer_node] Output: {output}")
+        log.debug(f"[detailed_header_writer_node] Sections: {sections}")
+        log.debug(f"[detailed_header_writer_node] Title: {title}")
+        log.debug(f"[detailed_header_writer_node] Summary: {summary}")
 
         section_written = None
         for sec in sections:
-            log.debug(f"Processing section: {sec} | Type: {type(sec)}")
+            log.debug(f"[detailed_header_writer_node] Processing section: {sec}")
             section_string = (
                 f"name: {sec.name} "
                 f"description: {sec.description} "
                 f"research: {sec.research} "
                 f"content: {sec.content}"
             )
-            log.debug(f"Constructed section_string: {section_string}")
+            log.debug(f"[detailed_header_writer_node] Constructed section_string: {section_string}")
 
-        log.debug("Calling detailed header writer chain...")
+        log.debug("[detailed_header_writer_node] Calling detailed header writer chain...")
         summary = await get_detailed_header_writer_chain().ainvoke({
             "query": query,
             "type_of_query": type_of_query,
@@ -566,8 +593,7 @@ async def detailed_header_writer_node(state: WriterState):
             "title": title
         })
 
-        log.debug(f"Received summary content: {summary.content} | Type: {type(summary)}")
-
+        log.debug(f"[detailed_header_writer_node] Received summary: {summary.content}")
         return {
             "header": {
                 "summary": summary.content
@@ -575,7 +601,7 @@ async def detailed_header_writer_node(state: WriterState):
         }
 
     except Exception as e:
-        log.error(f"The error is {e}")
+        log.error(f"[detailed_header_writer_node] Error: {e}")
         return {
             "header": {
                 "summary": None
@@ -584,33 +610,32 @@ async def detailed_header_writer_node(state: WriterState):
 
 async def detailed_footer_writer_node(state: WriterState):
     try:
-        log.debug(f"Received state: {state}")
+        log.debug(f"[detailed_footer_writer_node] Received state: {state} | Type: {type(state)}")
         query = state.query
         type_of_query = state.type_of_query
         sections = state.sections.sections
 
-        log.debug(f"Query: {query} | Type: {type(query)}")
-        log.debug(f"Type of query: {type_of_query} | Type: {type(type_of_query)}")
-        log.debug(f"Sections: {sections} | Type: {type(sections)}")
+        log.debug(f"[detailed_footer_writer_node] Query: {query}")
+        log.debug(f"[detailed_footer_writer_node] Type of query: {type_of_query}")
+        log.debug(f"[detailed_footer_writer_node] Sections: {sections}")
         
         for sec in sections:
-            log.debug(f"Processing section: {sec} | Type: {type(sec)}")
+            log.debug(f"[detailed_footer_writer_node] Processing section: {sec}")
             section_string = (
                 f"name: {sec.name} "
                 f"description: {sec.description} "
                 f"research: {sec.research} "
                 f"content: {sec.content} "
             )
-            log.debug(f"Constructed section_string: {section_string}")
+            log.debug(f"[detailed_footer_writer_node] Constructed section_string: {section_string}")
 
-        log.debug("Calling detailed footer writer chain...")
+        log.debug("[detailed_footer_writer_node] Calling detailed footer writer chain...")
         conclusion = await get_detailed_footer_write_chain().ainvoke({
             "query": query,
             "section": section_string,
         })
 
-        log.debug(f"Received conclusion content: {conclusion.content} | Type: {type(conclusion)}")
-
+        log.debug(f"[detailed_footer_writer_node] Received conclusion: {conclusion.content}")
         return {
             "footer": {
                 "conclusion": conclusion.content
@@ -618,70 +643,65 @@ async def detailed_footer_writer_node(state: WriterState):
         }
 
     except Exception as e:
-        log.error(f"The error is {e}")
+        log.error(f"[detailed_footer_writer_node] Error: {e}")
         return {
             "footer": {
                 "conclusion": None
             }
         }
+
 async def report_formatter_node(state: WriterState):
     try:
-        log.warning(f"\n\n\n\nStarted with report_formatter node\n\n\n\n")
-        log.debug(f"Received state: {state} | Type: {type(state)}")
-        log.debug(f"Header: {state.header} | Type: {type(state.header)}")
-        log.debug(f"Sections: {state.sections.sections} | Type: {type(state.sections.sections)}")
-        log.debug(f"Footer: {state.footer} | Type: {type(state.footer)}")
-        log.debug(f"References: {state.references} | Type: {type(state.references)}")
+        log.warning(f"[report_formatter_node] Starting formatter node")
+        log.debug(f"[report_formatter_node] Received state: {state}")
+        log.debug(f"[report_formatter_node] Header: {state.header}")
+        log.debug(f"[report_formatter_node] Sections: {state.sections.sections}")
+        log.debug(f"[report_formatter_node] Footer: {state.footer}")
+        log.debug(f"[report_formatter_node] References: {state.references}")
 
         header_str = f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
-        log.debug(f"Constructed header_str:\n{header_str}")
+        log.debug(f"[report_formatter_node] Header string:\n{header_str}")
 
         section_str = ""
         for sec in state.sections.sections:
-            log.debug(f"Processing section: {sec} | Type: {type(sec)}")
+            log.debug(f"[report_formatter_node] Processing section: {sec}")
             sec_str = (
                 f"Section {sec.section_id}: {sec.name}\n"
                 f"Description: {sec.description}\n"
                 f"Content: {sec.content}\n\n"
             )
             section_str += sec_str
-            log.debug(f"Appended section_str:\n{sec_str}")
+            log.debug(f"[report_formatter_node] Section string:\n{sec_str}")
 
         conclusion_str = f"Conclusion: {state.footer.conclusion}\n"
-        log.debug(f"Constructed conclusion_str:\n{conclusion_str}")
+        log.debug(f"[report_formatter_node] Conclusion string:\n{conclusion_str}")
 
         reference_str = ""
         for reference in state.references:
-            log.debug(f"Processing reference: {reference} | Type: {type(reference)}")
+            log.debug(f"[report_formatter_node] Processing reference: {reference}")
             url_str = ""
             for url in reference.source_url:
                 url_str += f"{url} \n"
-                log.debug(f"Appended URL: {url}")
+                log.debug(f"[report_formatter_node] URL: {url}")
             ref_str = f"Refrence: {reference.section_id} Name: {reference.section_name} url: {url_str} "
             reference_str += ref_str
-            log.debug(f"Appended reference_str:\n{ref_str}")
+            log.debug(f"[report_formatter_node] Reference string:\n{ref_str}")
 
-        log.debug("Calling get_report_formator_chain()...")
-        chain = get_report_formator_chain()
-        log.debug(f"Chain object: {chain} | Type: {type(chain)}")
-
-        log.debug("Invoking chain.ainvoke() with input payload...")
-        response = await chain.ainvoke({
+        log.debug("[report_formatter_node] Calling formatter chain...")
+        response = await get_report_formator_chain().ainvoke({
             "header": header_str,
             "section": section_str,
             "conclusion": conclusion_str,
             "reference": reference_str
         })
 
-        log.debug(f"Chain response: {response} | Type: {type(response)}")
-        log.debug(f"Response content: {response.content}")
-
+        log.debug(f"[report_formatter_node] Formatter chain response: {response.content}")
         return {
             "markdown": response.content
         }
 
     except Exception as e:
-        log.exception(f"Exception in report_formatter_node: {e}", exc_info=True)
+        log.exception(f"[report_formatter_node] Exception: {e}", exc_info=True)
         return {
             "markdown": None
         }
