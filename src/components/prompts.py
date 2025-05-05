@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 class Prompts:
     @classmethod
     def get_router_prompt(cls):
+        # No significant changes needed here - routing functionality works as is
         prompt = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(
@@ -34,7 +35,6 @@ class Prompts:
                       Respond only with the name of the correct subgroup. Do not explain or justify your choice.
 
                       Your only task is to correctly route the following user query into one of the subgroups.
-                      
                       """
                 ),
                 HumanMessagePromptTemplate.from_template("The query is: {query}"),
@@ -48,78 +48,38 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are an expert in structuring professional and well-organized reports. Your task is to generate the **header structure** for a report based on a given query and its type.
+                      You are an expert in structuring modern, engaging reports. Your task is to generate the **header structure** for a report based on a given query and its type.
 
                       ## **Key Responsibilities**
                       1. **Title Generation:** Create a clear, concise, and informative title that reflects the core intent of the query.
-                      2. **Summary Framework:** Design the structure of the report summary, specifying the key points it should cover.
-                      3. **Report Focus:** Define the primary focus areas relevant to the query type.
-                      4. **Alignment with Query Type:** Ensure the header structure is appropriately designed based on the query classification.
+                      2. **Summary Framework:** Design the structure of the report summary, specifying key points to cover.
+                      3. **Report Focus:** Define primary focus areas relevant to the query type.
+                      4. **Recency Priority:** Emphasize CURRENT information and RECENT developments (within the last 6-12 months).
+                      5. **Engagement:** Design the report to be informative and engaging rather than academic and verbose.
+
+                      ## **Structure Guidelines**
+                      - Titles should be direct and engaging, avoiding academic jargon
+                      - Summary should be concise and highlight practical relevance
+                      - Focus on recent trends, developments, and real-world applications
+                      - Prioritize information from the last 6-12 months when possible
+                      - Avoid theoretical frameworks unless directly relevant to query
 
                       ## **Query Types and Expected Header Structures**
                       - **factual_query**  
                         - Title should be straightforward, clearly indicating the topic.  
-                        - Summary should highlight **definitions, key characteristics, and essential details**.  
+                        - Summary should highlight **current status, recent developments, and practical impact**.  
                         - Example:  
-                          - Query: *"What is entropy in thermodynamics?"*  
-                          - Title: `"Understanding Entropy in Thermodynamics"`  
+                          - Query: *"What is the current status of American tariffs?"*  
+                          - Title: `"American Tariffs Today: Current Status and Impact"`  
                           - Summary Structure:  
-                            - **Definition:** Explain entropy concisely.  
-                            - **Scientific Basis:** Cover underlying principles.  
-                            - **Real-World Applications:** Mention where it is used.  
-                            - **Common Misconceptions:** Clarify misunderstandings.  
+                            - **Current Landscape:** Highlight most recent tariff policies and changes.  
+                            - **Key Impacts:** Focus on immediate economic effects.  
+                            - **Latest Developments:** Emphasize changes within the last 6-12 months.  
 
-                      - **comparative_evaluative_query**  
-                        - Title should reflect the comparison clearly.  
-                        - Summary should introduce the entities being compared and the comparison criteria.  
-                        - Example:  
-                          - Query: *"Compare Go vs Rust for concurrency."*  
-                          - Title: `"Go vs Rust: A Comparative Analysis for Concurrency"`  
-                          - Summary Structure:  
-                            - **Overview of Go and Rust**  
-                            - **Concurrency Models in Both**  
-                            - **Performance & Efficiency Comparison**  
-                            - **Use Case Suitability**  
-
-                      - **research_oriented_query**  
-                        - Title should be **broad yet specific**, indicating depth.  
-                        - Summary should set the context for deep exploration.  
-                        - Example:  
-                          - Query: *"Explain the evolution of distributed file systems."*  
-                          - Title: `"The Evolution of Distributed File Systems: A Comprehensive Analysis"`  
-                          - Summary Structure:  
-                            - **Introduction & Background**  
-                            - **Major Developments Over Time**  
-                            - **Current Trends & Future Directions**  
-                            - **Challenges & Open Research Areas**  
-
-                      - **execution_programming_query**  
-                        - Title should be **task-oriented** and precise.  
-                        - Summary should outline key implementation details.  
-                        - Example:  
-                          - Query: *"Write a Python script to scrape a website."*  
-                          - Title: `"Web Scraping with Python: A Practical Guide"`  
-                          - Summary Structure:  
-                            - **Introduction to Web Scraping**  
-                            - **Required Tools & Libraries**  
-                            - **Step-by-Step Implementation**  
-                            - **Error Handling & Best Practices**  
-
-                      - **idea_generation**  
-                        - Title should encourage creativity.  
-                        - Summary should outline different **angles for brainstorming**.  
-                        - Example:  
-                          - Query: *"Give me startup ideas using blockchain."*  
-                          - Title: `"Innovative Startup Ideas Leveraging Blockchain"`  
-                          - Summary Structure:  
-                            - **Current Gaps in the Market**  
-                            - **Potential Applications of Blockchain**  
-                            - **Feasibility Analysis**  
-                            - **Challenges & Future Opportunities**  
-
-                      You will also be provided a user feedback on whether or not the report structure made is sufficient. 
-                      And if not, the user will provide what changes are needed.You have to adapt the report structure based on changes described.
-                      Note that you won't be provided the feedback for the first time.
+                      You will also be provided any user feedback on whether the report structure is sufficient. 
+                      Adapt the report structure based on changes described. If any section feels outdated, replace it with more current alternatives.
+                      
+                      Remember: This report should feel CURRENT and PRACTICAL, not theoretical or historical unless specifically requested.
                       """
                   ),
                   HumanMessagePromptTemplate.from_template(
@@ -135,55 +95,32 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are a structured report designer. Your job is to define **the main sections** of a report based on a given query and its type with the title and summary points. Each report should contain **no more than 4 sections**, ensuring concise yet comprehensive coverage.
+                      You are a modern report designer. Your job is to define **the main sections** of a report based on a given query, its type, title, and summary points.
+                      Each report should contain **no more than 4 sections**, ensuring concise yet comprehensive coverage.
+
+                      ## **Critical Instructions**
+                      - Focus on RECENT information and developments (within the last 6-12 months)
+                      - Prioritize practical, applied information over theoretical or historical background
+                      - Use clear, direct language for section titles - avoid academic jargon
+                      - Design sections to be engaging and informative rather than academic
+                      - If the query topic has seen significant recent developments, ensure section structure reflects this
 
                       ## **Section Writing Guidelines**
                       - Each section must have:  
-                        - **A title** (clearly defining the topic).  
+                        - **A title** (clear, direct language defining the topic).  
                         - **A description** (brief overview of what the section covers).  
                         - **A research flag** (`True` if external research is required, `False` if general knowledge suffices).  
-                        - **Content Expectation** (what should be covered in this section).  
+                        - **Content Expectation** (what should be covered, with emphasis on recent developments).  
 
-                      ## **Expected Section Structure Based on Query Type**
-                      - **factual_query**  
-                        - **Example:** *"What is entropy in thermodynamics?"*  
-                        - **Sections:**  
-                          1. *Definition & Core Concept* (explanation, formula)  
-                          2. *Scientific Basis* (thermodynamic laws, entropy's role)  
-                          3. *Real-World Applications* (engineering, physics, computing)  
-                          4. *Misconceptions & Clarifications*  
+                      ## **Example Section Structure For Recent Topics**
+                      - **Example Query:** *"What is the current status of American tariffs?"*  
+                      - **Sections:**  
+                          1. *"Current U.S. Tariff Landscape"* (recent policies and rates)  
+                          2. *"Latest Tariff Developments"* (changes within the past 6-12 months)  
+                          3. *"Economic Impact Analysis"* (current effects on industries and trade)  
+                          4. *"Outlook and Expected Changes"* (predicted near-future developments)  
 
-                      - **comparative_evaluative_query**  
-                        - **Example:** *"Compare Go vs Rust for concurrency."*  
-                        - **Sections:**  
-                          1. *Introduction to Go and Rust*  
-                          2. *Concurrency Models Compared*  
-                          3. *Performance & Efficiency*  
-                          4. *Best Use Cases & Trade-offs*  
-
-                      - **research_oriented_query**  
-                        - **Example:** *"Explain the evolution of distributed file systems."*  
-                        - **Sections:**  
-                          1. *Introduction & Background*  
-                          2. *Major Developments Over Time*  
-                          3. *Current Trends & Future Research*  
-                          4. *Challenges & Open Questions*  
-
-                      - **execution_programming_query**  
-                        - **Example:** *"Write a Python script to scrape a website."*  
-                        - **Sections:**  
-                          1. *Introduction to Web Scraping*  
-                          2. *Tools & Libraries Required*  
-                          3. *Step-by-Step Implementation*  
-                          4. *Best Practices & Debugging*  
-
-                      - **idea_generation**  
-                        - **Example:** *"Give me startup ideas using blockchain."*  
-                        - **Sections:**  
-                          1. *Current Market Needs & Problems*  
-                          2. *Innovative Use Cases of Blockchain*  
-                          3. *Feasibility & Challenges*  
-                          4. *Future Trends & Business Models*    
+                      Note that sections should be dynamic - you should completely change any section titles or focus areas if more current, relevant alternatives exist. Don't feel constrained by traditional academic structures.
                       """
                 ),
                 HumanMessagePromptTemplate.from_template(
@@ -199,51 +136,15 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are a professional report formatter specializing in designing **conclusions** for reports based on the provided structure.
-                      Your task is to create the **conclusion** for the report based on the query type and the structure of the report sections.
+                      You are a professional report formatter specializing in designing **conclusions** for modern, practical reports.
+                      Your task is to create the **conclusion** framework based on the query type and the structure of the report sections.
 
-                      ## **Key Requirements for Footer Framework**
-                      1. **Conclusion Framework:** Design the **structure** of the conclusion that summarizes the findings and provides final recommendations or thoughts.
-                      2. **Conclusion Structure:**
-                        - **Summarize the Key Insights:** Concisely summarize the main takeaways from the report. These insights should reflect the content of the sections.
-                        - **Final Thoughts or Recommendations:** Provide actionable insights, recommendations, or suggestions based on the report's findings.
-                        - **Tailor the Conclusion to the Query Type:** Ensure the conclusion reflects the context of the query (whether it's factual, comparative, research-based, programming-related, or idea-oriented).
-
-                      ## **Expected Footer Structure Based on Query Type**
-                      - **factual_query**  
-                        - Example Query: "What is entropy in thermodynamics?"  
-                        - Conclusion Structure:  
-                          - **Key Insight Summary:** A brief recap of the definition and main characteristics of entropy.  
-                          - **Final Thoughts:** Discuss its importance in thermodynamics.  
-                          - **Implications:** State the relevance of entropy in various fields like physics, engineering, and computing.
-
-                      - **comparative_evaluative_query**  
-                        - Example Query: "Compare Go vs Rust for concurrency."  
-                        - Conclusion Structure:  
-                          - **Key Insight Summary:** Highlight the strengths and weaknesses of both Go and Rust in terms of concurrency.  
-                          - **Final Thoughts:** Provide a recommendation based on the analysis (e.g., which language to choose for different types of applications).  
-                          - **Recommendations:** Suggest where Go or Rust might be best suited based on the comparison.
-
-                      - **research_oriented_query**  
-                        - Example Query: "Explain the evolution of distributed file systems."  
-                        - Conclusion Structure:  
-                          - **Key Insight Summary:** Provide an overview of the major developments in distributed file systems.  
-                          - **Final Thoughts:** Discuss future directions or potential challenges.  
-                          - **Implications for Research:** Identify gaps in current research and propose areas for future study.
-
-                      - **execution_programming_query**  
-                        - Example Query: "Write a Python script to scrape a website."  
-                        - Conclusion Structure:  
-                          - **Key Insight Summary:** Summarize the steps in web scraping and the tools used.  
-                          - **Final Thoughts:** Mention best practices or common challenges faced in web scraping.  
-                          - **Recommendations:** Suggest improvements or extensions to the script, like handling dynamic pages or introducing error handling.
-
-                      - **idea_generation**  
-                        - Example Query: "Give me startup ideas using blockchain."  
-                        - Conclusion Structure:  
-                          - **Key Insight Summary:** Recap the key startup ideas suggested.  
-                          - **Final Thoughts:** Highlight the feasibility and potential of blockchain-based startups.  
-                          - **Recommendations:** Provide guidance on pursuing the best startup ideas or exploring new areas.
+                      ## **Key Requirements for Modern Conclusion Structure**
+                      1. **Prioritize Recent Information:** Ensure the conclusion highlights the most current developments and implications.
+                      2. **Focus on Practical Impact:** Emphasize real-world applications and consequences over theoretical insights.
+                      3. **Be Concise and Direct:** Avoid academic verbosity - favor clear, straightforward language.
+                      
+                      Remember: Your structure should emphasize current information and practical relevance rather than historical context or academic analysis.
                       """
                 ),
                 HumanMessagePromptTemplate.from_template(
@@ -259,53 +160,32 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are a professional researcher and intelligent query generator.
-                      Your job is to create **precise search queries** for different research and information retrieval tools based on the user’s main query,
-                      the type of query, and the structure of a specific section in a report.
+                      You are a modern researcher and intelligent query generator specializing in finding the MOST RECENT information.
+                      Your job is to create **precise search queries** that will retrieve current, up-to-date information for each section of a report.
 
+                      ### **Critical Instructions**
+                      - Prioritize finding RECENT information (from the last 6-12 months)
+                      - Include date specifications in your queries when appropriate (e.g., "2025", "recent", "latest")
+                      - Focus on current status, recent developments, and ongoing trends
+                      - Avoid historical or foundational queries unless specifically required
+                      
                       ### **You Will Be Provided With**
-                      - `query`: The user’s original question or request.
-                      - `type_of_query`: The category of the query. It will be one of:
-                        - `factual_query`
-                        - `comparative_evaluative_query`
-                        - `research_oriented_query`
-                        - `execution_programming_query`
-                        - `idea_generation`
-                      - `section_skeleton`: The metadata about a specific section in the report. This includes:
-                        - `name`: Title of the section.
-                        - `description`: A brief description of what the section covers.
-                        - `research`: A boolean indicating whether external research is required.
-                        - `content`: A high-level overview of what this section aims to include.
+                      - `query`: The user's original question or request.
+                      - `type_of_query`: The category of the query.
+                      - `section_skeleton`: Requirements about a specific section in the report.
 
                       ### **Your Responsibilities**
-                      - Carefully read and analyze the **query**, its **type**, and the **section_skeleton**.
-                      - Based on this, generate **appropriate search queries** that can be used to gather relevant information.
-                      - Map these search queries to the appropriate tools based on the query type.
-                      - **Be intelligent and selective**:
-                        - If a tool is **not applicable or unnecessary** for the section, **do not provide input for it**.
-                        - **Avoid forcing all tools** into every context. For example:
-                          - In a programming task, do **not** generate inputs for `get_user_by_name` or `search_repos_by_language` unless they are clearly relevant.
-
-                      ### **Tools Available Per Query Type**
-                      - `factual_query`:  
-                        - Tools: `duckduckgo_search`, `exa_search`, `tavily_search`
-
-                      - `comparative_evaluative_query`:  
-                        - Tools: `serper_search`, `tavily_search`, `exa_search`, `duckduckgo_search`
-
-                      - `research_oriented_query`:  
-                        - Tools: `arxiv_search`, `exa_search`, `tavily_search`, `serper_search`
-
-                      - `execution_programming_query`:  
-                        - Tools: `tavily_search`, `duckduckgo_search`, `exa_search`,  
-                          - GitHub API tools: `get_user_by_name`, `get_repo_by_name`, `get_org_by_name`, `search_repos_by_language`
-
-                      - `idea_generation`:  
-                        - Tools: `exa_search`, `duckduckgo_search`
-
-                      ### **Important**
-                      - Keep your queries short, precise, and tailored to the section content.
-                      - Only include tools that genuinely contribute value for the section’s needs.
+                      - Generate search queries that will retrieve the MOST CURRENT information relevant to each section
+                      - Include time-specific terms in queries to prioritize recent results
+                      - Be selective about which tools to use based on the information needed
+                      - Avoid historical or foundational queries unless specifically required
+                      
+                      ### **Example**
+                      For a section on "Current U.S. Tariff Landscape" in a report about American tariffs:
+                      - GOOD: "current US tariff rates 2025" or "latest American tariff policies"
+                      - AVOID: "history of US tariffs" or "tariff definition and purpose"
+                      
+                      Only include tools that genuinely contribute value for the section's current information needs.
                       """
                 ),
                 HumanMessagePromptTemplate.from_template(
@@ -322,58 +202,35 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are an expert content writer tasked with writing a comprehensive and informative section of a report. You will be provided with:
+                      You are an expert content writer tasked with writing engaging, informative report sections that prioritize RECENT information. You will be provided with:
 
                       1. The original user query
                       2. The query type
-                      3. The section information (including , name, description, and content expectations)
-                      4. Research data that has been gathered specifically for this section ( There is a chance that research data won't be avialable for the section where research isn't required. For this kind of sections you have to  use general knowledge)
+                      3. The section information
+                      4. Research data gathered for this section
                       
-                      ## **Your Task**
-                      Your job is to write the actual content for this section using the provided research data. Follow these guidelines:
-
-                      - Create high-quality, informative content that directly addresses the user's query
-                      - Ensure your writing is well-structured with appropriate subheadings where needed
-                      - Incorporate the research data provided in a seamless, coherent manner
-                      - Maintain an authoritative, professional tone appropriate for a research report
-                      - Include all relevant information while being concise
-                      - Focus on accuracy and providing valuable insights
-                      - Format the content using markdown for readability
-                      - Stay focused on the specific scope of the section as defined in the section information
-
-                      ## **Section Writing Guidelines Based on Query Type**
-
-                      - **factual_query**:
-                        - Present clear, accurate factual information
-                        - Define key concepts and terms
-                        - Provide specific examples when relevant
-                        - Structure information in a logical progression
-
-                      - **comparative_evaluative_query**:
-                        - Present balanced comparisons based on clear criteria
-                        - Highlight key differences and similarities
-                        - Use tables or structured formats for direct comparisons when appropriate
-                        - Provide evidence-based evaluations
-
-                      - **research_oriented_query**:
-                        - Synthesize findings from multiple sources
-                        - Present a comprehensive overview of the topic
-                        - Include relevant historical context and current developments
-                        - Acknowledge different perspectives or approaches
-
-                      - **execution_programming_query**:
-                        - Provide clear, step-by-step instructions
-                        - Include relevant code examples with explanations
-                        - Explain key concepts and techniques
-                        - Address potential challenges and solutions
-
-                      - **idea_generation**:
-                        - Present creative but practical ideas
-                        - Provide sufficient context and explanation for each idea
-                        - Consider different approaches or perspectives
-                        - Discuss potential applications or implementations
-
-                      Return only the completed section content without including any commentory or section metadata
+                      ## **Critical Instructions**
+                      - Prioritize RECENT information (from the last 6-12 months) whenever possible
+                      - Focus on current status, developments, and immediate relevance
+                      - Use engaging, direct language - avoid academic verbosity
+                      - Present information in a practical, applicable way rather than theoretical
+                      - If you discover the section structure is outdated based on research, ADAPT your content to reflect current reality
+                      
+                      ## **Content Style Guidelines**
+                      - Incorporate bullet points for lists and key takeaways
+                      - Include subheadings to break up text and improve readability
+                      - Favor direct, active language over passive constructions
+                      - Use specific examples and data points rather than generalizations
+                      - Write in a professional but conversational tone
+                      - Highlight practical implications where relevant
+                      
+                      ## **If Research Shows Different Information**
+                      If the research shows that the section structure is outdated or misaligned with current reality:
+                      1. Adapt your content to reflect the current situation
+                      2. Focus on what's actually happening now rather than maintaining outdated framing
+                      3. Highlight recent developments prominently
+                      
+                      Return only the completed section content without any commentary.
                       """
                 ),
                 HumanMessagePromptTemplate.from_template(
@@ -389,7 +246,7 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are an expert report writer tasked with creating a compelling and informative introduction for a report. You will be provided with:
+                      You are a modern report writer tasked with creating an engaging, current introduction for a report. You will be provided with:
 
                       1. The original user query
                       2. The query type
@@ -397,19 +254,21 @@ class Prompts:
                       4. The points that are expected in the introduction
                       5. The sections that have been written
 
-                      ## **Your Task**
-                      Your job is to write a comprehensive introduction for the report that sets the stage for the following sections. Follow these guidelines:
-
-                      - Create an engaging opening that captures the reader's attention
-                      - Clearly state the purpose and scope of the report
-                      - Provide necessary background information on the topic
-                      - Present a brief overview of what the report will cover
-                      - Incorporate relevant insights from the research data provided
-                      - Use appropriate tone and style based on the query type
-                      - Format the content using markdown for readability
-                      - Keep the introduction concise yet informative (approximately 250-350 words)
+                      ## **Critical Instructions**
+                      - Create an introduction that emphasizes CURRENT information and developments
+                      - Focus on practical relevance rather than academic theory
+                      - Use engaging, conversational language while maintaining professionalism
+                      - Keep the introduction concise (200-250 words maximum)
+                      - Highlight the most recent context around the topic
                       
-                      Return only the completed introduction content without including any commentory.
+                      ## **Introduction Structure**
+                      - Open with a hook that emphasizes current relevance or recent developments
+                      - Briefly provide just enough context for understanding (minimal background)
+                      - Clearly state what the report covers with emphasis on practical value
+                      - Preview the main sections with focus on recent information
+                      - Set expectations for practical insights rather than academic analysis
+                      
+                      Return only the completed introduction without any commentary.
                     """
                 ),
                 HumanMessagePromptTemplate.from_template(
@@ -430,23 +289,28 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are an expert report writer tasked with creating a compelling and insightful conclusion for a report. You will be provided with:
-                        1. The original user query
-                        2. The report structure including all sections
+                      You are a modern report writer tasked with creating an impactful, practical conclusion for a report. You will be provided with:
+                      
+                      1. The original user query
+                      2. The report structure including all sections
 
-                        ## **Your Task**
-                        Your job is to write a comprehensive conclusion that effectively summarizes the report and provides meaningful insights. Follow these guidelines:
-
-                        - Synthesize the key findings from all sections of the report
-                        - Provide clear answers to the original query
-                        - Offer valuable insights, recommendations, or next steps based on the findings
-                        - Ensure the conclusion logically follows from the content of the report
-                        - Use appropriate tone and style based on the query type
-                        - Format the content using markdown for readability
-                        - Keep the conclusion concise yet thorough (approximately 200-300 words)
-                        
-                        Return only the completed conclusion content without including any commentory
-                        """
+                      ## **Critical Instructions**
+                      - Focus on synthesizing the MOST RECENT insights from the report
+                      - Emphasize practical implications and real-world relevance
+                      - Use direct, engaging language rather than academic tone
+                      - Keep the conclusion concise (150-200 words maximum)
+                      - Avoid introducing new information not covered in the sections
+                      
+                      ## **Conclusion Structure**
+                      - Briefly summarize the current status or landscape (1-2 sentences)
+                      - Highlight 3-4 key practical takeaways with immediate relevance
+                      - Identify 1-2 near-term implications or expected developments
+                      - End with a forward-looking statement that emphasizes practical value
+                      
+                      Remember: This conclusion should feel CURRENT and PRACTICAL, not theoretical or historical. Avoid phrases like "in conclusion" or "to summarize" - just deliver the insights directly.
+                      
+                      Return only the completed conclusion content without any commentary.
+                      """
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """ The query is: {query}
@@ -463,7 +327,7 @@ class Prompts:
             [
                 SystemMessage(
                     content="""
-                      You are an expert report formatter and editor specializing in creating cohesive, professional documents. 
+                      You are an expert report formatter specializing in creating engaging, professional, and visually appealing documents. 
                       You will be provided with:
                     
                       1. A title and summary (header)
@@ -471,31 +335,30 @@ class Prompts:
                       3. A conclusion (footer)
                       4. A collection of references organized by section
                       
-                      ## **Your Task**
-                      Your job is to compile all these components into a polished, professional report. Follow these guidelines:
+                      ## **Critical Instructions**
+                      - Format the report using clean, modern markdown for optimal readability
+                      - Use consistent spacing throughout (single blank line between paragraphs)
+                      - Ensure proper heading hierarchy (# for title, ## for sections, ### for subsections)
+                      - Create a visually scannable document with appropriate use of:
+                        - Bullet points for lists
+                        - Bold text for key terms or concepts
+                        - Horizontal rules to separate major sections
+                        - Tables for structured comparisons (when appropriate)
                       
-                      ### **Report Structure**
-                      - Format the entire report using proper markdown for optimal readability
-                      - Ensure smooth transitions between sections with appropriate connecting phrases
-                      - Integrate the header (title and summary) and footer (conclusion) naturally into the document
-                      - Create a consistent voice and style throughout the document
+                      ## **Reference Management**
+                      - Select only the most RECENT and relevant references (prioritize last 6-12 months)
+                      - Limit to 3-4 references per section maximum
+                      - Use numbered citation format [1], [2] etc. in the text
+                      - Create a clean "References" section at the end
+                      - Format references consistently
                       
-                      ### **Reference Management**
-                      - Select the most relevant and authoritative references for each section
-                      - Limit references to 3-5 per section maximum, choosing the most valuable sources
-                      - Properly cite references within the body text using numbered citation format [1], [2], etc.
-                      - Create a dedicated "References" section at the end of the document
-                      - Group references by section for easier navigation
-                      - Format references consistently using a standard academic citation style
+                      ## **Visual Structure**
+                      - Include a table of contents after the summary
+                      - Use consistent visual hierarchy throughout
+                      - Ensure adequate white space for readability
+                      - Maintain professional appearance with consistent formatting
                       
-                      ### **Final Touches**
-                      - Add a table of contents after the summary
-                      - Ensure consistent heading levels throughout (# for title, ## for sections, ### for subsections)
-                      - Include proper paragraph spacing for readability
-                      - Verify that all information flows logically and builds coherently toward the conclusion
-                      - Make minimal stylistic edits to improve clarity and professionalism
-                      
-                      Return only the completed, formatted report without any additional commentary, explanations, or metadata.
+                      Return only the completed, formatted report without any additional commentary.
                       """
                 ),
                 HumanMessagePromptTemplate.from_template(
@@ -517,3 +380,6 @@ class Prompts:
         )
         
         return prompt
+    
+    
+    
