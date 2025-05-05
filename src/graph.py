@@ -60,11 +60,14 @@ writer_builder= StateGraph(WriterState)
 writer_builder.add_node("detailed_section_writer_node",detailed_section_writer_node)
 writer_builder.add_node("detailed_header_writer_node",detailed_header_writer_node)
 writer_builder.add_node("detailed_footer_writer_node",detailed_footer_writer_node)
+writer_builder.add_node("report_formatter_node",report_formatter_node)
 
 writer_builder.add_edge(START,"detailed_section_writer_node")
 writer_builder.add_edge("detailed_section_writer_node","detailed_header_writer_node")
 writer_builder.add_edge("detailed_header_writer_node","detailed_footer_writer_node")
-writer_builder.add_edge("detailed_footer_writer_node",END)
+writer_builder.add_edge("detailed_footer_writer_node","report_formatter_node")
+writer_builder.add_edge("report_formatter_node",END)
+
 
 writer_graph= writer_builder.compile(checkpointer=memory)
 
@@ -109,22 +112,21 @@ async def main():
 
     
     
-    # async for state in writer_graph.astream(
-    #     {
-    #         "query":report_state.query,
-    #         "type_query":report_state.type_of_query,
-    #         "sections":report_state.sections,
-    #         "output_list": research_state.outputs,
-    #         "header":report_state.header,
-    #         "footer":report_state.footer,
-    #     },
-    #     config={
-    #         "callbacks":[langfuse_handler],
-    #         "configurable":{"thread_id":"abc123"}
-    #     }
-    # ):
-    #     writer_state= state
-    #     print(writer_state)
-    
-    # print("Final Writer State:",writer_state)
+    async for state in writer_graph.astream(
+        {
+            "query":report_state.query,
+            "type_query":report_state.type_of_query,
+            "sections":report_state.sections,
+            "output_list": research_state.outputs,
+            "header":report_state.header,
+            "footer":report_state.footer,
+        },
+        config={
+            "callbacks":[langfuse_handler],
+            "configurable":{"thread_id":"abc123"}
+        }
+    ):
+        writer_state= state
+        print(writer_state)
+    print("Final Writer State:",writer_state)
 asyncio.run(main())

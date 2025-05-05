@@ -76,7 +76,6 @@ def get_search_queries_chain(schema: BaseModel):
 
 def get_detailed_section_writer_chain():
     try:
-        log.debug("Starting get_detailed_section_writer_chain...")
         prompt = Prompts.get_detailed_section_writer_prompt()
         llm = LLMProvider.structuredtextclient(schema=DetailedSection)
         return prompt | llm

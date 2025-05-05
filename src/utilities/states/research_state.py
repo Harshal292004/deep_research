@@ -26,34 +26,6 @@ from utilities.states.tool_state import (
 )
 from utilities.states.shared_state import Section
 
-
-class QueryState(BaseModel):
-    """Represents a specific query state with section identifier."""
-    section_id: str
-    query_state: Any
-
-
-class OutputState(BaseModel):
-    """Represents an output state with section identifier."""
-    section_id: str
-    output_state: Any
-
-
-class ResearchState(BaseModel):
-    """Main research state containing query information, sections and results."""
-    query: str = Field(description="The query given by the user")
-    type_of_query: Literal[
-        "factual_query",
-        "comparative_evaluative_query",
-        "research_oriented_query",
-        "execution_programming_query",
-        "idea_generation",
-    ] = Field(description="The type of the query being asked, which determines the specific State of tools")
-    sections: List[Section] = Field(default=None, description="All sections of the report")
-    queries: Optional[List[QueryState]] = Field(default=None, description="All of the query states")
-    outputs: Optional[List[OutputState]] = Field(default=None, description="Output of the tools")
-
-
 class FactualQueryState(BaseModel):
     """State of query tools used for factual queries."""
     tavily_query: Optional[TavilyQuery] = Field(
@@ -174,6 +146,32 @@ class IdeaOutput(BaseModel):
     exa_output: Optional[List[ExaOutput]] = None
 
 
+class QueryState(BaseModel):
+    """Represents a specific query state with section identifier."""
+    section_id: str
+    query_state: Union[FactualQueryState,ComparativeQueryState,ResearchQueryState,ProgrammingQueryState,IdeaQueryState]
+
+class OutputState(BaseModel):
+    """Represents an output state with section identifier."""
+    section_id: str
+    output_state: Union[FactualOutput,ComparativeOutput,ResearchOutput,ProgrammingOutput,IdeaOutput]
+    
+class ResearchState(BaseModel):
+    """Main research state containing query information, sections and results."""
+    query: str = Field(description="The query given by the user")
+    type_of_query: Literal[
+        "factual_query",
+        "comparative_evaluative_query",
+        "research_oriented_query",
+        "execution_programming_query",
+        "idea_generation",
+    ] = Field(description="The type of the query being asked, which determines the specific State of tools")
+    sections: List[Section] = Field(default=None, description="All sections of the report")
+    queries: Optional[List[QueryState]] = Field(default=None, description="All of the query states")
+    outputs: Optional[List[OutputState]] = Field(default=None, description="Output of the tools")
+
+
+    
 # Mapping dictionaries to link query types with their respective models
 tool_input_map = {
     "factual_query": FactualQueryState,

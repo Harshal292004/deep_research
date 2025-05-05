@@ -433,7 +433,6 @@ class Prompts:
                       You are an expert report writer tasked with creating a compelling and insightful conclusion for a report. You will be provided with:
                         1. The original user query
                         2. The report structure including all sections
-                        3. A brief skeleton of conslusion desired
 
                         ## **Your Task**
                         Your job is to write a comprehensive conclusion that effectively summarizes the report and provides meaningful insights. Follow these guidelines:
@@ -451,7 +450,6 @@ class Prompts:
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """ The query is: {query}
-                        Conclusion skeleton: {conclusion}
                         Report structure: {section}
                     """
                 ),
@@ -506,13 +504,13 @@ class Prompts:
                     {header}
                     
                     # Sections
-                    {sections}
+                    {section}
                     
                     # Conclusion
                     {conclusion}
                     
                     # References
-                    {references}
+                    {reference}
                     """
                 ),
             ]

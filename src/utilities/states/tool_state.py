@@ -27,8 +27,8 @@ class TavilyQueryOutput(BaseModel):
     results: List[TavilyItem] = Field(description="The output list from the Tavily search query")
 
 class ExaOutput(BaseModel):
-    text:str= Field(description="")
-    url:str= Field(description="")
+    highlights:List[str]= Field(description="list of highlights")
+    url:str= Field(description="url of the highlights")
     
 class GitHubUserOutput(BaseModel):
     login: str = Field(description="GitHub username")

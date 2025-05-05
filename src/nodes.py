@@ -314,15 +314,11 @@ async def get_tool_output(
 async def tool_output_node(state: ResearchState):
     try:
         log.debug("Starting tool_output_node...")
-
         queries = state.queries
         type_of_query = state.type_of_query
-        
         sechema_of_output = tool_output_map.get(type_of_query)
-
         output_list = []
         for query in queries:
-            log.debug(f"Processing query: {query}")
             duckduckgo_query = getattr(query.query_state, "duckduckgo_query", None)
             exa_query = getattr(query.query_state, "exa_query", None)
             serper_query = getattr(query.query_state, "serper_query", None)
@@ -349,110 +345,139 @@ async def tool_output_node(state: ResearchState):
 
             log.debug(f"Received output: {type(output)} {output}")
             output_list.append(OutputState(section_id=query.section_id, output_state=output))
-
-        final_output_list = [ {'section_id':o.section_id,'output_state':o.output_state.dict()} for o in output_list]
-        log.debug(f"Final output list: {final_output_list}")
-        return {"outputs": final_output_list}
-    
+            
+        return {"outputs": output_list}
     except Exception as e:
         log.error(f"Error in tool_output_node: {e}")
         return {"outputs": None}
 
 
 # Writer graph 
-
-async def roll_out_output(state:BaseModel,refrence:Reference,section:Section):
-    duckduckgo_output=getattr(
-        state, "duckduckgo_output", None
-    )
-    exa_output=getattr(state, "exa_output", None)
-    serper_output=getattr(state, "serper_output", None)
-    github_user_output=getattr(
-        state, "github_user_output", None
-    )
-    github_repo_output=getattr(
-        state, "github_repo_output", None
-    )
-    github_org_output=getattr(
-        state, "github_org_output", None
-    )
-    github_language_output=getattr(
-        state, "github_language_output", None
-    )
-    arxiv_output=getattr(
-        state, "arxiv_output", None
-    )
-    tavily_output=getattr(
-        state, "tavily_output", None
-    )
-    
-    rolled_out_str=""
-    refrence.section_name= section.name
-    refrence.section_id= section.section_id
-    if duckduckgo_output:
-        rolled_out_str.join(f"DUCK DUCK GO SEARCH: \n\n\n")
-        for duck in duckduckgo_output:
-            rolled_out_str.join(f"{duck.snippet} {duck.title} {duck.link} \n\n")
-            refrence.source_url.append(duck.link)
-            
-    if exa_output:
-        rolled_out_str.join(f"EXA SEARCH: \n\n\n")     
+def roll_out_output(state, refrence: Reference, section: Section):
+    try:
+        duckduckgo_output = getattr(state, "duckduckgo_output", None)
+        exa_output = getattr(state, "exa_output", None)
+        serper_output = getattr(state, "serper_output", None)
+        github_user_output = getattr(state, "github_user_output", None)
+        github_repo_output = getattr(state, "github_repo_output", None)
+        github_org_output = getattr(state, "github_org_output", None)
+        github_language_output = getattr(state, "github_language_output", None)
+        arxiv_output = getattr(state, "arxiv_output", None)
+        tavily_output = getattr(state, "tavily_output", None)
         
-        for exa_ in exa_output:    
-            rolled_out_str.join(f"{exa_.text} \n\n")
-            refrence.source_url.append(exa_.url)
-            
-    if serper_output:
-        rolled_out_str.join(f"SERPER SEARCH: \n\n\n")     
-        for organic in serper_output:
-            rolled_out_str.join(f"{organic.title} {organic.link} {organic.snippet} \n\n")
-            refrence.source_url.append(organic.link)
-            
-    if github_user_output:
-        rolled_out_str.join("GITHUB USER : \n\n\n")     
-        for gh in github_user_output:
-            
-            rolled_out_str.join(f"Github username: {gh.login} User's full name:{gh.name} Number of public repos:{gh.public_repos} Number of followers: {gh.followers} Bio of the user: {gh.bio} Location of the user: {gh.location}")
-            
-    if github_repo_output:
-        rolled_out_str.join("GITHUB REPO: \n\n")
-        for gh in github_repo_output:
-            topic_str=""
-            topic_str.join(topic for topic in gh.topics + "\n")
-            rolled_out_str.join(f"Github Repo name: {gh.name} Repo's full name:{gh.full_name} Description of repo:{gh.description} Number of stars: {gh.stars} Number of forks: {gh.forks} Language used: {gh.location} Topics :{topic_str}")
-
-    if github_org_output:
-        rolled_out_str.join("GITHUB Org: \n\n")
-        for gh in github_org_output:    
-            member_list=""
-            for member in gh.memebers:
-                member_list +=  member
+        rolled_out_str = ""
+        refrence.section_name = section.name
+        refrence.section_id = section.section_id
                 
-            rolled_out_str.join(f"Github Org login : {gh.login} Org's full name:{gh.name} Org's description:{gh.description} Number of public_repo: {gh.public_repos} Member of repo: {member_list}")
-  
-    if github_language_output:
-        rolled_out_str.join("GITHUB REPO Based on language: \n\n")
-        for gh in github_language_output.results:               
-            rolled_out_str.join(f"Github repo's name: {gh.name} Repo's full name:{gh.full_name} Number of stars:{gh.stars} url of the repo: {gh.url}\n\n")
-  
-    if arxiv_output:     
+        log.debug("Processing in the roll_out_output")
+
+        log.debug(f"Type and content of duckduckgo_output: {type(duckduckgo_output)} | {duckduckgo_output}")
+        log.debug(f"Type and content of exa_output: {type(exa_output)} | {exa_output}")
+        log.debug(f"Type and content of serper_output: {type(serper_output)} | {serper_output}")
+        log.debug(f"Type and content of github_user_output: {type(github_user_output)} | {github_user_output}")
+        log.debug(f"Type and content of github_repo_output: {type(github_repo_output)} | {github_repo_output}")
+        log.debug(f"Type and content of github_org_output: {type(github_org_output)} | {github_org_output}")
+        log.debug(f"Type and content of github_language_output: {type(github_language_output)} | {github_language_output}")
+        log.debug(f"Type and content of arxiv_output: {type(arxiv_output)} | {arxiv_output}")
+        log.debug(f"Type and content of tavily_output: {type(tavily_output)} | {tavily_output}")
         
-        rolled_out_str.join("ARXIV Output: \n\n")
-        for axv in arxiv_output.results:
-            author_str=""
-            for author in axv.authors:
-                author_str.join(author+"  ")
-                
-            rolled_out_str.join(f"Paper Title:{axv.title} Authors:{author_str} summary: {axv.summary} published: {axv.published}\n\n")        
-            
-    if tavily_output:
-        
-        rolled_out_str.join("TAVILY Output \n\n")
-        for tav in tavily_output.results:
-            rolled_out_str.join(f"Title: {tav.title} URL:{tav.url} Content:{tav.content} \n\n")
-            refrence.source_url.append(tav.url)
-             
-    return (rolled_out_str,refrence)
+        if duckduckgo_output:
+            rolled_out_str += "DUCK DUCK GO SEARCH:\n\n\n"
+            for duck in duckduckgo_output:
+                duck_string = f"{duck.title} {duck.snippet}\n\n"
+                duck_string = duck_string[:1000]
+                rolled_out_str += f"{duck_string}\n\n"
+                log.debug(f"Processed DuckDuckGo result: {duck.title}")
+                refrence.source_url.append(duck.link)
+                log.debug(f"Added link to source_url: {duck.link}")
+            log.debug(f"Processed {len(duckduckgo_output)} results from DuckDuckGo.")
+
+        if exa_output:
+            log.debug(f"Found exa_output for section {section.name}, processing.")
+            rolled_out_str += "EXA SEARCH:\n\n\n"
+            for exa in exa_output:
+                highlight_string = "".join(exa.highlights)
+                highlight_string = highlight_string[:1000]
+                rolled_out_str += f"{highlight_string} \n\n"
+                refrence.source_url.append(exa.url)
+                log.debug(f"Added link to source_url: {exa.url}")
+            log.debug(f"Processed {len(exa_output)} results from EXA.")
+
+        if serper_output:
+            log.debug(f"Found serper_output for section {section.name}, processing.")
+            rolled_out_str += "SERPER SEARCH:\n\n\n"
+            for organic in serper_output:
+                organic_string = f"{organic.title} {organic.snippet} \n\n"
+                organic_string = organic_string[:2000]
+                rolled_out_str += organic_string
+                refrence.source_url.append(organic.link)
+                log.debug(f"Added link to source_url: {organic.link}")
+            log.debug(f"Processed {len(serper_output)} results from Serper.")
+
+        if github_user_output:
+            log.debug(f"Found github_user_output for section {section.name}, processing.")
+            rolled_out_str += "GITHUB USER:\n\n\n"
+            for gh in github_user_output:
+                rolled_out_str += f"Github username: {gh.login} User's full name: {gh.name} Number of public repos: {gh.public_repos} Number of followers: {gh.followers} Bio of the user: {gh.bio} Location of the user: {gh.location}\n\n"
+                refrence.source_url.append(f"https://github.com/{gh.login}")
+                log.debug(f"Added link to source_url: https://github.com/{gh.login}")
+            log.debug(f"Processed {len(github_user_output)} results from GitHub User.")
+
+        if github_repo_output:
+            log.debug(f"Found github_repo_output for section {section.name}, processing.")
+            rolled_out_str += "GITHUB REPO:\n\n"
+            for gh in github_repo_output:
+                topic_str = "\n".join(gh.topics)
+                rolled_out_str += f"Github Repo name: {gh.name} Repo's full name: {gh.full_name} Description of repo: {gh.description} Number of stars: {gh.stars} Number of forks: {gh.forks} Language used: {gh.language} Topics:\n{topic_str}\n\n"
+                refrence.source_url.append(gh.html_url)
+                log.debug(f"Added link to source_url: {gh.html_url}")
+            log.debug(f"Processed {len(github_repo_output)} results from GitHub Repo.")
+
+        if github_org_output:
+            log.debug(f"Found github_org_output for section {section.name}, processing.")
+            rolled_out_str += "GITHUB ORG:\n\n"
+            for gh in github_org_output:
+                member_list = "".join(gh.members)
+                rolled_out_str += f"Github Org login: {gh.login} Org's full name: {gh.name} Org's description: {gh.description} Number of public_repo: {gh.public_repos} Member of repo: {member_list}\n\n"
+                refrence.source_url.append(f"https://github.com/{gh.login}")
+                log.debug(f"Added link to source_url: https://github.com/{gh.login}")
+            log.debug(f"Processed {len(github_org_output)} results from GitHub Org.")
+
+        if github_language_output:
+            log.debug(f"Found github_language_output for section {section.name}, processing.")
+            rolled_out_str += "GITHUB REPO Based on language:\n\n"
+            for gh in github_language_output.results:
+                rolled_out_str += f"Github repo's name: {gh.name} Repo's full name: {gh.full_name} Number of stars: {gh.stars} URL of the repo: {gh.url}\n\n"
+                refrence.source_url.append(gh.url)
+                log.debug(f"Added link to source_url: {gh.url}")
+            log.debug(f"Processed {len(github_language_output.results)} results from GitHub Repo Based on Language.")
+
+        if arxiv_output:
+            log.debug(f"Found arxiv_output for section {section.name}, processing.")
+            rolled_out_str += "ARXIV Output:\n\n"
+            for axv in arxiv_output.results:
+                author_str = "  ".join(axv.authors[:4])
+                arxiv_string = f"Paper Title: {axv.title} Authors: {author_str} Summary: {axv.summary[:200]} Published: {axv.published}\n\n"
+                rolled_out_str += arxiv_string
+                refrence.source_url.append(axv.url)
+                log.debug(f"Added link to source_url: {axv.url}")
+            log.debug(f"Processed {len(arxiv_output.results)} results from Arxiv.")
+
+        if tavily_output:
+            log.debug(f"Found tavily_output for section {section.name}, processing.")
+            rolled_out_str += "TAVILY Output:\n\n"
+            for tav in tavily_output.results:
+                tavily_string = f"Title: {tav.title} Content: {tav.content} \n\n"
+                tavily_string = tavily_string[:500]
+                rolled_out_str += tavily_string
+                refrence.source_url.append(tav.url)
+                log.debug(f"Added link to source_url: {tav.url}")
+            log.debug(f"Processed {len(tavily_output.results)} results from Tavily.")
+
+        return rolled_out_str, refrence
+    except Exception as e:
+        log.error(f"Error occurred: {e}")
+        return None, None
 
 
 async def detailed_section_writer_node(state:WriterState):
@@ -466,9 +491,9 @@ async def detailed_section_writer_node(state:WriterState):
         section_written=None
         for section in sections:
             section_string = (
-                f"name: {sec.name} "
-                f"description: {sec.description} "
-                f"content: {sec.content}"
+                f"name: {section.name} "
+                f"description: {section.description} "
+                f"content: {section.content}"
             )
             
             if not section.research:
@@ -477,10 +502,12 @@ async def detailed_section_writer_node(state:WriterState):
                 
             for output in outputs:
                 if output.section_id == section.section_id:
-                    (research_string,refrence)= roll_out_output(output.output_state,refrence=Reference(),  section= section)
-                    ref_list.append(refrence)
+                    log.debug(f"Rolling out for:{section} \n\n\n")
+                    log.debug(f"State being thrown in is : {output.output_state}")
+                    roll_out_str,refrence = roll_out_output(output.output_state,refrence=Reference(),  section= section)
+                    ref_list.append(refrence.dict())
                     
-                    section_written=await get_detailed_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":research_string})    
+                    section_written=await get_detailed_section_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"research_data":roll_out_str})    
                     
             section.name= section_written.name
             section.description= section_written.description
@@ -488,7 +515,7 @@ async def detailed_section_writer_node(state:WriterState):
         
         return {
             "sections":{
-                "sections":state.sections.sections
+                "sections":[sec.dict() for sec in state.sections.sections]
             },
             "references":ref_list
         }
@@ -502,104 +529,159 @@ async def detailed_section_writer_node(state:WriterState):
             }
         }
     
-async def detailed_header_writer_node(state:WriterState):
+async def detailed_header_writer_node(state: WriterState):
     try:
-        query= state.query
-        type_of_query= state.type_of_query
-        output= state.output_list
-        sections= state.sections.sections
-        title= state.header.title
-        summary= state.header.summary
-        section_written=None
-        for section in sections:
+        log.debug(f"Received state: {state}")
+        query = state.query
+        type_of_query = state.type_of_query
+        output = state.outputs
+        sections = state.sections.sections
+        title = state.header.title
+        summary = state.header.summary
+
+        log.debug(f"Query: {query} | Type: {type(query)}")
+        log.debug(f"Type of query: {type_of_query} | Type: {type(type_of_query)}")
+        log.debug(f"Output: {output} | Type: {type(output)}")
+        log.debug(f"Sections: {sections} | Type: {type(sections)}")
+        log.debug(f"Title: {title} | Type: {type(title)}")
+        log.debug(f"Summary: {summary} | Type: {type(summary)}")
+
+        section_written = None
+        for sec in sections:
+            log.debug(f"Processing section: {sec} | Type: {type(sec)}")
             section_string = (
-                f"\nsection_id: {sec.section_id} "
                 f"name: {sec.name} "
                 f"description: {sec.description} "
                 f"research: {sec.research} "
                 f"content: {sec.content}"
             )
-        
-        summary=await get_final_header_writer_chain().ainvoke({"query":query,"type_of_query":type_of_query,"section":section_string,"introduction":summary,"title":title})     
-                  
+            log.debug(f"Constructed section_string: {section_string}")
+
+        log.debug("Calling detailed header writer chain...")
+        summary = await get_detailed_header_writer_chain().ainvoke({
+            "query": query,
+            "type_of_query": type_of_query,
+            "section": section_string,
+            "introduction": summary,
+            "title": title
+        })
+
+        log.debug(f"Received summary content: {summary.content} | Type: {type(summary)}")
+
         return {
-            "header":{
-               "summary":summary.content
+            "header": {
+                "summary": summary.content
             }
         }
+
     except Exception as e:
         log.error(f"The error is {e}")
         return {
-            "header":{
-                "summary":None
+            "header": {
+                "summary": None
             }
         }
-    
 
-async def detailed_footer_writer_node(state:WriterState):
+async def detailed_footer_writer_node(state: WriterState):
     try:
-        query= state.query
-        type_of_query= state.type_of_query
-        sections= state.sections.sections
-        for section in sections:
+        log.debug(f"Received state: {state}")
+        query = state.query
+        type_of_query = state.type_of_query
+        sections = state.sections.sections
+
+        log.debug(f"Query: {query} | Type: {type(query)}")
+        log.debug(f"Type of query: {type_of_query} | Type: {type(type_of_query)}")
+        log.debug(f"Sections: {sections} | Type: {type(sections)}")
+        
+        for sec in sections:
+            log.debug(f"Processing section: {sec} | Type: {type(sec)}")
             section_string = (
-                f"\nsection_id: {sec.section_id} "
                 f"name: {sec.name} "
                 f"description: {sec.description} "
                 f"research: {sec.research} "
                 f"content: {sec.content} "
             )
-        
-        conclusion=await get_final_footer_write_chain().ainvoke({"query":query,"type_of_query":type_of_query,"structure":section_string,"conclusion":state.footer.conclusion})     
-                  
+            log.debug(f"Constructed section_string: {section_string}")
+
+        log.debug("Calling detailed footer writer chain...")
+        conclusion = await get_detailed_footer_write_chain().ainvoke({
+            "query": query,
+            "section": section_string,
+        })
+
+        log.debug(f"Received conclusion content: {conclusion.content} | Type: {type(conclusion)}")
+
         return {
-            "footer":{
-                "conclusion":conclusion.content
-            }
-        }
-    except Exception as e:
-        log.error(f"The error is {e}")
-        return  {
-            "footer":{
-                "conclusion": None
+            "footer": {
+                "conclusion": conclusion.content
             }
         }
 
-async def report_formatter_node(state:WriterState):
-    try:
-        report_display = (
-            f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
-        )
-        
-        header_str= f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
-        section_str=""
-        for section in state.sections.sections:
-            section_str += f"Section {section.section_id}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
-        conclusion_str += f"Conclusion: {state.footer.conclusion}\n"
-        
-        reference_str=""
-        for reference in state.references:
-            url_str=""
-            for url in reference.source_url:
-                url_str+= f"{url} \n"
-            reference_str += f"Refrence: {reference.section_id} Name: {reference.section_name} url: {url_str} "
-        
-        
-        chain= get_report_formator_chain()
-        response= await chain.ainvoke(
-            {
-                "header":header_str,
-                "sections":section_str,
-                "conclusion":conclusion_str,
-                "refrences":reference_str
+    except Exception as e:
+        log.error(f"The error is {e}")
+        return {
+            "footer": {
+                "conclusion": None
             }
-        )    
-        
+        }
+async def report_formatter_node(state: WriterState):
+    try:
+        log.warning(f"\n\n\n\nStarted with report_formatter node\n\n\n\n")
+        log.debug(f"Received state: {state} | Type: {type(state)}")
+        log.debug(f"Header: {state.header} | Type: {type(state.header)}")
+        log.debug(f"Sections: {state.sections.sections} | Type: {type(state.sections.sections)}")
+        log.debug(f"Footer: {state.footer} | Type: {type(state.footer)}")
+        log.debug(f"References: {state.references} | Type: {type(state.references)}")
+
+        header_str = f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        log.debug(f"Constructed header_str:\n{header_str}")
+
+        section_str = ""
+        for sec in state.sections.sections:
+            log.debug(f"Processing section: {sec} | Type: {type(sec)}")
+            sec_str = (
+                f"Section {sec.section_id}: {sec.name}\n"
+                f"Description: {sec.description}\n"
+                f"Content: {sec.content}\n\n"
+            )
+            section_str += sec_str
+            log.debug(f"Appended section_str:\n{sec_str}")
+
+        conclusion_str = f"Conclusion: {state.footer.conclusion}\n"
+        log.debug(f"Constructed conclusion_str:\n{conclusion_str}")
+
+        reference_str = ""
+        for reference in state.references:
+            log.debug(f"Processing reference: {reference} | Type: {type(reference)}")
+            url_str = ""
+            for url in reference.source_url:
+                url_str += f"{url} \n"
+                log.debug(f"Appended URL: {url}")
+            ref_str = f"Refrence: {reference.section_id} Name: {reference.section_name} url: {url_str} "
+            reference_str += ref_str
+            log.debug(f"Appended reference_str:\n{ref_str}")
+
+        log.debug("Calling get_report_formator_chain()...")
+        chain = get_report_formator_chain()
+        log.debug(f"Chain object: {chain} | Type: {type(chain)}")
+
+        log.debug("Invoking chain.ainvoke() with input payload...")
+        response = await chain.ainvoke({
+            "header": header_str,
+            "section": section_str,
+            "conclusion": conclusion_str,
+            "reference": reference_str
+        })
+
+        log.debug(f"Chain response: {response} | Type: {type(response)}")
+        log.debug(f"Response content: {response.content}")
+
         return {
             "markdown": response.content
         }
-        
+
     except Exception as e:
+        log.exception(f"Exception in report_formatter_node: {e}", exc_info=True)
         return {
-           "markdown": None
+            "markdown": None
         }

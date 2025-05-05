@@ -22,9 +22,9 @@ class Footer(BaseModel):
 
 
 class Reference(BaseModel):
-    section_name: str = Field(description="The name of the section where the referenced information was sourced from.")
-    section_id: str = Field(description="A unique identifier for the section within the report.")
-    source_url: List[str] = Field(description="A list of URLs or sources where additional information can be found related to this reference.")
+    section_name:Optional[str] = Field(default=None,description="The name of the section where the referenced information was sourced from.")
+    section_id: Optional[str] = Field(default=None,description="A unique identifier for the section within the report.")
+    source_url: List[str]= Field(default=[],description="A list of URLs or sources where additional information can be found related to this reference.")
 
 
 class ReportState(BaseModel):

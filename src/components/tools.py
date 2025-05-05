@@ -70,11 +70,12 @@ def exa_search(input: ExaQuery) -> List[ExaOutput]:
             start_published_date=input.start_published_date,
             end_published_date=input.end_published_date,
             category=input.category,
-            text=True,
+            text=False,
+            highlights=True
         )
 
         for result in results.results:
-            exa_output.append(ExaOutput(text=result.text, url= result.url))
+            exa_output.append(ExaOutput(highlights= result.highlights, url= result.url))
         log.info(f"Exa search completed with {len(exa_output)} results.")
         return exa_output
     except Exception as e:
