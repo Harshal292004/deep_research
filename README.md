@@ -45,6 +45,17 @@ TAVLIY_API_KEY=tvly-...
 GROQ_API_KEY=gsk_...
 ```
 
+You get your API keys from here :
+
+- EXA_API_KEY: https://dashboard.exa.ai/playground
+- SERPER_API_KEY: https://serper.dev/dashboard
+- GITHUB_ACCESS_TOKEN: https://github.com/settings/profile
+- TOGETHER_API_KEY: https://www.together.ai/
+- LANGFUSE: https://langfuse.com/
+- TAVILY_API_KEY: https://tavily.com/
+- GROQ_API_KEY: https://groq.com/
+
+
 **Python version:** 3.10  
 **Package manager:** [uv](https://github.com/astral-sh/uv)
 

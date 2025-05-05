@@ -8,7 +8,7 @@ from components.chains import (
     get_detailed_footer_write_chain,
     get_detailed_header_writer_chain,
     get_detailed_section_writer_chain,
-    get_report_formator_chain
+    get_report_formator_chain,
 )
 from utilities.states.report_state import (
     Section,
@@ -17,7 +17,7 @@ from utilities.states.report_state import (
     Header,
     Reference,
     ReportState,
-    WriterState
+    WriterState,
 )
 from components.tools import (
     duckduckgo_search,
@@ -28,29 +28,35 @@ from components.tools import (
     arxiv_search,
 )
 from utilities.states.tool_state import (
-   DuckDuckGoQuery,
-   ExaQuery,
-   SerperQuery,
-   GitHubRepoQuery,
-   GitHubUserQuery,
-   GitHubOrgQuery,
-   GitHubLanguageQuery,
-   ArxivQuery,
-   TavilyQuery,
-   LocationOutput,
-   DuckDuckGoOutput,
-   SerperQueryOutput,
-   TavilyQueryOutput,
-   GitHubUserOutput,
-   GitHubRepoOutput,
-   GitHubOrgOutput,
-   GitHubLanguageOutput,
-   GitHubLanguageItem,
-   ArxivOutput,
-   ExaOutput,
-   TavilyItem
+    DuckDuckGoQuery,
+    ExaQuery,
+    SerperQuery,
+    GitHubRepoQuery,
+    GitHubUserQuery,
+    GitHubOrgQuery,
+    GitHubLanguageQuery,
+    ArxivQuery,
+    TavilyQuery,
+    LocationOutput,
+    DuckDuckGoOutput,
+    SerperQueryOutput,
+    TavilyQueryOutput,
+    GitHubUserOutput,
+    GitHubRepoOutput,
+    GitHubOrgOutput,
+    GitHubLanguageOutput,
+    GitHubLanguageItem,
+    ArxivOutput,
+    ExaOutput,
+    TavilyItem,
 )
-from utilities.states.research_state import ResearchState, QueryState,OutputState, tool_input_map,tool_output_map
+from utilities.states.research_state import (
+    ResearchState,
+    QueryState,
+    OutputState,
+    tool_input_map,
+    tool_output_map,
+)
 from utilities.helpers.logger import log
 import traceback
 from typing import Any
@@ -101,17 +107,17 @@ async def section_writer_node(state: ReportState):
         query = state.query
         type_of_query = state.type_of_query
         title = state.header.title
-        summary= state.header.summary
+        summary = state.header.summary
         chain = get_section_writer_chain()
         response = await chain.ainvoke(
             {
                 "query": query,
                 "type_of_query": type_of_query,
                 "title": title,
-                "summary": summary
+                "summary": summary,
             }
         )
-        return {"sections":response.dict()}
+        return {"sections": response.dict()}
     except Exception as e:
         log.error(f"Error in section_writer_node: {e}")
         return {"sections": {"sections": []}}
@@ -145,6 +151,7 @@ async def footer_writer_node(state: ReportState):
         log.error(f"Error in footer_writer_node: {e}")
         return {"footer": {"conclusion": ""}}
 
+
 async def verify_report_node(state: ReportState):
     try:
         log.debug("Starting verify_report_node...")
@@ -156,10 +163,10 @@ async def verify_report_node(state: ReportState):
         for idx, section in enumerate(state.sections.sections, start=1):
             report_display += f"Section {idx}: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
         report_display += f"Conclusion: {state.footer.conclusion}\n"
-        
+
         print("Generated Report:\n")
         print(report_display)
-        
+
         user_input = input(
             "Is the report structure satisfactory? (True/False): "
         ).strip()
@@ -171,7 +178,9 @@ async def verify_report_node(state: ReportState):
         user_feedback = ""
 
         if not verified:
-            user_feedback = input("Please provide feedback to improve the report structure: ").strip()
+            user_feedback = input(
+                "Please provide feedback to improve the report structure: "
+            ).strip()
 
         return {"report_framework": verified, "user_feedback": user_feedback}
 
@@ -184,6 +193,7 @@ async def verify_report_node(state: ReportState):
 
 
 # Researcher graph
+
 
 async def query_generation_node(state: ResearchState):
     try:
@@ -203,7 +213,9 @@ async def query_generation_node(state: ResearchState):
                         "section": section_string,
                     }
                 )
-                input_list.append(QueryState(section_id=section.section_id, query_state= output))
+                input_list.append(
+                    QueryState(section_id=section.section_id, query_state=output)
+                )
         return {"queries": input_list}
 
     except Exception as e:
@@ -245,26 +257,34 @@ async def get_tool_output(
     if serper_query:
         serper_output = await serper_search(input=serper_query)
     if github_user_query:
-        github_user_output = await GitHubInspector.get_user_by_name(input=github_user_query)
-        
+        github_user_output = await GitHubInspector.get_user_by_name(
+            input=github_user_query
+        )
+
     if github_repo_query:
-        github_repo_output = await GitHubInspector.get_repo_by_name(input=github_repo_query)
-        
+        github_repo_output = await GitHubInspector.get_repo_by_name(
+            input=github_repo_query
+        )
+
     if github_org_query:
-        github_org_output = await GitHubInspector.get_org_by_name(input=github_org_query)
-        
+        github_org_output = await GitHubInspector.get_org_by_name(
+            input=github_org_query
+        )
+
     if github_language_query:
-        github_language_output = await GitHubInspector.search_repos_by_language(input=github_language_query)
-        
+        github_language_output = await GitHubInspector.search_repos_by_language(
+            input=github_language_query
+        )
+
     if arxiv_query:
         arxiv_output = await arxiv_search(input=arxiv_query)
-        
+
     if tavily_query:
         tavily_output = await tavily_search(input=tavily_query)
-        
+
     # Populate output based on query type
     output = output_schema()
-    
+
     if type_of_query == "factual_query":
         output.duckduckgo_output = duckduckgo_output
         output.exa_output = exa_output
@@ -294,9 +314,8 @@ async def get_tool_output(
     elif type_of_query == "idea_generation":
         output.duckduckgo_output = duckduckgo_output
         output.exa_output = exa_output
-        
-    return output
 
+    return output
 
 
 async def tool_output_node(state: ResearchState):
@@ -313,7 +332,9 @@ async def tool_output_node(state: ResearchState):
             github_user_query = getattr(query.query_state, "github_user_query", None)
             github_repo_query = getattr(query.query_state, "github_repo_query", None)
             github_org_query = getattr(query.query_state, "github_org_query", None)
-            github_language_query = getattr(query.query_state, "github_language_query", None)
+            github_language_query = getattr(
+                query.query_state, "github_language_query", None
+            )
             arxiv_query = getattr(query.query_state, "arxiv_query", None)
             tavily_query = getattr(query.query_state, "tavily_query", None)
 
@@ -331,15 +352,17 @@ async def tool_output_node(state: ResearchState):
                 type_of_query=type_of_query,
             )
 
-            output_list.append(OutputState(section_id=query.section_id, output_state=output))
-            
+            output_list.append(
+                OutputState(section_id=query.section_id, output_state=output)
+            )
+
         return {"outputs": output_list}
     except Exception as e:
         log.error(f"Error in tool_output_node: {e}")
         return {"outputs": None}
 
 
-# Writer graph 
+# Writer graph
 def roll_out_output(state, refrence: Reference, section: Section):
     try:
         duckduckgo_output = getattr(state, "duckduckgo_output", None)
@@ -351,11 +374,11 @@ def roll_out_output(state, refrence: Reference, section: Section):
         github_language_output = getattr(state, "github_language_output", None)
         arxiv_output = getattr(state, "arxiv_output", None)
         tavily_output = getattr(state, "tavily_output", None)
-        
+
         rolled_out_str = ""
         refrence.section_name = section.name
         refrence.section_id = section.section_id
-                
+
         if duckduckgo_output:
             rolled_out_str += "DUCK DUCK GO SEARCH:\n\n\n"
             for duck in duckduckgo_output:
@@ -427,10 +450,11 @@ def roll_out_output(state, refrence: Reference, section: Section):
         log.error(f"Error occurred: {e}")
         return None, None
 
+
 async def detailed_section_writer_node(state: WriterState):
     try:
         log.debug("Starting detailed section writer...")
-        
+
         schema_output = tool_output_map.get(state.type_of_query)
         outputs = state.outputs
         sections = state.sections.sections
@@ -445,44 +469,45 @@ async def detailed_section_writer_node(state: WriterState):
             )
 
             if not section.research:
-                section_written = await get_detailed_section_writer_chain().ainvoke({
-                    "query": state.query,
-                    "type_of_query": state.type_of_query,
-                    "section": section_string,
-                    "research_data": ""
-                })
+                section_written = await get_detailed_section_writer_chain().ainvoke(
+                    {
+                        "query": state.query,
+                        "type_of_query": state.type_of_query,
+                        "section": section_string,
+                        "research_data": "",
+                    }
+                )
                 continue
 
             for output in outputs:
                 if output.section_id == section.section_id:
-                    roll_out_str, refrence = roll_out_output(output.output_state, refrence=Reference(), section=section)
+                    roll_out_str, refrence = roll_out_output(
+                        output.output_state, refrence=Reference(), section=section
+                    )
                     ref_list.append(refrence.dict())
 
-                    section_written = await get_detailed_section_writer_chain().ainvoke({
-                        "query": state.query,
-                        "type_of_query": state.type_of_query,
-                        "section": section_string,
-                        "research_data": roll_out_str
-                    })
+                    section_written = await get_detailed_section_writer_chain().ainvoke(
+                        {
+                            "query": state.query,
+                            "type_of_query": state.type_of_query,
+                            "section": section_string,
+                            "research_data": roll_out_str,
+                        }
+                    )
 
             section.name = section_written.name
             section.description = section_written.description
             section.content = section_written.content
 
         return {
-            "sections": {
-                "sections": [sec.dict() for sec in state.sections.sections]
-            },
-            "references": ref_list
+            "sections": {"sections": [sec.dict() for sec in state.sections.sections]},
+            "references": ref_list,
         }
 
     except Exception as e:
         log.error(f"Error in detailed_section_writer_node: {e}")
-        return {
-            "sections": {
-                "sections": None
-            }
-        }
+        return {"sections": {"sections": None}}
+
 
 async def detailed_header_writer_node(state: WriterState):
     try:
@@ -503,27 +528,22 @@ async def detailed_header_writer_node(state: WriterState):
                 f"content: {sec.content}"
             )
 
-        summary = await get_detailed_header_writer_chain().ainvoke({
-            "query": query,
-            "type_of_query": type_of_query,
-            "section": section_string,
-            "introduction": summary,
-            "title": title
-        })
-
-        return {
-            "header": {
-                "summary": summary.content
+        summary = await get_detailed_header_writer_chain().ainvoke(
+            {
+                "query": query,
+                "type_of_query": type_of_query,
+                "section": section_string,
+                "introduction": summary,
+                "title": title,
             }
-        }
+        )
+
+        return {"header": {"summary": summary.content}}
 
     except Exception as e:
         log.error(f"Error in detailed_header_writer_node: {e}")
-        return {
-            "header": {
-                "summary": None
-            }
-        }
+        return {"header": {"summary": None}}
+
 
 async def detailed_footer_writer_node(state: WriterState):
     try:
@@ -531,7 +551,7 @@ async def detailed_footer_writer_node(state: WriterState):
         query = state.query
         type_of_query = state.type_of_query
         sections = state.sections.sections
-        
+
         for sec in sections:
             section_string = (
                 f"name: {sec.name} "
@@ -540,30 +560,27 @@ async def detailed_footer_writer_node(state: WriterState):
                 f"content: {sec.content} "
             )
 
-        conclusion = await get_detailed_footer_write_chain().ainvoke({
-            "query": query,
-            "section": section_string,
-        })
-
-        return {
-            "footer": {
-                "conclusion": conclusion.content
+        conclusion = await get_detailed_footer_write_chain().ainvoke(
+            {
+                "query": query,
+                "section": section_string,
             }
-        }
+        )
+
+        return {"footer": {"conclusion": conclusion.content}}
 
     except Exception as e:
         log.error(f"Error in detailed_footer_writer_node: {e}")
-        return {
-            "footer": {
-                "conclusion": None
-            }
-        }
+        return {"footer": {"conclusion": None}}
+
 
 async def report_formatter_node(state: WriterState):
     try:
         log.debug("Starting report formatter...")
-        
-        header_str = f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+
+        header_str = (
+            f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
+        )
 
         section_str = ""
         for sec in state.sections.sections:
@@ -584,19 +601,17 @@ async def report_formatter_node(state: WriterState):
             ref_str = f"Refrence: {reference.section_id} Name: {reference.section_name} url: {url_str} "
             reference_str += ref_str
 
-        response = await get_report_formator_chain().ainvoke({
-            "header": header_str,
-            "section": section_str,
-            "conclusion": conclusion_str,
-            "reference": reference_str
-        })
+        response = await get_report_formator_chain().ainvoke(
+            {
+                "header": header_str,
+                "section": section_str,
+                "conclusion": conclusion_str,
+                "reference": reference_str,
+            }
+        )
 
-        return {
-            "markdown": response.content
-        }
+        return {"markdown": response.content}
 
     except Exception as e:
         log.error(f"Error in report_formatter_node: {e}")
-        return {
-            "markdown": None
-        }
+        return {"markdown": None}

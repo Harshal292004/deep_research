@@ -3,7 +3,7 @@ from utilities.states.report_state import (
     Sections,
     DetailedSection,
     Footer,
-    Reference
+    Reference,
 )
 from components.prompts import Prompts
 from utilities.helpers.LLMProvider import LLMProvider
@@ -62,6 +62,7 @@ def get_footer_writer_chain():
         log.error(f"Error in get_footer_writer_chain: {e}")
         return None
 
+
 def get_search_queries_chain(schema: BaseModel):
     try:
         log.debug("Starting get_search_queries_chain...")
@@ -74,6 +75,7 @@ def get_search_queries_chain(schema: BaseModel):
         log.error(f"Error in get_search_queries_chain: {e}")
         return None
 
+
 def get_detailed_section_writer_chain():
     try:
         prompt = Prompts.get_detailed_section_writer_prompt()
@@ -82,18 +84,19 @@ def get_detailed_section_writer_chain():
     except Exception as e:
         log.error(f"Error in get_detailed_section_writer_chain: {e}")
         return None
-    
+
 
 def get_detailed_header_writer_chain():
     try:
         log.debug("Starting get_detailed_header_writer_chain...")
         prompt = Prompts.get_detailed_header_writer_prompt()
         llm = LLMProvider.textclient()
-        return prompt|llm
+        return prompt | llm
     except Exception as e:
         log.error(f"Error in get_detailed_header_writer_chain: {e}")
         return None
-    
+
+
 def get_detailed_footer_write_chain():
     try:
         log.debug("Starting get_detailed_footer_writer_chain...")
@@ -101,17 +104,18 @@ def get_detailed_footer_write_chain():
         log.debug("Search queries prompt fetched successfully.")
         llm = LLMProvider.textclient()
         log.debug("LLM client for section schema successfully.")
-        return prompt|llm
+        return prompt | llm
     except Exception as e:
         log.error(f"Error in get_detailed_footer_writer_chain: {e}")
         return None
 
+
 def get_report_formator_chain():
     try:
         log.debug("Starting get_report_formator_chain...")
-        prompt= Prompts.get_report_formator_prompt()
-        llm= LLMProvider.textclient()
-        return prompt | llm     
+        prompt = Prompts.get_report_formator_prompt()
+        llm = LLMProvider.textclient()
+        return prompt | llm
     except Exception as e:
         log.error(f"Error in get_report_formator_chain: {e}")
         return None

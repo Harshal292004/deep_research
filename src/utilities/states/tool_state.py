@@ -8,14 +8,20 @@ class SearchResult(BaseModel):
     link: str = Field(description="The link to the source of the search result")
     snippet: str = Field(description="A brief description or snippet from the source")
 
+
 class LocationOutput(BaseModel):
     country: str = Field(description="The country for the search query results")
+
 
 class DuckDuckGoOutput(SearchResult):
     pass
 
+
 class SerperQueryOutput(BaseModel):
-    organic_results: List[SearchResult] = Field(description="The list of organic search results")
+    organic_results: List[SearchResult] = Field(
+        description="The list of organic search results"
+    )
+
 
 class TavilyItem(BaseModel):
     title: str = Field(description="The title of the search result")
@@ -24,12 +30,16 @@ class TavilyItem(BaseModel):
 
 
 class TavilyQueryOutput(BaseModel):
-    results: List[TavilyItem] = Field(description="The output list from the Tavily search query")
+    results: List[TavilyItem] = Field(
+        description="The output list from the Tavily search query"
+    )
+
 
 class ExaOutput(BaseModel):
-    highlights:List[str]= Field(description="list of highlights")
-    url:str= Field(description="url of the highlights")
-    
+    highlights: List[str] = Field(description="list of highlights")
+    url: str = Field(description="url of the highlights")
+
+
 class GitHubUserOutput(BaseModel):
     login: str = Field(description="GitHub username")
     name: Optional[str] = Field(description="User's full name")
@@ -46,7 +56,9 @@ class GitHubRepoOutput(BaseModel):
     stars: int = Field(description="Number of stars")
     forks: int = Field(description="Number of forks")
     language: Optional[str] = Field(description="Primary programming language used")
-    topics: List[str] = Field(description="List of topics associated with the repository")
+    topics: List[str] = Field(
+        description="List of topics associated with the repository"
+    )
 
 
 class GitHubOrgOutput(BaseModel):
@@ -65,7 +77,9 @@ class GitHubLanguageItem(BaseModel):
 
 
 class GitHubLanguageOutput(BaseModel):
-    results: List[GitHubLanguageItem] = Field(description="List of repositories matching the  language search criteria")
+    results: List[GitHubLanguageItem] = Field(
+        description="List of repositories matching the  language search criteria"
+    )
 
 
 class ArxivDoc(BaseModel):
@@ -76,12 +90,16 @@ class ArxivDoc(BaseModel):
 
 
 class ArxivOutput(BaseModel):
-    results: Union[List[ArxivDoc], str] = Field(description="List of arXiv search results")
+    results: Union[List[ArxivDoc], str] = Field(
+        description="List of arXiv search results"
+    )
 
 
 class DuckDuckGoQuery(BaseModel):
     query: str = Field(..., description="Search query to be executed")
-    max_results: int = Field(..., description="Number of results to return (min: 1, max: 4)")
+    max_results: int = Field(
+        ..., description="Number of results to return (min: 1, max: 4)"
+    )
 
 
 class ExaQuery(BaseModel):
@@ -89,13 +107,25 @@ class ExaQuery(BaseModel):
     num_results: int = Field(..., description="Number of results to return")
     start_published_date: str = Field(..., description="Start date (yyyy-mm-dd)")
     end_published_date: str = Field(..., description="End date (yyyy-mm-dd)")
-    category: Literal["company", "research paper", "news", "linkedin profile", "github", "tweet", "movie", "song", "financial report"] = Field(..., description="Category for search focus")
+    category: Literal[
+        "company",
+        "research paper",
+        "news",
+        "linkedin profile",
+        "github",
+        "tweet",
+        "movie",
+        "song",
+        "financial report",
+    ] = Field(..., description="Category for search focus")
 
 
 class SerperQuery(BaseModel):
     query: str = Field(..., description="Search query")
     num_results: int = Field(..., description="Number of results to retrieve")
-    tbs: Literal["qdr:h", "qdr:d", "qdr:w", "qdr:m", "qdr:y"] = Field(..., description="Time filter for search results")
+    tbs: Literal["qdr:h", "qdr:d", "qdr:w", "qdr:m", "qdr:y"] = Field(
+        ..., description="Time filter for search results"
+    )
 
 
 class GitHubUserQuery(BaseModel):
@@ -103,7 +133,9 @@ class GitHubUserQuery(BaseModel):
 
 
 class GitHubRepoQuery(BaseModel):
-    full_name: str = Field(..., description="Full name of the repository (e.g., 'torvalds/linux')")
+    full_name: str = Field(
+        ..., description="Full name of the repository (e.g., 'torvalds/linux')"
+    )
 
 
 class GitHubOrgQuery(BaseModel):
@@ -121,12 +153,20 @@ class ArxivQuery(BaseModel):
     top_k_results: int = Field(3, description="Top k results to return")
     max_query_length: int = Field(300, description="Maximum allowed query length")
     load_max_docs: int = Field(3, description="Maximum number of documents to load")
-    load_all_available_meta: bool = Field(False, description="Whether to load full metadata")
-    doc_content_chars_max: int = Field(40000, description="Maximum character length of document content")
+    load_all_available_meta: bool = Field(
+        False, description="Whether to load full metadata"
+    )
+    doc_content_chars_max: int = Field(
+        40000, description="Maximum character length of document content"
+    )
 
 
 class TavilyQuery(BaseModel):
     query: str = Field(description="Search query for Tavily")
     topic: Literal["news", "general", "finance"] = Field(description="Topic for search")
-    time_range: Literal["day", "week", "month", "year"] = Field(description="Time range for search results")
-    max_results: int = Field(default=3, description="Maximum number of results to return (max: 5)")
+    time_range: Literal["day", "week", "month", "year"] = Field(
+        description="Time range for search results"
+    )
+    max_results: int = Field(
+        default=3, description="Maximum number of results to return (max: 5)"
+    )

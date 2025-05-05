@@ -81,10 +81,10 @@ class Prompts:
                       
                       Remember: This report should feel CURRENT and PRACTICAL, not theoretical or historical unless specifically requested.
                       """
-                  ),
-                  HumanMessagePromptTemplate.from_template(
-                      "The query is: {query}, and the type of the query is: {type_of_query} . User feedback: {user_feedback}"
-                  ),
+                ),
+                HumanMessagePromptTemplate.from_template(
+                    "The query is: {query}, and the type of the query is: {type_of_query} . User feedback: {user_feedback}"
+                ),
             ]
         )
         return prompt
@@ -196,7 +196,7 @@ class Prompts:
         )
 
         return prompt
-  
+
     @classmethod
     def get_detailed_section_writer_prompt(cls):
         prompt = ChatPromptTemplate.from_messages(
@@ -241,7 +241,7 @@ class Prompts:
         )
         return prompt
 
-    @classmethod 
+    @classmethod
     def get_detailed_header_writer_prompt(cls):
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -284,7 +284,7 @@ class Prompts:
         )
         return prompt
 
-    @classmethod 
+    @classmethod
     def get_detailed_footer_write_prompt(cls):
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -321,8 +321,8 @@ class Prompts:
             ]
         )
         return prompt
-        
-    @classmethod      
+
+    @classmethod
     def get_report_formator_prompt(cls):
         prompt = ChatPromptTemplate.from_messages(
             [
@@ -379,8 +379,5 @@ class Prompts:
                 ),
             ]
         )
-        
+
         return prompt
-    
-    
-    

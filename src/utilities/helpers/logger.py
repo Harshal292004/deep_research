@@ -3,6 +3,7 @@ from rich.logging import RichHandler
 import logging
 import os
 
+
 class Logger:
     def __init__(self, name: str, env: str = "development", log_file: str = "app.log"):
         self.env = env.lower()

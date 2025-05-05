@@ -22,12 +22,14 @@ from utilities.states.tool_state import (
     GitHubLanguageItem,
     ArxivOutput,
     ExaOutput,
-    TavilyItem
+    TavilyItem,
 )
 from utilities.states.shared_state import Section
 
+
 class FactualQueryState(BaseModel):
     """State of query tools used for factual queries."""
+
     tavily_query: Optional[TavilyQuery] = Field(
         default=None, description="The Tavily query input"
     )
@@ -41,6 +43,7 @@ class FactualQueryState(BaseModel):
 
 class ComparativeQueryState(BaseModel):
     """State of query tools used for comparative evaluative queries."""
+
     serper_query: Optional[SerperQuery] = Field(
         default=None, description="The Serper query input"
     )
@@ -57,6 +60,7 @@ class ComparativeQueryState(BaseModel):
 
 class ResearchQueryState(BaseModel):
     """State of query tools used for research oriented queries."""
+
     arxiv_query: Optional[ArxivQuery] = Field(
         default=None, description="The Arxiv query input"
     )
@@ -73,6 +77,7 @@ class ResearchQueryState(BaseModel):
 
 class ProgrammingQueryState(BaseModel):
     """State of query tools used for execution and programming queries."""
+
     tavily_query: Optional[TavilyQuery] = Field(
         default=None, description="The Tavily query input"
     )
@@ -98,6 +103,7 @@ class ProgrammingQueryState(BaseModel):
 
 class IdeaQueryState(BaseModel):
     """State of query tools used for idea generation queries."""
+
     exa_query: Optional[ExaQuery] = Field(
         default=None, description="The Exa query input"
     )
@@ -108,6 +114,7 @@ class IdeaQueryState(BaseModel):
 
 class FactualOutput(BaseModel):
     """Output model for factual queries."""
+
     duckduckgo_output: Optional[List[DuckDuckGoOutput]] = None
     exa_output: Optional[List[ExaOutput]] = None
     tavily_output: Optional[TavilyQueryOutput] = None
@@ -115,6 +122,7 @@ class FactualOutput(BaseModel):
 
 class ComparativeOutput(BaseModel):
     """Output model for comparative evaluative queries."""
+
     duckduckgo_output: Optional[List[DuckDuckGoOutput]] = None
     exa_output: Optional[List[ExaOutput]] = None
     tavily_output: Optional[TavilyQueryOutput] = None
@@ -123,6 +131,7 @@ class ComparativeOutput(BaseModel):
 
 class ResearchOutput(BaseModel):
     """Output model for research oriented queries."""
+
     arxiv_output: Optional[ArxivOutput] = None
     exa_output: Optional[List[ExaOutput]] = None
     tavily_output: Optional[TavilyQueryOutput] = None
@@ -131,6 +140,7 @@ class ResearchOutput(BaseModel):
 
 class ProgrammingOutput(BaseModel):
     """Output model for execution and programming queries."""
+
     duckduckgo_output: Optional[List[DuckDuckGoOutput]] = None
     exa_output: Optional[List[ExaOutput]] = None
     tavily_output: Optional[TavilyQueryOutput] = None
@@ -142,22 +152,36 @@ class ProgrammingOutput(BaseModel):
 
 class IdeaOutput(BaseModel):
     """Output model for idea generation queries."""
+
     duckduckgo_output: Optional[List[DuckDuckGoOutput]] = None
     exa_output: Optional[List[ExaOutput]] = None
 
 
 class QueryState(BaseModel):
     """Represents a specific query state with section identifier."""
+
     section_id: str
-    query_state: Union[FactualQueryState,ComparativeQueryState,ResearchQueryState,ProgrammingQueryState,IdeaQueryState]
+    query_state: Union[
+        FactualQueryState,
+        ComparativeQueryState,
+        ResearchQueryState,
+        ProgrammingQueryState,
+        IdeaQueryState,
+    ]
+
 
 class OutputState(BaseModel):
     """Represents an output state with section identifier."""
+
     section_id: str
-    output_state: Union[FactualOutput,ComparativeOutput,ResearchOutput,ProgrammingOutput,IdeaOutput]
-    
+    output_state: Union[
+        FactualOutput, ComparativeOutput, ResearchOutput, ProgrammingOutput, IdeaOutput
+    ]
+
+
 class ResearchState(BaseModel):
     """Main research state containing query information, sections and results."""
+
     query: str = Field(description="The query given by the user")
     type_of_query: Literal[
         "factual_query",
@@ -165,20 +189,27 @@ class ResearchState(BaseModel):
         "research_oriented_query",
         "execution_programming_query",
         "idea_generation",
-    ] = Field(description="The type of the query being asked, which determines the specific State of tools")
-    sections: List[Section] = Field(default=None, description="All sections of the report")
-    queries: Optional[List[QueryState]] = Field(default=None, description="All of the query states")
-    outputs: Optional[List[OutputState]] = Field(default=None, description="Output of the tools")
+    ] = Field(
+        description="The type of the query being asked, which determines the specific State of tools"
+    )
+    sections: List[Section] = Field(
+        default=None, description="All sections of the report"
+    )
+    queries: Optional[List[QueryState]] = Field(
+        default=None, description="All of the query states"
+    )
+    outputs: Optional[List[OutputState]] = Field(
+        default=None, description="Output of the tools"
+    )
 
 
-    
 # Mapping dictionaries to link query types with their respective models
 tool_input_map = {
     "factual_query": FactualQueryState,
     "comparative_evaluative_query": ComparativeQueryState,
     "research_oriented_query": ResearchQueryState,
     "execution_programming_query": ProgrammingQueryState,
-    "idea_generation": IdeaQueryState
+    "idea_generation": IdeaQueryState,
 }
 
 tool_output_map = {
@@ -186,5 +217,5 @@ tool_output_map = {
     "comparative_evaluative_query": ComparativeOutput,
     "research_oriented_query": ResearchOutput,
     "execution_programming_query": ProgrammingOutput,
-    "idea_generation": IdeaOutput
+    "idea_generation": IdeaOutput,
 }
