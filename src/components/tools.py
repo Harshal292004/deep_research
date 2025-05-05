@@ -40,12 +40,20 @@ from utilities.helpers.logger import log
 
 async def duckduckgo_search(input:DuckDuckGoQuery) -> List[DuckDuckGoOutput]:
     wrapper = DuckDuckGoSearchAPIWrapper(max_results=input.max_results)
-    search = DuckDuckGoSearchResults(api_wrapper=wrapper, source="news")
+    search = DuckDuckGoSearchResults(output_format="list",api_wrapper=wrapper, source="news")
     try:
         log.debug(f"Starting DuckDuckGo search with query: {input.query}")
         results = await search.ainvoke(input.query)
         log.info(f"Search completed with {len(results)} results.")
-        return results
+        
+        items = [
+            DuckDuckGoOutput(            
+                title=result["title"], link=result['link'], snippet=result['snippet']
+            )
+            for result in results
+        ]
+          
+        return items
     except Exception as e:
         log.error(f"Error during DuckDuckGo search: {e}")
         return []

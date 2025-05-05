@@ -3,29 +3,8 @@ from rich.logging import RichHandler
 import logging
 import os
 
-
-class AnsiColorFormatter(logging.Formatter):
-    COLORS = {
-        "DEBUG": "\033[36m",  # Cyan
-        "INFO": "\033[32m",  # Green
-        "WARNING": "\033[33m",  # Yellow
-        "ERROR": "\033[31m",  # Red
-        "CRITICAL": "\033[41m",  # Red background
-        "RESET": "\033[0m",
-    }
-
-    def format(self, record):
-        levelname = record.levelname
-        color = self.COLORS.get(levelname, "")
-        reset = self.COLORS["RESET"]
-
-        message = super().format(record)
-        return f"{color}{message}{reset}"
-
-
 class Logger:
     def __init__(self, name: str, env: str = "development", log_file: str = "app.log"):
-        self.name = name
         self.env = env.lower()
         self.log_file = log_file
         self.logger = logging.getLogger(name)
@@ -49,19 +28,13 @@ class Logger:
             markup=True,
         )
         console_formatter = logging.Formatter(
-            "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            "%(asctime)s | %(levelname)-8s | %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         console_handler.setFormatter(console_formatter)
 
         # File handler with ANSI color codes
         file_handler = logging.FileHandler(self.log_file, mode="a")
-        file_formatter = AnsiColorFormatter(
-            "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        file_handler.setFormatter(file_formatter)
-
         self.logger.addHandler(console_handler)
         self.logger.addHandler(file_handler)
 

@@ -251,76 +251,63 @@ async def get_tool_output(
 
     if exa_query:
         exa_output = exa_search(input=exa_query)
-        log.debug(f"exa_output type: {type(exa_output)} | Content: {exa_output}")
 
     if serper_query:
         serper_output = await serper_search(input=serper_query)
-        log.debug(f"serper_output type: {type(serper_output)} | Content: {serper_output}")
-
     if github_user_query:
         github_user_output = await GitHubInspector.get_user_by_name(input=github_user_query)
-        log.debug(f"github_user_output type: {type(github_user_output)} | Content: {github_user_output}")
-
+        
     if github_repo_query:
         github_repo_output = await GitHubInspector.get_repo_by_name(input=github_repo_query)
-        log.debug(f"github_repo_output type: {type(github_repo_output)} | Content: {github_repo_output}")
-
+        
     if github_org_query:
         github_org_output = await GitHubInspector.get_org_by_name(input=github_org_query)
-        log.debug(f"github_org_output type: {type(github_org_output)} | Content: {github_org_output}")
-
+        
     if github_language_query:
         github_language_output = await GitHubInspector.search_repos_by_language(input=github_language_query)
-        log.debug(f"github_language_output type: {type(github_language_output)} | Content: {github_language_output}")
-
+        
     if arxiv_query:
         arxiv_output = await arxiv_search(input=arxiv_query)
-        log.debug(f"arxiv_output type: {type(arxiv_output)} | Content: {arxiv_output}")
-
+        
     if tavily_query:
         tavily_output = await tavily_search(input=tavily_query)
-        log.debug(f"tavily_output type: {type(tavily_output)} | Content: {tavily_output}")
-
+        
+        
     # Log the final output schema and populate based on query type
     log.debug(f"Final type_of_query: {type_of_query}")
+    output= output_schema()
     
     if type_of_query == "factual_query":
-        output_schema.duckduckgo_output = duckduckgo_output
-        output_schema.exa_output = exa_output
-        output_schema.tavily_output = tavily_output
-        log.debug(f"Factual query outputs: {output_schema}")
+        output.duckduckgo_output = duckduckgo_output
+        output.exa_output = exa_output
+        output.tavily_output = tavily_output
 
     elif type_of_query == "comparative_evaluative_query":
-        output_schema.duckduckgo_output = duckduckgo_output
-        output_schema.exa_output = exa_output
-        output_schema.tavily_output = tavily_output
-        output_schema.serper_output = serper_output
-        log.debug(f"Comparative evaluative query outputs: {output_schema}")
+        output.duckduckgo_output = duckduckgo_output
+        output.exa_output = exa_output
+        output.tavily_output = tavily_output
+        output.serper_output = serper_output
 
     elif type_of_query == "research_oriented_query":
-        output_schema.arxiv_output = arxiv_output
-        output_schema.exa_output = exa_output
-        output_schema.tavily_output = tavily_output
-        output_schema.serper_output = serper_output
-        log.debug(f"Research oriented query outputs: {output_schema}")
+        output.arxiv_output = arxiv_output
+        output.exa_output = exa_output
+        output.tavily_output = tavily_output
+        output.serper_output = serper_output
 
     elif type_of_query == "execution_programming_query":
-        output_schema.duckduckgo_output = duckduckgo_output
-        output_schema.exa_output = exa_output
-        output_schema.tavily_output = tavily_output
-        output_schema.github_user_output = github_user_output
-        output_schema.github_repo_output = github_repo_output
-        output_schema.github_org_output = github_org_output
-        output_schema.github_language_output = github_language_output
-        log.debug(f"Execution programming query outputs: {output_schema}")
+        output.duckduckgo_output = duckduckgo_output
+        output.exa_output = exa_output
+        output.tavily_output = tavily_output
+        output.github_user_output = github_user_output
+        output.github_repo_output = github_repo_output
+        output.github_org_output = github_org_output
+        output.github_language_output = github_language_outpu
 
     elif type_of_query == "idea_generation":
-        output_schema.duckduckgo_output = duckduckgo_output
-        output_schema.exa_output = exa_output
-        log.debug(f"Idea generation outputs: {output_schema}")
-
-    log.debug(f"Returning output schema: {output_schema}")
-    return output_schema
+        output.duckduckgo_output = duckduckgo_output
+        output.exa_output = exa_output
+        
+    return output
 
 
 
@@ -330,11 +317,8 @@ async def tool_output_node(state: ResearchState):
 
         queries = state.queries
         type_of_query = state.type_of_query
-        log.debug(f"Retrieved queries: {queries}")
-        log.debug(f"Query type: {type_of_query}")
         
         sechema_of_output = tool_output_map.get(type_of_query)
-        log.debug(f"Schema of output: {sechema_of_output}")
 
         output_list = []
         for query in queries:
@@ -348,16 +332,6 @@ async def tool_output_node(state: ResearchState):
             github_language_query = getattr(query.query_state, "github_language_query", None)
             arxiv_query = getattr(query.query_state, "arxiv_query", None)
             tavily_query = getattr(query.query_state, "tavily_query", None)
-
-            log.debug(f"duckduckgo_query: {duckduckgo_query}")
-            log.debug(f"exa_query: {exa_query}")
-            log.debug(f"serper_query: {serper_query}")
-            log.debug(f"github_user_query: {github_user_query}")
-            log.debug(f"github_repo_query: {github_repo_query}")
-            log.debug(f"github_org_query: {github_org_query}")
-            log.debug(f"github_language_query: {github_language_query}")
-            log.debug(f"arxiv_query: {arxiv_query}")
-            log.debug(f"tavily_query: {tavily_query}")
 
             output = await get_tool_output(
                 duckduckgo_query=duckduckgo_query,
@@ -373,7 +347,7 @@ async def tool_output_node(state: ResearchState):
                 type_of_query=type_of_query,
             )
 
-            log.debug(f"Received output: {output}")
+            log.debug(f"Received output: {type(output)} {output}")
             output_list.append(OutputState(section_id=query.section_id, output_state=output))
 
         final_output_list = [ {'section_id':o.section_id,'output_state':o.output_state.dict()} for o in output_list]

@@ -20,7 +20,7 @@ from utilities.states.research_state import ResearchState
 from langgraph.graph import StateGraph, START, END
 from langgraph.checkpoint.memory import MemorySaver
 import asyncio
-
+from utilities.helpers.logger import log
 section_builder = StateGraph(ReportState)
 # register nodes
 section_builder.add_node("router_node", router_node)
@@ -102,12 +102,11 @@ async def main():
     ):
         research_state= state
     
-    print(research_state)
     research_state=ResearchState(**research_state[1])
     
-    print(research_state.queries+" \n\n\n\n")
-    
-    print(research_state.outputs)
+    log.debug(f"The research state queries are: {research_state.queries}")
+    log.debug(f"\n\n\n\nThe research state outputs are: {research_state.outputs}")
+
     
     
     # async for state in writer_graph.astream(
