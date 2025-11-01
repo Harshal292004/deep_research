@@ -397,7 +397,7 @@ def roll_out_output(state, refrence: Reference, section: Section):
 
         if serper_output:
             rolled_out_str += "SERPER SEARCH:\n\n\n"
-            for organic in serper_output:
+            for organic in serper_output.organic_results:
                 organic_string = f"{organic.title} {organic.snippet} \n\n"
                 organic_string = organic_string[:2000]
                 rolled_out_str += organic_string
@@ -454,10 +454,11 @@ def roll_out_output(state, refrence: Reference, section: Section):
 async def detailed_section_writer_node(state: WriterState):
     try:
         log.debug("Starting detailed section writer...")
-
+        log.debug("State: %s", state)
         schema_output = tool_output_map.get(state.type_of_query)
         outputs = state.outputs
         sections = state.sections.sections
+        log.debug("Sections: %s", sections)
         ref_list = []
         section_written = None
 
@@ -506,7 +507,12 @@ async def detailed_section_writer_node(state: WriterState):
 
     except Exception as e:
         log.error(f"Error in detailed_section_writer_node: {e}")
-        return {"sections": {"sections": None}}
+        existing_sections = (
+            [sec.dict() for sec in getattr(getattr(state, "sections", None), "sections", [])]
+            if getattr(state, "sections", None) is not None
+            else []
+        )
+        return {"sections": {"sections": existing_sections}}
 
 
 async def detailed_header_writer_node(state: WriterState):
@@ -578,12 +584,15 @@ async def report_formatter_node(state: WriterState):
     try:
         log.debug("Starting report formatter...")
 
-        header_str = (
-            f"Title: {state.header.title}\n\nSummary: {state.header.summary}\n\n"
-        )
+        header = getattr(state, "header", None)
+        header_title = getattr(header, "title", "") if header else ""
+        header_summary = getattr(header, "summary", "") if header else ""
+        header_str = f"Title: {header_title}\n\nSummary: {header_summary}\n\n"
 
+        sections_container = getattr(state, "sections", None)
+        sections_list = getattr(sections_container, "sections", []) if sections_container else []
         section_str = ""
-        for sec in state.sections.sections:
+        for sec in sections_list:
             sec_str = (
                 f"Section {sec.section_id}: {sec.name}\n"
                 f"Description: {sec.description}\n"
@@ -591,14 +600,17 @@ async def report_formatter_node(state: WriterState):
             )
             section_str += sec_str
 
-        conclusion_str = f"Conclusion: {state.footer.conclusion}\n"
+        footer = getattr(state, "footer", None)
+        conclusion_text = getattr(footer, "conclusion", "") if footer else ""
+        conclusion_str = f"Conclusion: {conclusion_text}\n"
 
+        references_list = getattr(state, "references", []) or []
         reference_str = ""
-        for reference in state.references:
+        for reference in references_list:
             url_str = ""
-            for url in reference.source_url:
+            for url in getattr(reference, "source_url", []) or []:
                 url_str += f"{url} \n"
-            ref_str = f"Refrence: {reference.section_id} Name: {reference.section_name} url: {url_str} "
+            ref_str = f"Refrence: {getattr(reference, 'section_id', '')} Name: {getattr(reference, 'section_name', '')} url: {url_str} "
             reference_str += ref_str
 
         response = await get_report_formator_chain().ainvoke(

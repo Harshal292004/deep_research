@@ -12,6 +12,7 @@ from utilities.states.tool_state import (
     DuckDuckGoQuery,
     ExaQuery,
     SerperQuery,
+    SearchResult,
     GitHubRepoQuery,
     GitHubUserQuery,
     GitHubOrgQuery,
@@ -106,7 +107,12 @@ async def serper_search(input: SerperQuery) -> SerperQueryOutput:
     country = await get_location()
     country = country.country
     payload = json.dumps(
-        {"q": input.query, "gl": country, "num": input.num, "tbs": input.tbs}
+        {
+            "q": input.query,
+            "gl": country,
+            "num": input.num_results,
+            "tbs": input.tbs,
+        }
     )
     headers = {"X-API-KEY": settings.SERPER_API_KEY, "Content-Type": "application/json"}
     try:
@@ -114,12 +120,19 @@ async def serper_search(input: SerperQuery) -> SerperQueryOutput:
         conn.request("POST", "/search", payload, headers)
         res = conn.getresponse()
         data = json.loads(res.read())
-        organic = [OrganicItem(**item) for item in data.get("organic", [])]
-        log.info(f"Serper search completed: {len(organic)} results")
-        return SereprSearchOutput(organic=organic)
+        organic_items = [
+            SearchResult(
+                title=item.get("title", ""),
+                link=item.get("link", ""),
+                snippet=item.get("snippet", ""),
+            )
+            for item in data.get("organic", [])
+        ]
+        log.info(f"Serper search completed: {len(organic_items)} results")
+        return SerperQueryOutput(organic_results=organic_items)
     except Exception as e:
         log.error(f"Serper search failed: {e}")
-        return SereprSearchOutput(organic=[])
+        return SerperQueryOutput(organic_results=[])
 
 
 async def tavily_search(input: TavilyQuery) -> TavilyQueryOutput:

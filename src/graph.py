@@ -80,7 +80,7 @@ async def main():
 
     async for state in section_graph.astream(
         {
-            "query": "What is the current status of the american tariffs?",
+            "query": "Comparative analysis of top-tier superbikes (2020–2025): MSRP vs real-world transaction prices, available trims and options, full specifications (power, weight, chassis, electronics), warranty and maintenance costs, resale values, and total cost of ownership across major markets (US, EU, UK, India, Japan).",
             "user_feedback": " ",
         },
         stream_mode=["values"],
@@ -96,7 +96,7 @@ async def main():
     async for state in research_graph.astream(
         {
             "query": report_state.query,
-            "type_query": report_state.type_of_query,
+            "type_of_query": report_state.type_of_query,
             "sections": report_state.sections.sections,
         },
         stream_mode=["values"],
@@ -108,13 +108,14 @@ async def main():
         research_state = state
 
     research_state = ResearchState(**research_state[1])
-
+    log.warn("Report state:",research_state)
+    log.warn("Outputs:",research_state.outputs)
     async for state in writer_graph.astream(
         {
             "query": report_state.query,
-            "type_query": report_state.type_of_query,
+            "type_of_query": report_state.type_of_query,
             "sections": report_state.sections,
-            "output_list": research_state.outputs,
+            "outputs": research_state.outputs,
             "header": report_state.header,
             "footer": report_state.footer,
         },
