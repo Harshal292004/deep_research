@@ -1,5 +1,7 @@
 """Configuration settings"""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     EXA_API_KEY: str = ""
@@ -14,5 +16,5 @@ class Settings(BaseSettings):
     TEXT_GROQ_MODEL_NAME: str = "llama-3.3-70b-versatile"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-settings = Settings()
 
+settings = Settings()

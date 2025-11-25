@@ -1,9 +1,13 @@
 """LLM Provider"""
-from src.config import settings
-from pydantic import BaseModel ,SecretStr
+
 from typing import Optional, Type
-from langchain_groq import ChatGroq
+
 from langchain_core.language_models import BaseChatModel
+from langchain_groq import ChatGroq
+from pydantic import BaseModel, SecretStr
+
+from src.config import settings
+
 
 class LLMProvider:
     _groq_api_key = settings.GROQ_API_KEY
@@ -17,7 +21,9 @@ class LLMProvider:
         )
 
     @classmethod
-    def structuredtextclient(cls, schema: Type[BaseModel], model_name: Optional[str] = None):
+    def structuredtextclient(
+        cls, schema: Type[BaseModel], model_name: Optional[str] = None
+    ):
         model = cls._init_chat_model(model_name)
         return model.with_structured_output(schema)
 

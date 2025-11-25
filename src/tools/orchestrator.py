@@ -1,14 +1,29 @@
 """Tool execution orchestrator"""
-from typing import Optional, Any
+
+from typing import Any, Optional
+
+from src.models.state import QUERY_TYPE_TOOLS
 from src.models.tools import (
-    DuckDuckGoQuery, ExaQuery, SerperQuery, GitHubUserQuery, GitHubRepoQuery,
-    GitHubOrgQuery, GitHubLanguageQuery, ArxivQuery, TavilyQuery
-)
-from src.tools.search import (
-    duckduckgo_search, exa_search, serper_search, tavily_search, arxiv_search
+    ArxivQuery,
+    DuckDuckGoQuery,
+    ExaQuery,
+    GitHubLanguageQuery,
+    GitHubOrgQuery,
+    GitHubRepoQuery,
+    GitHubUserQuery,
+    SerperQuery,
+    TavilyQuery,
 )
 from src.tools.github import GitHubInspector as GitHubInspectorClass
-from src.models.state import QUERY_TYPE_TOOLS
+from src.tools.search import (
+    arxiv_search,
+    duckduckgo_search,
+    exa_search,
+    serper_search,
+    tavily_search,
+)
+
+
 async def get_tool_output(
     duckduckgo_query: Optional[DuckDuckGoQuery],
     exa_query: Optional[ExaQuery],
@@ -25,10 +40,10 @@ async def get_tool_output(
     """Execute tools based on query type and populate output"""
     # Initialize the output
     output = output_schema()
-    
+
     # Get tools for this query type
     tools_for_type = QUERY_TYPE_TOOLS.get(type_of_query, [])
-    
+
     # Execute tools based on query type
     if duckduckgo_query and "duckduckgo" in tools_for_type:
         output.duckduckgo_output = await duckduckgo_search(input=duckduckgo_query)
@@ -38,7 +53,7 @@ async def get_tool_output(
 
     if serper_query and "serper" in tools_for_type:
         output.serper_output = await serper_search(input=serper_query)
-        
+
     if github_user_query and "github_user" in tools_for_type:
         inspector = GitHubInspectorClass()
         output.github_user_output = await inspector.get_user_by_name(
@@ -70,4 +85,3 @@ async def get_tool_output(
         output.tavily_output = await tavily_search(input=tavily_query)
 
     return output
-

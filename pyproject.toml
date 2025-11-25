@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "autoflake>=2.3.1",
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
     "httpx>=0.25.0",
@@ -23,5 +22,5 @@ dependencies = [
     "pygithub>=2.6.1",
     "arxiv>=2.2.0",
     "langchain-groq>=0.3.2",
-    "tavily-python>=0.7.1"
+    "tavily-python>=0.7.1",
 ]

@@ -1,7 +1,10 @@
 """Report structure models"""
-from pydantic import BaseModel, Field
+
 from typing import List, Optional
 from uuid import uuid4
+
+from pydantic import BaseModel, Field
+
 
 class Section(BaseModel):
     section_id: str = Field(
@@ -16,6 +19,7 @@ class Section(BaseModel):
     )
     content: str = Field(description="The main content or body of the section.")
 
+
 class DetailedSection(BaseModel):
     name: str = Field(description="The name of the section")
     description: str = Field(
@@ -23,10 +27,12 @@ class DetailedSection(BaseModel):
     )
     content: str = Field(description="The main content or body of the section.")
 
+
 class Sections(BaseModel):
     sections: List[Section] = Field(
         description="A collection of sections that make up the report."
     )
+
 
 class Header(BaseModel):
     title: Optional[str] = Field(default=None, description="The title of the report.")
@@ -35,10 +41,12 @@ class Header(BaseModel):
         description="A brief summary or abstract of the report's content and findings.",
     )
 
+
 class Footer(BaseModel):
     conclusion: str = Field(
         description="The concluding section of the report, summarizing key takeaways and final thoughts."
     )
+
 
 class Reference(BaseModel):
     section_name: Optional[str] = Field(
@@ -53,4 +61,3 @@ class Reference(BaseModel):
         default=[],
         description="A list of URLs or sources where additional information can be found related to this reference.",
     )
-

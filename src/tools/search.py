@@ -1,27 +1,39 @@
 """Search tool implementations"""
-import json
-import aiohttp
+
 import http.client
+import json
 from typing import List
+
+import aiohttp
+from exa_py import Exa
 from langchain_community.tools import DuckDuckGoSearchResults
 from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
 from langchain_community.utilities.arxiv import ArxivAPIWrapper
-from src.models.tools import (
-    DuckDuckGoQuery, ExaQuery, SerperQuery, ArxivQuery, TavilyQuery,
-    DuckDuckGoOutput, ExaOutput, SerperQueryOutput, TavilyQueryOutput, ArxivOutput,
-    SearchResult, LocationOutput, TavilyItem
-)
-from exa_py import Exa
-from src.config import settings
 from tavily import AsyncTavilyClient
-from src.helpers.parsers import parse_arxiv_text
+
+from src.config import settings
 from src.helpers.logger import log
+from src.helpers.parsers import parse_arxiv_text
+from src.models.tools import (
+    ArxivOutput,
+    ArxivQuery,
+    DuckDuckGoOutput,
+    DuckDuckGoQuery,
+    ExaOutput,
+    ExaQuery,
+    LocationOutput,
+    SearchResult,
+    SerperQuery,
+    SerperQueryOutput,
+    TavilyItem,
+    TavilyQuery,
+    TavilyQueryOutput,
+)
+
 
 async def duckduckgo_search(input: DuckDuckGoQuery) -> List[DuckDuckGoOutput]:
     wrapper = DuckDuckGoSearchAPIWrapper(max_results=input.max_results)
-    search = DuckDuckGoSearchResults(
-        output_format="list", api_wrapper=wrapper
-    )
+    search = DuckDuckGoSearchResults(output_format="list", api_wrapper=wrapper)
     try:
         log.info(f"DuckDuckGo search: {input.query}")
         results = await search.ainvoke(input.query)
@@ -38,6 +50,7 @@ async def duckduckgo_search(input: DuckDuckGoQuery) -> List[DuckDuckGoOutput]:
     except Exception as e:
         log.error(f"DuckDuckGo search failed: {e}")
         return []
+
 
 def exa_search(input: ExaQuery) -> List[ExaOutput]:
     exa = Exa(api_key=settings.EXA_API_KEY)
@@ -61,6 +74,7 @@ def exa_search(input: ExaQuery) -> List[ExaOutput]:
         log.error(f"Exa search failed: {e}")
         return []
 
+
 async def get_location() -> LocationOutput:
     try:
         log.info("Fetching location")
@@ -74,6 +88,7 @@ async def get_location() -> LocationOutput:
     except Exception as e:
         log.error(f"Location fetch failed: {e}")
         return LocationOutput(country="")
+
 
 async def serper_search(input: SerperQuery) -> SerperQueryOutput:
     conn = http.client.HTTPSConnection("google.serper.dev")
@@ -107,6 +122,7 @@ async def serper_search(input: SerperQuery) -> SerperQueryOutput:
         log.error(f"Serper search failed: {e}")
         return SerperQueryOutput(organic_results=[])
 
+
 async def tavily_search(input: TavilyQuery) -> TavilyQueryOutput:
     tavily_client = AsyncTavilyClient(api_key=settings.TAVLIY_API_KEY)
     try:
@@ -127,6 +143,7 @@ async def tavily_search(input: TavilyQuery) -> TavilyQueryOutput:
         log.error(f"Tavily search failed: {e}")
         return TavilyQueryOutput(results=[])
 
+
 async def arxiv_search(input: ArxivQuery) -> ArxivOutput:
     wrapper = ArxivAPIWrapper(
         top_k_results=input.top_k_results,
@@ -135,13 +152,15 @@ async def arxiv_search(input: ArxivQuery) -> ArxivOutput:
         load_all_available_meta=input.load_all_available_meta,
         doc_content_chars_max=input.doc_content_chars_max,
         arxiv_exceptions=None,
-        arxiv_search=None
+        arxiv_search=None,
     )
     try:
         log.info(f"Arxiv search: {input.query}")
         docs = wrapper.run(input.query)
         parsed = parse_arxiv_text(raw_text=docs)
-        log.info(f"Arxiv search completed: {len(parsed.results) if isinstance(parsed.results, list) else 0} results")
+        log.info(
+            f"Arxiv search completed: {len(parsed.results) if isinstance(parsed.results, list) else 0} results"
+        )
         return parsed
     except Exception as e:
         log.error(f"Arxiv search failed: {e}")

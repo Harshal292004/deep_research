@@ -1,13 +1,23 @@
 """GitHub tool implementation"""
-from github import Github
+
 from typing import Optional
-from    src.models.tools import (
-    GitHubUserQuery, GitHubRepoQuery, GitHubOrgQuery, GitHubLanguageQuery,
-    GitHubUserOutput, GitHubRepoOutput, GitHubOrgOutput, GitHubLanguageOutput,
-    GitHubLanguageItem
+
+from github import Github
+
+from src.config import settings
+from src.helpers.logger import log
+from src.models.tools import (
+    GitHubLanguageItem,
+    GitHubLanguageOutput,
+    GitHubLanguageQuery,
+    GitHubOrgOutput,
+    GitHubOrgQuery,
+    GitHubRepoOutput,
+    GitHubRepoQuery,
+    GitHubUserOutput,
+    GitHubUserQuery,
 )
-from    src.config import settings
-from    src.helpers.logger import log
+
 
 class GitHubInspector:
     def __init__(self, token: Optional[str] = None):
@@ -84,26 +94,25 @@ class GitHubInspector:
     ) -> GitHubLanguageOutput:
         try:
             log.info(f"GitHub language search: {input.language}")
-            result = self.g.search_repositories(
-                query=f"language:{input.language}"
-            )
-            repos=[]
-            repo=result.get_page(0)
-            for r in repo:        
+            result = self.g.search_repositories(query=f"language:{input.language}")
+            repos = []
+            repo = result.get_page(0)
+            for r in repo:
                 repos.append(
                     GitHubLanguageItem(
                         name=r.name,
                         full_name=r.full_name,
                         stars=r.stargazers_count,
-                        url=r.html_url
+                        url=r.html_url,
                     )
                 )
                 if len(repos) == input.limit:
-                    break    
+                    break
             log.info(f"GitHub language search completed: {len(repos)} repos")
             return GitHubLanguageOutput(results=repos)
         except Exception as e:
             log.error(f"GitHub language search failed: {e}")
             return GitHubLanguageOutput(results=[])
+
 
 # Note: GitHubInspector should be instantiated per request with appropriate token

@@ -1,11 +1,13 @@
 """Structure nodes (header, section, footer)"""
-from src.models.state import ReportState
+
 from src.chains.builders import (
+    get_footer_writer_chain,
     get_header_chain,
     get_section_writer_chain,
-    get_footer_writer_chain
 )
 from src.helpers.logger import log
+from src.models.state import ReportState
+
 
 async def header_writer_node(state: ReportState):
     try:
@@ -13,7 +15,7 @@ async def header_writer_node(state: ReportState):
         query = state.query
         type_of_query = state.type_of_query
         chain = get_header_chain()
-        if chain:        
+        if chain:
             response = await chain.ainvoke(
                 {
                     "query": query,
@@ -29,6 +31,7 @@ async def header_writer_node(state: ReportState):
     except Exception as e:
         log.error(f"Error in header_writer_node: {e}")
         return {"header": {"title": "", "summary": ""}}
+
 
 async def section_writer_node(state: ReportState):
     try:
@@ -50,6 +53,7 @@ async def section_writer_node(state: ReportState):
     except Exception as e:
         log.error(f"Error in section_writer_node: {e}")
         return {"sections": {"sections": []}}
+
 
 async def footer_writer_node(state: ReportState):
     try:
@@ -78,4 +82,3 @@ async def footer_writer_node(state: ReportState):
     except Exception as e:
         log.error(f"Error in footer_writer_node: {e}")
         return {"footer": {"conclusion": ""}}
-

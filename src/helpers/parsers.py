@@ -1,6 +1,9 @@
 """Text parsing utilities"""
+
 import re
+
 from src.models.tools import ArxivDoc, ArxivOutput
+
 
 def parse_arxiv_text(raw_text: str) -> ArxivOutput:
     # Regex to split papers by "Published: ..."
@@ -28,4 +31,3 @@ def parse_arxiv_text(raw_text: str) -> ArxivOutput:
             )
 
     return ArxivOutput(results=results)
-

@@ -1,8 +1,16 @@
 """Research nodes (query generation, tool output)"""
-from src.models.state import ResearchState, QueryState, OutputState, ToolQueryState, ToolOutputState
+
 from src.chains.builders import get_search_queries_chain
-from src.tools.orchestrator import get_tool_output
 from src.helpers.logger import log
+from src.models.state import (
+    OutputState,
+    QueryState,
+    ResearchState,
+    ToolOutputState,
+    ToolQueryState,
+)
+from src.tools.orchestrator import get_tool_output
+
 
 async def query_generation_node(state: ResearchState):
     try:
@@ -11,12 +19,12 @@ async def query_generation_node(state: ResearchState):
         type_of_query = state.type_of_query
         schema_of_tools = ToolQueryState
         input_list = []
-        if state.sections:    
+        if state.sections:
             for section in state.sections:
                 if section.research:
                     section_string = f"Section: {section.name}\nDescription: {section.description}\nContent: {section.content}\n\n"
                     chain = get_search_queries_chain(schema=schema_of_tools)
-                    if chain:        
+                    if chain:
                         output = await chain.ainvoke(
                             {
                                 "type_of_query": type_of_query,
@@ -25,12 +33,15 @@ async def query_generation_node(state: ResearchState):
                             }
                         )
                         input_list.append(
-                            QueryState(section_id=section.section_id, query_state=output)
+                            QueryState(
+                                section_id=section.section_id, query_state=output
+                            )
                         )
         return {"queries": input_list}
     except Exception as e:
         log.error(f"Error in query_generation_node: {e}")
         return {"queries": None}
+
 
 async def tool_output_node(state: ResearchState):
     try:
@@ -39,7 +50,7 @@ async def tool_output_node(state: ResearchState):
         type_of_query = state.type_of_query
         schema_of_output = ToolOutputState
         output_list = []
-        if queries:     
+        if queries:
             for query in queries:
                 # Extract queries from unified ToolQueryState
                 duckduckgo_query = query.query_state.duckduckgo_query
@@ -74,4 +85,3 @@ async def tool_output_node(state: ResearchState):
     except Exception as e:
         log.error(f"Error in tool_output_node: {e}")
         return {"outputs": None}
-

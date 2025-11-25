@@ -1,7 +1,9 @@
+from typing import Any, Dict
+
 from fastapi import APIRouter
-from typing import Dict,Any
 
 router = APIRouter()
+
 
 @router.get("/health")
 async def health_check() -> Dict[str, Any]:
@@ -9,9 +11,5 @@ async def health_check() -> Dict[str, Any]:
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "services": {
-            "llm": "ok",
-            "tools": "ok"
-        }
+        "services": {"llm": "ok", "tools": "ok"},
     }
-

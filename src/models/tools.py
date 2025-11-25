@@ -1,7 +1,10 @@
 """Tool query and output models"""
-from pydantic import BaseModel, Field
+
 from typing import List, Optional, Union
+
+from pydantic import BaseModel, Field
 from typing_extensions import Literal
+
 
 # Search Result Base
 class SearchResult(BaseModel):
@@ -9,32 +12,39 @@ class SearchResult(BaseModel):
     link: str = Field(description="The link to the source of the search result")
     snippet: str = Field(description="A brief description or snippet from the source")
 
+
 # Location
 class LocationOutput(BaseModel):
     country: str = Field(description="The country for the search query results")
 
+
 # Output Models
 class DuckDuckGoOutput(SearchResult):
     pass
+
 
 class SerperQueryOutput(BaseModel):
     organic_results: List[SearchResult] = Field(
         description="The list of organic search results"
     )
 
+
 class TavilyItem(BaseModel):
     title: str = Field(description="The title of the search result")
     url: str = Field(description="The source URL of the search result")
     content: str = Field(description="Content or snippet of the webpage")
+
 
 class TavilyQueryOutput(BaseModel):
     results: List[TavilyItem] = Field(
         description="The output list from the Tavily search query"
     )
 
+
 class ExaOutput(BaseModel):
     highlights: List[str] = Field(description="list of highlights")
     url: str = Field(description="url of the highlights")
+
 
 class GitHubUserOutput(BaseModel):
     login: str = Field(description="GitHub username")
@@ -43,6 +53,7 @@ class GitHubUserOutput(BaseModel):
     followers: int = Field(description="Number of followers")
     bio: Optional[str] = Field(description="User's bio")
     location: Optional[str] = Field(description="User's location")
+
 
 class GitHubRepoOutput(BaseModel):
     name: str = Field(description="Repository name")
@@ -55,6 +66,7 @@ class GitHubRepoOutput(BaseModel):
         description="List of topics associated with the repository"
     )
 
+
 class GitHubOrgOutput(BaseModel):
     login: str = Field(description="Organization login")
     name: Optional[str] = Field(description="Organization name")
@@ -62,16 +74,19 @@ class GitHubOrgOutput(BaseModel):
     public_repos: int = Field(description="Number of public repositories")
     members: List[str] = Field(description="List of member usernames")
 
+
 class GitHubLanguageItem(BaseModel):
     name: str = Field(description="Repository name")
     full_name: str = Field(description="Full repository name")
     stars: int = Field(description="Number of stars")
     url: str = Field(description="URL of the repository")
 
+
 class GitHubLanguageOutput(BaseModel):
     results: List[GitHubLanguageItem] = Field(
         description="List of repositories matching the language search criteria"
     )
+
 
 class ArxivDoc(BaseModel):
     title: str = Field(description="Title of the arXiv paper")
@@ -79,10 +94,12 @@ class ArxivDoc(BaseModel):
     summary: str = Field(description="Abstract of the paper")
     published: str = Field(description="Date of publication")
 
+
 class ArxivOutput(BaseModel):
     results: Union[List[ArxivDoc], str] = Field(
         description="List of arXiv search results"
     )
+
 
 # Query Models
 class DuckDuckGoQuery(BaseModel):
@@ -90,6 +107,7 @@ class DuckDuckGoQuery(BaseModel):
     max_results: int = Field(
         ..., description="Number of results to return (min: 1, max: 4)"
     )
+
 
 class ExaQuery(BaseModel):
     query: str = Field(..., description="Search query for Exa")
@@ -108,6 +126,7 @@ class ExaQuery(BaseModel):
         "financial report",
     ] = Field(..., description="Category for search focus")
 
+
 class SerperQuery(BaseModel):
     query: str = Field(..., description="Search query")
     num_results: int = Field(..., description="Number of results to retrieve")
@@ -115,21 +134,26 @@ class SerperQuery(BaseModel):
         ..., description="Time filter for search results"
     )
 
+
 class GitHubUserQuery(BaseModel):
     username: str = Field(..., description="GitHub username for details")
+
 
 class GitHubRepoQuery(BaseModel):
     full_name: str = Field(
         ..., description="Full name of the repository (e.g., 'torvalds/linux')"
     )
 
+
 class GitHubOrgQuery(BaseModel):
     org_name: str = Field(..., description="Organization name")
     member_limit: int = Field(5, description="Maximum number of members to return")
 
+
 class GitHubLanguageQuery(BaseModel):
     language: str = Field(..., description="Programming language for repository search")
     limit: int = Field(3, description="Maximum number of repositories to return")
+
 
 class ArxivQuery(BaseModel):
     query: str = Field(..., description="Search query for arXiv")
@@ -143,6 +167,7 @@ class ArxivQuery(BaseModel):
         40000, description="Maximum character length of document content"
     )
 
+
 class TavilyQuery(BaseModel):
     query: str = Field(description="Search query for Tavily")
     topic: Literal["news", "general", "finance"] = Field(description="Topic for search")
@@ -152,4 +177,3 @@ class TavilyQuery(BaseModel):
     max_results: int = Field(
         default=3, description="Maximum number of results to return (max: 5)"
     )
-

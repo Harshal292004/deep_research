@@ -1,7 +1,9 @@
 """Router node"""
-from src.models.state import ReportState
+
 from src.chains.builders import get_router_chain
 from src.helpers.logger import log
+from src.models.state import ReportState
+
 
 async def router_node(state: ReportState):
     try:
@@ -14,4 +16,3 @@ async def router_node(state: ReportState):
     except Exception as e:
         log.error(f"Error in router_node: {e}")
         return {"type_of_query": "factual_query"}
-

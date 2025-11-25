@@ -1,18 +1,36 @@
 """Unified state models for the research pipeline"""
+
+from typing import List, Literal, Optional
+
 from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
-from src.models.report import Header, Sections, Footer, Reference, Section
+
+from src.models.report import Footer, Header, Reference, Section, Sections
 from src.models.tools import (
-    DuckDuckGoQuery, ExaQuery, SerperQuery, GitHubUserQuery, GitHubRepoQuery,
-    GitHubOrgQuery, GitHubLanguageQuery, ArxivQuery, TavilyQuery,
-    DuckDuckGoOutput, ExaOutput, SerperQueryOutput, TavilyQueryOutput,
-    GitHubUserOutput, GitHubRepoOutput, GitHubOrgOutput, GitHubLanguageOutput,
-    ArxivOutput
+    ArxivOutput,
+    ArxivQuery,
+    DuckDuckGoOutput,
+    DuckDuckGoQuery,
+    ExaOutput,
+    ExaQuery,
+    GitHubLanguageOutput,
+    GitHubLanguageQuery,
+    GitHubOrgOutput,
+    GitHubOrgQuery,
+    GitHubRepoOutput,
+    GitHubRepoQuery,
+    GitHubUserOutput,
+    GitHubUserQuery,
+    SerperQuery,
+    SerperQueryOutput,
+    TavilyQuery,
+    TavilyQueryOutput,
 )
+
 
 # Query State Models (unified with optional fields)
 class ToolQueryState(BaseModel):
     """Unified query state with all tools as optional fields"""
+
     duckduckgo_query: Optional[DuckDuckGoQuery] = None
     exa_query: Optional[ExaQuery] = None
     serper_query: Optional[SerperQuery] = None
@@ -23,9 +41,11 @@ class ToolQueryState(BaseModel):
     arxiv_query: Optional[ArxivQuery] = None
     tavily_query: Optional[TavilyQuery] = None
 
+
 # Output State Models (unified with optional fields)
 class ToolOutputState(BaseModel):
     """Unified output state with all tools as optional fields"""
+
     duckduckgo_output: Optional[List[DuckDuckGoOutput]] = None
     exa_output: Optional[List[ExaOutput]] = None
     serper_output: Optional[SerperQueryOutput] = None
@@ -36,16 +56,21 @@ class ToolOutputState(BaseModel):
     github_language_output: Optional[GitHubLanguageOutput] = None
     arxiv_output: Optional[ArxivOutput] = None
 
+
 # Query and Output State wrappers
 class QueryState(BaseModel):
     """Represents a specific query state with section identifier."""
+
     section_id: str
     query_state: ToolQueryState
 
+
 class OutputState(BaseModel):
     """Represents an output state with section identifier."""
+
     section_id: str
     output_state: ToolOutputState
+
 
 # Main State Models
 class ReportState(BaseModel):
@@ -69,8 +94,10 @@ class ReportState(BaseModel):
         default=None, description="The footer of the report"
     )
 
+
 class ResearchState(BaseModel):
     """Main research state containing query information, sections and results."""
+
     query: str = Field(description="The query given by the user")
     type_of_query: Literal[
         "factual_query",
@@ -90,6 +117,7 @@ class ResearchState(BaseModel):
     outputs: Optional[List[OutputState]] = Field(
         default=None, description="Output of the tools"
     )
+
 
 class WriterState(BaseModel):
     query: str = Field(description="The query by the user")
@@ -121,12 +149,20 @@ class WriterState(BaseModel):
         default=None, description="The actual formatted report"
     )
 
+
 # Tool registry mapping
 QUERY_TYPE_TOOLS = {
     "factual_query": ["duckduckgo", "exa", "tavily"],
     "comparative_evaluative_query": ["duckduckgo", "exa", "tavily", "serper"],
     "research_oriented_query": ["arxiv", "exa", "tavily", "serper"],
-    "execution_programming_query": ["duckduckgo", "exa", "tavily", "github_user", "github_repo", "github_org", "github_language"],
+    "execution_programming_query": [
+        "duckduckgo",
+        "exa",
+        "tavily",
+        "github_user",
+        "github_repo",
+        "github_org",
+        "github_language",
+    ],
     "idea_generation": ["duckduckgo", "exa"],
 }
-

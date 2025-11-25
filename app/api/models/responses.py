@@ -1,5 +1,7 @@
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+
 
 class TaskResponse(BaseModel):
     task_id: str
@@ -7,9 +9,11 @@ class TaskResponse(BaseModel):
     status: str
     created_at: str
 
+
 class ProgressInfo(BaseModel):
     current_stage: Optional[str] = None
     stage_progress: float = 0.0
+
 
 class ResearchStatusResponse(BaseModel):
     task_id: str
@@ -18,9 +22,11 @@ class ResearchStatusResponse(BaseModel):
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
+
 class SessionResponse(BaseModel):
     session_id: str
     created_at: str
+
 
 class MessageResponse(BaseModel):
     role: str
@@ -29,7 +35,7 @@ class MessageResponse(BaseModel):
     timestamp: str
     error: Optional[str] = None
 
+
 class ChatResponse(BaseModel):
     chat_id: str
     messages: List[MessageResponse]
-

@@ -1,14 +1,16 @@
 """Writer nodes (detailed section, header, footer, formatter)"""
-from src.models.state import WriterState
-from src.models.report import Reference
+
 from src.chains.builders import (
-    get_detailed_section_writer_chain,
-    get_detailed_header_writer_chain,
     get_detailed_footer_write_chain,
-    get_report_formator_chain
+    get_detailed_header_writer_chain,
+    get_detailed_section_writer_chain,
+    get_report_formator_chain,
 )
-from src.tools.formatter import roll_out_output
 from src.helpers.logger import log
+from src.models.report import Reference
+from src.models.state import WriterState
+from src.tools.formatter import roll_out_output
+
 
 async def detailed_section_writer_node(state: WriterState):
     try:
@@ -65,11 +67,15 @@ async def detailed_section_writer_node(state: WriterState):
     except Exception as e:
         log.error(f"Error in detailed_section_writer_node: {e}")
         existing_sections = (
-            [sec.dict() for sec in getattr(getattr(state, "sections", None), "sections", [])]
+            [
+                sec.dict()
+                for sec in getattr(getattr(state, "sections", None), "sections", [])
+            ]
             if getattr(state, "sections", None) is not None
             else []
         )
         return {"sections": {"sections": existing_sections}}
+
 
 async def detailed_header_writer_node(state: WriterState):
     try:
@@ -104,6 +110,7 @@ async def detailed_header_writer_node(state: WriterState):
         log.error(f"Error in detailed_header_writer_node: {e}")
         return {"header": {"summary": None}}
 
+
 async def detailed_footer_writer_node(state: WriterState):
     try:
         log.debug("Starting detailed footer writer...")
@@ -131,6 +138,7 @@ async def detailed_footer_writer_node(state: WriterState):
         log.error(f"Error in detailed_footer_writer_node: {e}")
         return {"footer": {"conclusion": None}}
 
+
 async def report_formatter_node(state: WriterState):
     try:
         log.debug("Starting report formatter...")
@@ -141,7 +149,9 @@ async def report_formatter_node(state: WriterState):
         header_str = f"Title: {header_title}\n\nSummary: {header_summary}\n\n"
 
         sections_container = getattr(state, "sections", None)
-        sections_list = getattr(sections_container, "sections", []) if sections_container else []
+        sections_list = (
+            getattr(sections_container, "sections", []) if sections_container else []
+        )
         section_str = ""
         for sec in sections_list:
             sec_str = (
@@ -177,4 +187,3 @@ async def report_formatter_node(state: WriterState):
     except Exception as e:
         log.error(f"Error in report_formatter_node: {e}")
         return {"markdown": None}
-

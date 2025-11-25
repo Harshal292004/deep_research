@@ -1,7 +1,10 @@
 """Logging setup"""
+
+import logging
+
 from rich.console import Console
 from rich.logging import RichHandler
-import logging
+
 
 class Logger:
     def __init__(self, name: str, env: str = "development", log_file: str = "app.log"):
@@ -41,5 +44,5 @@ class Logger:
     def get_logger(self):
         return self.logger
 
-log = Logger("Agent", env="development", log_file="app.log").get_logger()
 
+log = Logger("Agent", env="development", log_file="app.log").get_logger()

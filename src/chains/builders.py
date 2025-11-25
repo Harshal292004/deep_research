@@ -1,16 +1,15 @@
-from src.models.report import (
-    Header,
-    Sections,
-    DetailedSection,
-)
-from src.prompts.templates import Prompts
+from typing import Optional, Type
+
+from langchain_core.runnables import Runnable
+from pydantic import BaseModel
+
 from src.helpers.llm import LLMProvider
 from src.helpers.logger import log
-from pydantic import BaseModel
-from typing import Type,Optional
-from langchain_core.runnables import Runnable
+from src.models.report import DetailedSection, Header, Sections
+from src.prompts.templates import Prompts
 
-def get_router_chain()-> Optional[Runnable]:
+
+def get_router_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_router_chain...")
         prompt = Prompts.get_router_prompt()
@@ -22,7 +21,8 @@ def get_router_chain()-> Optional[Runnable]:
         log.error(f"Error in get_router_chain: {e}")
         return None
 
-def get_header_chain()-> Optional[Runnable]:
+
+def get_header_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_header_chain...")
         prompt = Prompts.get_header_prompt()
@@ -34,7 +34,8 @@ def get_header_chain()-> Optional[Runnable]:
         log.error(f"Error in get_header_chain: {e}")
         return None
 
-def get_section_writer_chain()-> Optional[Runnable]:
+
+def get_section_writer_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_section_writer_chain...")
         prompt = Prompts.get_section_writer_prompt()
@@ -47,7 +48,7 @@ def get_section_writer_chain()-> Optional[Runnable]:
         return None
 
 
-def get_footer_writer_chain()-> Optional[Runnable]:
+def get_footer_writer_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_footer_writer_chain...")
         prompt = Prompts.get_footer_writer_prompt()
@@ -60,7 +61,7 @@ def get_footer_writer_chain()-> Optional[Runnable]:
         return None
 
 
-def get_search_queries_chain(schema: Type[BaseModel])-> Optional[Runnable]:
+def get_search_queries_chain(schema: Type[BaseModel]) -> Optional[Runnable]:
     try:
         log.debug("Starting get_search_queries_chain...")
         prompt = Prompts.get_search_queries_prompt()
@@ -73,7 +74,7 @@ def get_search_queries_chain(schema: Type[BaseModel])-> Optional[Runnable]:
         return None
 
 
-def get_detailed_section_writer_chain()-> Optional[Runnable]:
+def get_detailed_section_writer_chain() -> Optional[Runnable]:
     try:
         prompt = Prompts.get_detailed_section_writer_prompt()
         llm = LLMProvider.structuredtextclient(schema=DetailedSection)
@@ -83,7 +84,7 @@ def get_detailed_section_writer_chain()-> Optional[Runnable]:
         return None
 
 
-def get_detailed_header_writer_chain()-> Optional[Runnable]:
+def get_detailed_header_writer_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_detailed_header_writer_chain...")
         prompt = Prompts.get_detailed_header_writer_prompt()
@@ -94,7 +95,7 @@ def get_detailed_header_writer_chain()-> Optional[Runnable]:
         return None
 
 
-def get_detailed_footer_write_chain()-> Optional[Runnable]:
+def get_detailed_footer_write_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_detailed_footer_writer_chain...")
         prompt = Prompts.get_detailed_footer_write_prompt()
@@ -107,7 +108,7 @@ def get_detailed_footer_write_chain()-> Optional[Runnable]:
         return None
 
 
-def get_report_formator_chain()-> Optional[Runnable]:
+def get_report_formator_chain() -> Optional[Runnable]:
     try:
         log.debug("Starting get_report_formator_chain...")
         prompt = Prompts.get_report_formator_prompt()

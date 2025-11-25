@@ -1,7 +1,9 @@
 """Tool output formatter"""
+
+from src.helpers.logger import log
 from src.models.report import Reference, Section
 from src.models.state import ToolOutputState
-from src.helpers.logger import log
+
 
 def roll_out_output(state: ToolOutputState, refrence: Reference, section: Section):
     """Format tool output into string and collect references"""
@@ -81,4 +83,3 @@ def roll_out_output(state: ToolOutputState, refrence: Reference, section: Sectio
     except Exception as e:
         log.error(f"Error occurred in roll_out_output: {e}")
         return None, None
-
