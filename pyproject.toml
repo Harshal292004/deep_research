@@ -29,4 +29,5 @@ dependencies = [
     "langchain-groq>=0.3.2",
     "tavily-python>=0.7.1",
     "nltk>=3.9.1",
+    "streamlit>=1.51.0",
 ]
