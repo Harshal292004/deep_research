@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,7 +32,22 @@ class Settings(BaseSettings):
 
     # Model Configuration
     TEXT_GROQ_MODEL_NAME: str = "llama-3.3-70b-versatile"
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Read PORT from environment (Render sets this dynamically)
+        port_env = os.getenv("PORT")
+        if port_env:
+            self.PORT = int(port_env)
+
+        # Read CORS_ORIGINS from environment (comma-separated list)
+        cors_env = os.getenv("CORS_ORIGINS")
+        if cors_env:
+            self.CORS_ORIGINS = [
+                origin.strip() for origin in cors_env.split(",") if origin.strip()
+            ]
 
 
 settings = Settings()
