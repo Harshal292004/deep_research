@@ -1,16 +1,6 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
+.streamlit
 .venv
-deep
-
-.env
-src/utilities/__pycache__
-Learn.md
-old_prompts.py
+__pycahce__
+*/secrets.toml
+secrets.toml
+.python-version
