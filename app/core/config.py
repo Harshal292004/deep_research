@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     # API Configuration
     API_V1_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: List[str] = ["http://localhost:8501", "http://localhost:3000"]
+    CORS_ORIGINS: str = "*"
 
     # Server Configuration
     HOST: str = "0.0.0.0"
@@ -24,15 +24,12 @@ class Settings(BaseSettings):
     TAVLIY_API_KEY: str = ""
     GITHUB_ACCESS_TOKEN: str = ""
     GROQ_API_KEY: str = ""
-
     # Langfuse (optional)
     LANGFUSE_SECRET_KEY: str = ""
     LANGFUSE_PUBLIC_KEY: str = ""
     LANGFUSE_HOST: str = "https://cloud.langfuse.com"
-
     # Model Configuration
     TEXT_GROQ_MODEL_NAME: str = "llama-3.3-70b-versatile"
-
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     def __init__(self, **kwargs):
@@ -41,13 +38,6 @@ class Settings(BaseSettings):
         port_env = os.getenv("PORT")
         if port_env:
             self.PORT = int(port_env)
-
-        # Read CORS_ORIGINS from environment (comma-separated list)
-        cors_env = os.getenv("CORS_ORIGINS")
-        if cors_env:
-            self.CORS_ORIGINS = [
-                origin.strip() for origin in cors_env.split(",") if origin.strip()
-            ]
 
 
 settings = Settings()
