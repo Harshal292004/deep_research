@@ -1,14 +1,10 @@
 import streamlit as st
 import asyncio
 import os
-import sys
 from datetime import datetime
 from typing import Optional
 import uuid
-import importlib
-
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+from services.api_client import ResearchAPIClient
 
 # Page config
 st.set_page_config(
@@ -18,7 +14,22 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Initialize API client
+@st.cache_resource
+def get_api_client():
+    return ResearchAPIClient()
+
+api_client = get_api_client()
+
 # Initialize session state
+if 'session_id' not in st.session_state:
+    try:
+        response = asyncio.run(api_client.create_session())
+        st.session_state.session_id = response['session_id']
+    except Exception as e:
+        st.error(f"Failed to create session: {e}")
+        st.session_state.session_id = None
+
 if 'api_keys' not in st.session_state:
     st.session_state.api_keys = {
         'EXA_API_KEY': '',
@@ -44,16 +55,8 @@ if 'current_chat_messages' not in st.session_state:
 if 'processing' not in st.session_state:
     st.session_state.processing = False
 
-
-def set_environment_variables():
-    """Set environment variables from session state API keys"""
-    for key, value in st.session_state.api_keys.items():
-        if value:
-            os.environ[key] = value
-        else:
-            # Remove if empty to avoid using old values
-            os.environ.pop(key, None)
-
+if 'current_task_id' not in st.session_state:
+    st.session_state.current_task_id = None
 
 def validate_required_keys():
     """Check if all required API keys are set"""
@@ -67,7 +70,6 @@ def validate_required_keys():
     ]
     missing_keys = [key for key in required_keys if not st.session_state.api_keys.get(key, '').strip()]
     return len(missing_keys) == 0, missing_keys
-
 
 def create_new_chat():
     """Create a new chat session"""
@@ -83,7 +85,7 @@ def create_new_chat():
     # Create new chat
     st.session_state.current_chat_id = str(uuid.uuid4())
     st.session_state.current_chat_messages = []
-
+    st.session_state.current_task_id = None
 
 def load_chat(chat_id: str):
     """Load a chat from history"""
@@ -93,184 +95,48 @@ def load_chat(chat_id: str):
             st.session_state.current_chat_messages = chat['messages'].copy()
             break
 
-
 def delete_chat(chat_id: str):
     """Delete a chat from history"""
     st.session_state.chat_history = [chat for chat in st.session_state.chat_history if chat['id'] != chat_id]
     if st.session_state.current_chat_id == chat_id:
         create_new_chat()
 
-
-def load_graph_modules():
-    """Dynamically load graph modules after setting environment variables"""
-    # Set environment variables first
-    set_environment_variables()
-    
-    # Force reload of config module to pick up new env vars
-    # Pydantic settings reads from env vars at instantiation
-    if 'src.config' in sys.modules:
-        # Delete and reimport to force fresh Settings() instantiation
-        del sys.modules['src.config']
-    if 'config' in sys.modules:
-        del sys.modules['config']
-    
-    # Now reload dependent modules in order
-    modules_to_reload = [
-        'src.utilities.helpers.LLMProvider',
-        'src.components.tools',
-        'src.observability.langfuse_setup',
-    ]
-    
-    for module_name in modules_to_reload:
-        if module_name in sys.modules:
-            try:
-                importlib.reload(sys.modules[module_name])
-            except Exception:
-                # If reload fails, delete and reimport
-                if module_name in sys.modules:
-                    del sys.modules[module_name]
-    
-    # Reload graph module
-    if 'src.graph' in sys.modules:
-        try:
-            importlib.reload(sys.modules['src.graph'])
-        except Exception:
-            if 'src.graph' in sys.modules:
-                del sys.modules['src.graph']
-    
-    # Import after reload
-    from src.graph import section_graph, research_graph, writer_graph
-    from src.utilities.states.report_state import ReportState, WriterState
-    from src.utilities.states.research_state import ResearchState
-    from src import nodes
-    
-    # Patch verify_report_node to auto-approve in Streamlit (since input() doesn't work)
-    async def streamlit_verify_report_node(state: ReportState):
-        """Streamlit-compatible version that auto-approves the report"""
-        from src.utilities.helpers.logger import log
-        try:
-            log.debug("Starting verify_report_node (Streamlit mode - auto-approved)...")
-            # Auto-approve in Streamlit
-            return {"report_framework": True, "user_feedback": " "}
-        except Exception as e:
-            log.error(f"Error in verify_report_node: {e}")
-            return {"report_framework": True, "user_feedback": " "}
-    
-    # Replace the verify_report_node in the graph
-    # We need to rebuild the graph with the patched node
-    from langgraph.graph import StateGraph, START, END
-    from langgraph.checkpoint.memory import MemorySaver
-    from src.edges import verify_conditional_edge
-    
-    # Rebuild section graph with patched node
-    section_builder = StateGraph(ReportState)
-    section_builder.add_node("router_node", nodes.router_node)
-    section_builder.add_node("header_writer_node", nodes.header_writer_node)
-    section_builder.add_node("section_writer_node", nodes.section_writer_node)
-    section_builder.add_node("footer_writer_node", nodes.footer_writer_node)
-    section_builder.add_node("verify_report_node", streamlit_verify_report_node)
-    section_builder.add_edge(START, "router_node")
-    section_builder.add_edge("router_node", "header_writer_node")
-    section_builder.add_edge("header_writer_node", "section_writer_node")
-    section_builder.add_edge("section_writer_node", "footer_writer_node")
-    section_builder.add_edge("footer_writer_node", "verify_report_node")
-    section_builder.add_conditional_edges("verify_report_node", verify_conditional_edge)
-    
-    memory = MemorySaver()
-    section_graph = section_builder.compile(checkpointer=memory)
-    
-    return section_graph, research_graph, writer_graph, ReportState, WriterState, ResearchState
-
-
 async def run_research_pipeline(query: str, user_feedback: str = " "):
-    """Run the complete research pipeline"""
-    # Load modules with updated config (this also sets environment variables)
-    section_graph, research_graph, writer_graph, ReportState, WriterState, ResearchState = load_graph_modules()
-    
-    # Create langfuse handler if keys are provided
-    langfuse_callback = None
-    if (st.session_state.api_keys.get('LANGFUSE_PUBLIC_KEY', '').strip() and 
-        st.session_state.api_keys.get('LANGFUSE_SECRET_KEY', '').strip()):
-        try:
-            from langfuse.langchain import CallbackHandler
-            langfuse_callback = CallbackHandler(
-                public_key=st.session_state.api_keys['LANGFUSE_PUBLIC_KEY'],
-                secret_key=st.session_state.api_keys.get('LANGFUSE_SECRET_KEY', ''),
-                host=st.session_state.api_keys.get('LANGFUSE_HOST', 'https://cloud.langfuse.com')
-            )
-        except Exception as e:
-            from src.utilities.helpers.logger import log
-            log.error(f"Failed to initialize Langfuse: {e}")
-            langfuse_callback = None
-    
-    thread_id = st.session_state.current_chat_id or str(uuid.uuid4())
-    config_dict = {
-        "configurable": {"thread_id": thread_id},
-    }
-    if langfuse_callback:
-        config_dict["callbacks"] = [langfuse_callback]
-    
-    report_state: Optional[ReportState] = None
-    research_state: Optional[ResearchState] = None
-    writer_state: Optional[WriterState] = None
-    
-    # Section Graph
-    async for state in section_graph.astream(
-        {
-            "query": query,
-            "user_feedback": user_feedback,
-        },
-        stream_mode=["values"],
-        config=config_dict,
-    ):
-        report_state = state
-    
-    if not report_state:
-        return None, "Failed to generate report structure"
-    
-    report_state = ReportState(**report_state[1])
-    
-    # Research Graph
-    async for state in research_graph.astream(
-        {
-            "query": report_state.query,
-            "type_of_query": report_state.type_of_query,
-            "sections": report_state.sections.sections,
-        },
-        stream_mode=["values"],
-        config=config_dict,
-    ):
-        research_state = state
-    
-    if not research_state:
-        return None, "Failed to complete research phase"
-    
-    research_state = ResearchState(**research_state[1])
-    
-    # Writer Graph
-    async for state in writer_graph.astream(
-        {
-            "query": report_state.query,
-            "type_of_query": report_state.type_of_query,
-            "sections": report_state.sections,
-            "outputs": research_state.outputs,
-            "header": report_state.header,
-            "footer": report_state.footer,
-        },
-        config=config_dict,
-    ):
-        writer_state = state
-    
-    if not writer_state:
-        return None, "Failed to generate final report"
-    
-    # Extract markdown from writer state
-    markdown = getattr(writer_state, 'markdown', None)
-    if markdown:
-        return markdown, None
-    else:
-        return None, "Report generated but markdown not found"
-
+    """Run the complete research pipeline via API"""
+    try:
+        # Start research task
+        result = await api_client.start_research(
+            query=query,
+            api_keys=st.session_state.api_keys,
+            langfuse_config={
+                'public_key': st.session_state.api_keys.get('LANGFUSE_PUBLIC_KEY', ''),
+                'secret_key': st.session_state.api_keys.get('LANGFUSE_SECRET_KEY', ''),
+                'host': st.session_state.api_keys.get('LANGFUSE_HOST', 'https://cloud.langfuse.com')
+            } if st.session_state.api_keys.get('LANGFUSE_PUBLIC_KEY') else None,
+            session_id=st.session_state.session_id,
+            user_feedback=user_feedback
+        )
+        
+        task_id = result['task_id']
+        st.session_state.current_task_id = task_id
+        
+        # Poll for status
+        while True:
+            status = await api_client.get_research_status(task_id)
+            
+            if status['status'] == 'completed':
+                if status.get('result') and status['result'].get('markdown'):
+                    return status['result']['markdown'], None
+                else:
+                    return None, "Report generated but markdown not found"
+            elif status['status'] == 'failed':
+                return None, status.get('error', 'Unknown error')
+            
+            # Wait before next poll
+            await asyncio.sleep(2)
+            
+    except Exception as e:
+        return None, str(e)
 
 # Left Sidebar - Chat History
 with st.sidebar:
