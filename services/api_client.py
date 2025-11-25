@@ -3,10 +3,9 @@ import httpx
 import os
 from typing import Dict, Optional, AsyncGenerator
 import json
-
 class ResearchAPIClient:
-    def __init__(self, base_url: str = None):
-        self.base_url = base_url or os.getenv("BACKEND_URL", "http://localhost:8000")
+    def __init__(self, base_url: Optional[str] = None):
+        self.base_url = base_url or  "http://localhost:8000"
         self.client = httpx.AsyncClient(base_url=self.base_url, timeout=300.0)
     
     async def start_research(
@@ -15,7 +14,6 @@ class ResearchAPIClient:
         api_keys: Dict[str, str],
         langfuse_config: Optional[Dict[str, str]] = None,
         session_id: Optional[str] = None,
-        user_feedback: str = " "
     ) -> Dict:
         """Start a research task"""
         response = await self.client.post(
@@ -24,8 +22,7 @@ class ResearchAPIClient:
                 "query": query,
                 "api_keys": api_keys,
                 "langfuse_config": langfuse_config or {},
-                "session_id": session_id,
-                "user_feedback": user_feedback
+                "session_id": session_id
             }
         )
         response.raise_for_status()
