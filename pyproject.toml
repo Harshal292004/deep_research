@@ -1,10 +1,27 @@
 [project]
-name = "frontend"
+name = "backend"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
-    "httpx>=0.28.1",
-    "streamlit>=1.28.0",
+    "autoflake>=2.3.1",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "httpx>=0.25.0",
+    "nltk>=3.9.1",
+    "exa-py",
+    "langfuse",
+    "langchain-community>=0.3.13",
+    "langchain>=0.3.13",
+    "pydantic==2.10.0",
+    "langgraph>=0.2.60",
+    "pydantic-settings>=2.7.0",
+    "duckduckgo-search",
+    "langchain-exa",
+    "rich>=13.9.4",
+    "pygithub>=2.6.1",
+    "arxiv>=2.2.0",
+    "langchain-groq>=0.3.2",
+    "tavily-python>=0.7.1"
 ]
