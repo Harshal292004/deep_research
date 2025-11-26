@@ -1,2 +1,4 @@
 .venv
+backend
+requirements.txt
 __pycache__
